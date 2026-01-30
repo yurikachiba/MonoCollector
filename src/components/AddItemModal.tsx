@@ -76,8 +76,9 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       setName(result.name);
       setCategory(result.category);
       setLocation(result.location);
-    } catch {
-      alert('解析に失敗しました');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '不明なエラー';
+      alert(`解析に失敗しました: ${message}`);
     } finally {
       setIsAnalyzing(false);
     }
