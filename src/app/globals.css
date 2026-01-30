@@ -37,6 +37,13 @@ body {
   display: none;
 }
 
+/* Prevent horizontal scroll */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

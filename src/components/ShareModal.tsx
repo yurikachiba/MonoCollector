@@ -51,7 +51,7 @@ ${item.notes ? `メモ: ${item.notes}` : ''}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 overflow-hidden"
           onClick={onClose}
         >
           <motion.div
@@ -59,9 +59,9 @@ ${item.notes ? `メモ: ${item.notes}` : ''}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md"
+            className="w-full max-w-md max-h-[85vh] overflow-y-auto"
           >
-            <GlassCard>
+            <GlassCard className="!rounded-2xl">
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
