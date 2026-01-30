@@ -1,5 +1,3 @@
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
-
 export interface Item {
   id: string;
   name: string;
@@ -23,44 +21,6 @@ export interface Category {
   itemCount: number;
 }
 
-interface MonoCollectorDB extends DBSchema {
-  items: {
-    key: string;
-    value: Item;
-    indexes: { 'by-category': string; 'by-date': Date };
-  };
-  categories: {
-    key: string;
-    value: Category;
-  };
-}
-
-const DB_NAME = 'mono-collector-db';
-const DB_VERSION = 1;
-
-let dbInstance: IDBPDatabase<MonoCollectorDB> | null = null;
-
-export async function getDB(): Promise<IDBPDatabase<MonoCollectorDB>> {
-  if (dbInstance) return dbInstance;
-
-  dbInstance = await openDB<MonoCollectorDB>(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      // Items store
-      const itemStore = db.createObjectStore('items', { keyPath: 'id' });
-      itemStore.createIndex('by-category', 'category');
-      itemStore.createIndex('by-date', 'createdAt');
-
-      // Categories store
-      db.createObjectStore('categories', { keyPath: 'id' });
-    },
-  });
-
-  // Initialize default categories
-  await initializeDefaultCategories(dbInstance);
-
-  return dbInstance;
-}
-
 export const defaultCategories: Category[] = [
   { id: 'food', name: '食品・食材', icon: '🍎', color: '#FF6B6B', itemCount: 0 },
   { id: 'kitchen', name: 'キッチン用品', icon: '🍳', color: '#4ECDC4', itemCount: 0 },
@@ -77,77 +37,86 @@ export const defaultCategories: Category[] = [
   { id: 'other', name: 'その他', icon: '📦', color: '#AEB6BF', itemCount: 0 },
 ];
 
-async function initializeDefaultCategories(db: IDBPDatabase<MonoCollectorDB>) {
-  const tx = db.transaction('categories', 'readwrite');
-  const store = tx.objectStore('categories');
-
-  for (const category of defaultCategories) {
-    const existing = await store.get(category.id);
-    if (!existing) {
-      await store.put(category);
-    }
-  }
-
-  await tx.done;
-}
-
 // Item operations
 export async function addItem(item: Item): Promise<void> {
-  const db = await getDB();
-  await db.put('items', item);
-  await updateCategoryCount(item.category);
+  const response = await fetch('/api/items', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to add item');
+  }
 }
 
 export async function updateItem(item: Item): Promise<void> {
-  const db = await getDB();
-  await db.put('items', { ...item, updatedAt: new Date() });
+  const response = await fetch(`/api/items/${item.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(item),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update item');
+  }
 }
 
 export async function deleteItem(id: string): Promise<void> {
-  const db = await getDB();
-  const item = await db.get('items', id);
-  if (item) {
-    await db.delete('items', id);
-    await updateCategoryCount(item.category);
+  const response = await fetch(`/api/items/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to delete item');
   }
 }
 
 export async function getItem(id: string): Promise<Item | undefined> {
-  const db = await getDB();
-  return db.get('items', id);
+  const response = await fetch(`/api/items/${id}`);
+
+  if (!response.ok) {
+    if (response.status === 404) return undefined;
+    throw new Error('Failed to fetch item');
+  }
+
+  const data = await response.json();
+  return {
+    ...data,
+    createdAt: new Date(data.createdAt),
+    updatedAt: new Date(data.updatedAt),
+  };
 }
 
 export async function getAllItems(): Promise<Item[]> {
-  const db = await getDB();
-  return db.getAll('items');
+  const response = await fetch('/api/items');
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch items');
+  }
+
+  const data = await response.json();
+  return data.map((item: Item) => ({
+    ...item,
+    createdAt: new Date(item.createdAt),
+    updatedAt: new Date(item.updatedAt),
+  }));
 }
 
 export async function getItemsByCategory(category: string): Promise<Item[]> {
-  const db = await getDB();
-  return db.getAllFromIndex('items', 'by-category', category);
+  const items = await getAllItems();
+  return items.filter((item) => item.category === category);
 }
 
 // Category operations
 export async function getAllCategories(): Promise<Category[]> {
-  const db = await getDB();
-  return db.getAll('categories');
-}
+  const response = await fetch('/api/categories');
 
-export async function updateCategoryCount(categoryId: string): Promise<void> {
-  const db = await getDB();
-  const items = await getItemsByCategory(categoryId);
-  const category = await db.get('categories', categoryId);
-  if (category) {
-    category.itemCount = items.length;
-    await db.put('categories', category);
+  if (!response.ok) {
+    throw new Error('Failed to fetch categories');
   }
-}
 
-export async function recalculateAllCategoryCounts(): Promise<void> {
-  const categories = await getAllCategories();
-  for (const category of categories) {
-    await updateCategoryCount(category.id);
-  }
+  return response.json();
 }
 
 // Search
@@ -168,23 +137,19 @@ export async function getStats(): Promise<{
   categoryBreakdown: { category: string; count: number }[];
   recentItems: Item[];
 }> {
-  const items = await getAllItems();
-  const categories = await getAllCategories();
+  const response = await fetch('/api/stats');
 
-  const categoryBreakdown = categories
-    .map((cat) => ({
-      category: cat.name,
-      count: items.filter((item) => item.category === cat.id).length,
-    }))
-    .filter((c) => c.count > 0);
+  if (!response.ok) {
+    throw new Error('Failed to fetch stats');
+  }
 
-  const recentItems = [...items]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 5);
-
+  const data = await response.json();
   return {
-    totalItems: items.length,
-    categoryBreakdown,
-    recentItems,
+    ...data,
+    recentItems: data.recentItems.map((item: Item) => ({
+      ...item,
+      createdAt: new Date(item.createdAt),
+      updatedAt: new Date(item.updatedAt),
+    })),
   };
 }
