@@ -6,7 +6,8 @@ import { X, Camera, Upload, Wand2, ChevronDown } from 'lucide-react';
 import Webcam from 'react-webcam';
 import { v4 as uuidv4 } from 'uuid';
 import { Item } from '@/lib/db';
-import { useStore } from '@/lib/store';
+import { useCategories } from '@/hooks/useCategories';
+import { useAddItem, useUpdateItem } from '@/hooks/useItems';
 import { analyzeImage, getStoredApiKey } from '@/lib/groq-vision';
 
 interface AddItemModalProps {
@@ -16,7 +17,9 @@ interface AddItemModalProps {
 }
 
 export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModalProps) {
-  const { categories, addNewItem, updateExistingItem } = useStore();
+  const { data: categories = [] } = useCategories();
+  const addItemMutation = useAddItem();
+  const updateItemMutation = useUpdateItem();
   const webcamRef = useRef<Webcam>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -100,9 +103,9 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
     };
 
     if (editItem) {
-      await updateExistingItem(itemData);
+      await updateItemMutation.mutateAsync(itemData);
     } else {
-      await addNewItem(itemData);
+      await addItemMutation.mutateAsync(itemData);
     }
 
     onClose();

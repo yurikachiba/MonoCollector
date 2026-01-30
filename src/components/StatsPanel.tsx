@@ -1,8 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Trophy, Flame, TrendingUp, Package } from 'lucide-react';
-import { useStore } from '@/lib/store';
+import { Flame, TrendingUp, Package } from 'lucide-react';
+import { useItems } from '@/hooks/useItems';
+import { useStats } from '@/hooks/useStats';
 import GlassCard from './GlassCard';
 
 // Collection achievements
@@ -15,7 +16,8 @@ const achievements = [
 ];
 
 export default function StatsPanel() {
-  const { stats, items } = useStore();
+  const { data: stats } = useStats();
+  const { data: items = [] } = useItems();
 
   if (!stats) return null;
 

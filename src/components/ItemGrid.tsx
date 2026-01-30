@@ -3,7 +3,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Package } from 'lucide-react';
 import { Item } from '@/lib/db';
-import { useStore } from '@/lib/store';
+import { useUIStore } from '@/lib/store';
+import { useFilteredItems } from '@/hooks/useItems';
+import { useCategories } from '@/hooks/useCategories';
 import ItemCard from './ItemCard';
 
 interface ItemGridProps {
@@ -11,11 +13,11 @@ interface ItemGridProps {
 }
 
 export default function ItemGrid({ onEdit }: ItemGridProps) {
-  const { categories, viewMode, getFilteredItems, isLoading, searchQuery, selectedCategory } = useStore();
+  const { viewMode, searchQuery, selectedCategory } = useUIStore();
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const filteredItems = useFilteredItems(selectedCategory, searchQuery);
 
-  const filteredItems = getFilteredItems();
-
-  if (isLoading) {
+  if (categoriesLoading) {
     return (
       <div className="px-4 py-8 text-center">
         <div className="animate-spin w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full mx-auto" />

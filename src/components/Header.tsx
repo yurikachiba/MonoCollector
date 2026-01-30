@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { Search, Grid, List, Settings } from 'lucide-react';
-import { useStore } from '@/lib/store';
+import { useUIStore } from '@/lib/store';
 import SettingsModal from './SettingsModal';
 
 export default function Header() {
-  const { searchQuery, setSearchQuery, viewMode, setViewMode } = useStore();
+  const { searchQuery, setSearchQuery, viewMode, setViewMode } = useUIStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (

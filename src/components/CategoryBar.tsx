@@ -1,9 +1,11 @@
 'use client';
 
-import { useStore } from '@/lib/store';
+import { useUIStore } from '@/lib/store';
+import { useCategories } from '@/hooks/useCategories';
 
 export default function CategoryBar() {
-  const { categories, selectedCategory, setSelectedCategory } = useStore();
+  const { selectedCategory, setSelectedCategory } = useUIStore();
+  const { data: categories = [] } = useCategories();
 
   return (
     <div className="px-4 py-2 overflow-x-auto scrollbar-hide">

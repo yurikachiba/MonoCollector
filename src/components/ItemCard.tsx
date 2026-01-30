@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Trash2, MoreHorizontal } from 'lucide-react';
 import { Item, Category } from '@/lib/db';
-import { useStore } from '@/lib/store';
+import { useUIStore } from '@/lib/store';
+import { useDeleteItem } from '@/hooks/useItems';
 
 interface ItemCardProps {
   item: Item;
@@ -14,13 +15,14 @@ interface ItemCardProps {
 }
 
 export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
-  const { removeItem, viewMode } = useStore();
+  const { viewMode } = useUIStore();
+  const deleteItemMutation = useDeleteItem();
   const [showMenu, setShowMenu] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('削除しますか？')) {
-      await removeItem(item.id);
+      await deleteItemMutation.mutateAsync(item.id);
     }
     setShowMenu(false);
   };
