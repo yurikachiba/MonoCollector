@@ -103,13 +103,17 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       isCollected: editItem?.isCollected || false,
     };
 
-    if (editItem) {
-      await updateItemMutation.mutateAsync(itemData);
-    } else {
-      await addItemMutation.mutateAsync(itemData);
+    try {
+      if (editItem) {
+        await updateItemMutation.mutateAsync(itemData);
+      } else {
+        await addItemMutation.mutateAsync(itemData);
+      }
+      onClose();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '不明なエラー';
+      alert(`保存に失敗しました: ${message}`);
     }
-
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -277,10 +281,12 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                 {/* Submit */}
                 <button
                   onClick={handleSubmit}
-                  disabled={!name.trim()}
+                  disabled={!name.trim() || addItemMutation.isPending || updateItemMutation.isPending}
                   className="w-full py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editItem ? '保存' : '追加'}
+                  {addItemMutation.isPending || updateItemMutation.isPending
+                    ? '保存中...'
+                    : editItem ? '保存' : '追加'}
                 </button>
               </>
             )}
