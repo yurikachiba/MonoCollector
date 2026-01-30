@@ -12,12 +12,18 @@ import {
   Hash,
   FileText,
   ChevronDown,
+  Wand2,
+  Settings,
+  Eye,
+  EyeOff,
+  AlertCircle,
 } from 'lucide-react';
 import Webcam from 'react-webcam';
 import { v4 as uuidv4 } from 'uuid';
 import { Item } from '@/lib/db';
 import { useStore } from '@/lib/store';
 import { classifyItem, suggestIcon, locationSuggestions } from '@/lib/ai-classifier';
+import { analyzeImage, getStoredApiKey, setStoredApiKey, removeStoredApiKey } from '@/lib/groq-vision';
 import GlassCard from './GlassCard';
 import clsx from 'clsx';
 
@@ -45,6 +51,21 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [isAutoClassifying, setIsAutoClassifying] = useState(false);
 
+  // AI Vision states
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showApiKeySettings, setShowApiKeySettings] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+
+  // Load API key on mount
+  useEffect(() => {
+    const storedKey = getStoredApiKey();
+    if (storedKey) {
+      setApiKey(storedKey);
+    }
+  }, []);
+
   // Reset form when modal opens/closes or editItem changes
   useEffect(() => {
     if (editItem) {
@@ -59,6 +80,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
     } else if (isOpen) {
       resetForm();
     }
+    setAnalysisError(null);
   }, [editItem, isOpen]);
 
   const resetForm = () => {
@@ -106,6 +128,59 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
     setTags(result.suggestedTags);
 
     setIsAutoClassifying(false);
+  };
+
+  // AI Vision Analysis
+  const handleAiAnalysis = async () => {
+    if (!image) return;
+
+    if (!apiKey) {
+      setShowApiKeySettings(true);
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+
+    try {
+      const result = await analyzeImage(image, apiKey);
+      setName(result.name);
+      setCategory(result.category);
+      setIcon(result.icon);
+      setLocation(result.location);
+      setTags(result.tags);
+      setNotes(result.notes);
+      setQuantity(result.quantity);
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      if (error instanceof Error) {
+        if (error.message.includes('401') || error.message.includes('Invalid API')) {
+          setAnalysisError('APIキーが無効です。設定を確認してください。');
+          setShowApiKeySettings(true);
+        } else if (error.message.includes('rate limit')) {
+          setAnalysisError('レート制限に達しました。しばらく待ってから再試行してください。');
+        } else {
+          setAnalysisError(error.message || 'AI分析中にエラーが発生しました');
+        }
+      } else {
+        setAnalysisError('AI分析中にエラーが発生しました');
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleSaveApiKey = () => {
+    if (apiKey.trim()) {
+      setStoredApiKey(apiKey.trim());
+      setShowApiKeySettings(false);
+      setAnalysisError(null);
+    }
+  };
+
+  const handleRemoveApiKey = () => {
+    removeStoredApiKey();
+    setApiKey('');
   };
 
   const handleAddTag = () => {
@@ -294,6 +369,118 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                       className="hidden"
                     />
                   </div>
+
+                  {/* AI Auto-read Button */}
+                  {image && (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleAiAnalysis}
+                          disabled={isAnalyzing}
+                          className={clsx(
+                            'flex-1 py-3 px-4 rounded-xl font-medium transition-all',
+                            'bg-gradient-to-r from-cyan-400 to-blue-500 text-white',
+                            'shadow-lg hover:shadow-xl',
+                            'disabled:opacity-50 disabled:cursor-not-allowed',
+                            'flex items-center justify-center gap-2'
+                          )}
+                        >
+                          <Wand2 className={clsx('w-5 h-5', isAnalyzing && 'animate-pulse')} />
+                          {isAnalyzing ? 'AI解析中...' : 'AIで自動読み取り'}
+                        </button>
+                        <button
+                          onClick={() => setShowApiKeySettings(!showApiKeySettings)}
+                          className={clsx(
+                            'p-3 rounded-xl transition-all',
+                            'bg-gray-100 dark:bg-gray-800',
+                            'hover:bg-gray-200 dark:hover:bg-gray-700',
+                            showApiKeySettings && 'bg-cyan-100 dark:bg-cyan-900/30'
+                          )}
+                          title="Groq API設定"
+                        >
+                          <Settings className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      {/* Error Message */}
+                      {analysisError && (
+                        <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm">
+                          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                          <span>{analysisError}</span>
+                        </div>
+                      )}
+
+                      {/* API Key Settings */}
+                      <AnimatePresence>
+                        {showApiKeySettings && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                  Groq APIキー
+                                </label>
+                                <a
+                                  href="https://console.groq.com/keys"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-cyan-500 hover:underline"
+                                >
+                                  キーを取得
+                                </a>
+                              </div>
+                              <div className="flex gap-2">
+                                <div className="flex-1 relative">
+                                  <input
+                                    type={showApiKey ? 'text' : 'password'}
+                                    value={apiKey}
+                                    onChange={(e) => setApiKey(e.target.value)}
+                                    placeholder="gsk_..."
+                                    className="w-full px-4 py-2 pr-10 rounded-lg bg-white dark:bg-gray-900
+                                               border border-gray-200 dark:border-gray-700
+                                               focus:outline-none focus:ring-2 focus:ring-cyan-400/50
+                                               text-sm"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowApiKey(!showApiKey)}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600"
+                                  >
+                                    {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                  </button>
+                                </div>
+                                <button
+                                  onClick={handleSaveApiKey}
+                                  disabled={!apiKey.trim()}
+                                  className="px-4 py-2 rounded-lg bg-cyan-500 text-white text-sm font-medium
+                                             disabled:opacity-50 disabled:cursor-not-allowed
+                                             hover:bg-cyan-600 transition-colors"
+                                >
+                                  保存
+                                </button>
+                              </div>
+                              {apiKey && (
+                                <button
+                                  onClick={handleRemoveApiKey}
+                                  className="text-xs text-red-500 hover:underline"
+                                >
+                                  APIキーを削除
+                                </button>
+                              )}
+                              <p className="text-xs text-gray-500">
+                                Groq Vision API (llama-3.2-90b-vision) を使用して画像からアイテム情報を自動認識します。
+                                APIキーはブラウザのローカルストレージに保存されます。
+                              </p>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )}
 
                   {/* Name Input with Auto-classify */}
                   <div className="space-y-2">
