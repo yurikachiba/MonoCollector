@@ -1,10 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Static export for Render.com
-  output: 'export',
-
-  // Disable image optimization for static export
+  // Disable image optimization (use external service if needed)
   images: {
     unoptimized: true,
   },
