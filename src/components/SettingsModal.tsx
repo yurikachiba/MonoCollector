@@ -17,10 +17,12 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      const storedKey = getStoredApiKey();
-      if (storedKey) {
-        setApiKey(storedKey);
-      }
+      queueMicrotask(() => {
+        const storedKey = getStoredApiKey();
+        if (storedKey) {
+          setApiKey(storedKey);
+        }
+      });
     }
   }, [isOpen]);
 
