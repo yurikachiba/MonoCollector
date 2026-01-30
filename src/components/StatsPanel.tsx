@@ -63,11 +63,11 @@ export default function StatsPanel() {
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <div className="flex justify-center mb-1">
-                <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
-                  <Package className="w-5 h-5 text-pink-500" />
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <Package className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {totalItems}
               </p>
               <p className="text-xs text-gray-500">アイテム</p>
@@ -75,11 +75,11 @@ export default function StatsPanel() {
 
             <div className="text-center">
               <div className="flex justify-center mb-1">
-                <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                  <Flame className="w-5 h-5 text-orange-500" />
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <Flame className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {streak}
               </p>
               <p className="text-xs text-gray-500">日連続</p>
@@ -87,11 +87,11 @@ export default function StatsPanel() {
 
             <div className="text-center">
               <div className="flex justify-center mb-1">
-                <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-purple-500" />
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {stats.categoryBreakdown.length}
               </p>
               <p className="text-xs text-gray-500">カテゴリ</p>
@@ -104,7 +104,7 @@ export default function StatsPanel() {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{currentAchievement?.icon || '🎯'}</span>
                 <div>
-                  <p className="text-sm font-medium text-gray-800 dark:text-white">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {currentAchievement?.name || '始めよう'}
                   </p>
                   <p className="text-xs text-gray-500">
@@ -115,7 +115,7 @@ export default function StatsPanel() {
               {nextAchievement && (
                 <div className="text-right">
                   <p className="text-xs text-gray-500">次の目標</p>
-                  <p className="text-sm font-medium text-gray-800 dark:text-white">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
                     {nextAchievement.icon} {nextAchievement.threshold}
                   </p>
                 </div>
@@ -128,7 +128,7 @@ export default function StatsPanel() {
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
-                  className="absolute h-full bg-gradient-to-r from-pink-400 to-purple-500 rounded-full"
+                  className="absolute h-full bg-black dark:bg-white rounded-full"
                 />
               </div>
             )}
@@ -142,10 +142,10 @@ export default function StatsPanel() {
                 {stats.categoryBreakdown.slice(0, 5).map((cat, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-white/40 dark:bg-white/10 rounded-full text-xs"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs"
                   >
                     {cat.category}
-                    <span className="font-medium text-pink-600">{cat.count}</span>
+                    <span className="font-medium">{cat.count}</span>
                   </span>
                 ))}
               </div>

@@ -31,13 +31,12 @@ export default function GlassCard({
       whileTap={onClick ? { scale: 0.98 } : undefined}
       onClick={onClick}
       className={clsx(
-        'backdrop-blur-xl bg-white/30 dark:bg-white/10',
-        'border border-white/40 dark:border-white/20',
-        'rounded-2xl shadow-lg',
+        'bg-white dark:bg-gray-900',
+        'border border-gray-200 dark:border-gray-800',
+        'rounded-2xl shadow-sm',
         'transition-all duration-300',
         paddingClasses[padding],
-        hover && 'cursor-pointer hover:bg-white/40 dark:hover:bg-white/15',
-        hover && 'hover:shadow-xl hover:border-white/50',
+        hover && 'cursor-pointer hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700',
         className
       )}
     >
