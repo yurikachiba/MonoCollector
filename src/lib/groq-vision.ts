@@ -104,10 +104,16 @@ export async function analyzeImage(imageBase64: string, apiKey: string): Promise
   // Parse JSON from response
   const jsonMatch = content.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
-    throw new Error('AIの応答をパースできませんでした');
+    throw new Error('AIの応答にJSONが含まれていませんでした');
   }
 
-  const parsed = JSON.parse(jsonMatch[0]);
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonMatch[0]);
+  } catch (parseError) {
+    console.error('JSON parse error:', parseError, 'Content:', jsonMatch[0]);
+    throw new Error('AIの応答のJSON形式が不正です');
+  }
 
   // Validate and normalize the result
   const validCategoryIds = defaultCategories.map(c => c.id);
