@@ -13,14 +13,14 @@ export default function FloatingActionButton({ onClick }: FloatingActionButtonPr
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={onClick}
-      className="fixed bottom-6 right-6 z-40 w-16 h-16 rounded-full
-                 bg-gradient-to-r from-pink-400 to-purple-500
-                 shadow-lg shadow-pink-400/30
+      className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full
+                 bg-black dark:bg-white
+                 shadow-lg
                  flex items-center justify-center
-                 hover:shadow-xl hover:shadow-pink-400/40
+                 hover:shadow-xl
                  transition-shadow"
     >
-      <Plus className="w-8 h-8 text-white" />
+      <Plus className="w-6 h-6 text-white dark:text-black" />
     </motion.button>
   );
 }

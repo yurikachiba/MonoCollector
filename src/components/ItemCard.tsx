@@ -48,8 +48,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
         >
           {/* Icon/Image */}
           <div
-            className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-            style={{ backgroundColor: `${category?.color}20` }}
+            className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-gray-100 dark:bg-gray-800"
           >
             {item.image ? (
               <Image
@@ -67,11 +66,11 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-gray-800 dark:text-white truncate">
+              <h3 className="font-semibold text-gray-900 dark:text-white truncate">
                 {item.name}
               </h3>
               {item.isCollected && (
-                <span className="text-green-500">
+                <span className="text-gray-900 dark:text-white">
                   <Check className="w-4 h-4" />
                 </span>
               )}
@@ -86,11 +85,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
 
           {/* Category Badge */}
           <div
-            className="px-3 py-1 rounded-full text-xs font-medium"
-            style={{
-              backgroundColor: `${category?.color}20`,
-              color: category?.color,
-            }}
+            className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
           >
             {category?.icon} {category?.name}
           </div>
@@ -112,8 +107,8 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                   className={clsx(
                     'p-2 rounded-lg transition-colors',
                     item.isCollected
-                      ? 'bg-green-500/20 text-green-600'
-                      : 'bg-gray-500/20 text-gray-600 hover:bg-green-500/20'
+                      ? 'bg-black dark:bg-white text-white dark:text-black'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700'
                   )}
                 >
                   <Check className="w-4 h-4" />
@@ -123,7 +118,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                     e.stopPropagation();
                     onEdit(item);
                   }}
-                  className="p-2 rounded-lg bg-blue-500/20 text-blue-600 hover:bg-blue-500/30"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
@@ -132,7 +127,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                     e.stopPropagation();
                     onShare(item);
                   }}
-                  className="p-2 rounded-lg bg-purple-500/20 text-purple-600 hover:bg-purple-500/30"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
@@ -141,7 +136,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                     e.stopPropagation();
                     handleDelete();
                   }}
-                  className="p-2 rounded-lg bg-red-500/20 text-red-600 hover:bg-red-500/30"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -170,16 +165,15 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
         {/* Collected Badge */}
         {item.isCollected && (
           <div className="absolute top-2 right-2 z-10">
-            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
-              <Check className="w-4 h-4 text-white" />
+            <div className="w-6 h-6 rounded-full bg-black dark:bg-white flex items-center justify-center shadow-lg">
+              <Check className="w-4 h-4 text-white dark:text-black" />
             </div>
           </div>
         )}
 
         {/* Image/Icon Area */}
         <div
-          className="w-full aspect-square rounded-xl mb-3 flex items-center justify-center text-5xl relative overflow-hidden"
-          style={{ backgroundColor: `${category?.color}15` }}
+          className="w-full aspect-square rounded-xl mb-3 flex items-center justify-center text-5xl relative overflow-hidden bg-gray-100 dark:bg-gray-800"
         >
           {item.image ? (
             <Image
@@ -189,7 +183,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
               className="object-cover"
             />
           ) : (
-            <span className="drop-shadow-lg">{item.icon}</span>
+            <span className="drop-shadow-sm">{item.icon}</span>
           )}
 
           {/* Hover Overlay */}
@@ -199,7 +193,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center gap-2"
+                className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2"
               >
                 <button
                   onClick={(e) => {
@@ -209,8 +203,8 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                   className={clsx(
                     'p-3 rounded-full transition-all',
                     item.isCollected
-                      ? 'bg-green-500 text-white'
-                      : 'bg-white/80 text-gray-700 hover:bg-green-500 hover:text-white'
+                      ? 'bg-white text-black'
+                      : 'bg-white/80 text-gray-700 hover:bg-white'
                   )}
                 >
                   <Check className="w-5 h-5" />
@@ -220,7 +214,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                     e.stopPropagation();
                     onEdit(item);
                   }}
-                  className="p-3 rounded-full bg-white/80 text-gray-700 hover:bg-blue-500 hover:text-white transition-all"
+                  className="p-3 rounded-full bg-white/80 text-gray-700 hover:bg-white transition-all"
                 >
                   <Edit2 className="w-5 h-5" />
                 </button>
@@ -229,7 +223,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                     e.stopPropagation();
                     onShare(item);
                   }}
-                  className="p-3 rounded-full bg-white/80 text-gray-700 hover:bg-purple-500 hover:text-white transition-all"
+                  className="p-3 rounded-full bg-white/80 text-gray-700 hover:bg-white transition-all"
                 >
                   <Share2 className="w-5 h-5" />
                 </button>
@@ -238,7 +232,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
                     e.stopPropagation();
                     handleDelete();
                   }}
-                  className="p-3 rounded-full bg-white/80 text-gray-700 hover:bg-red-500 hover:text-white transition-all"
+                  className="p-3 rounded-full bg-white/80 text-red-500 hover:bg-white transition-all"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -248,7 +242,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
         </div>
 
         {/* Info */}
-        <h3 className="font-semibold text-gray-800 dark:text-white truncate mb-1">
+        <h3 className="font-semibold text-gray-900 dark:text-white truncate mb-1">
           {item.name}
         </h3>
 
@@ -266,7 +260,7 @@ export default function ItemCard({ item, category, onEdit, onShare }: ItemCardPr
             {item.tags.slice(0, 2).map((tag, index) => (
               <span
                 key={index}
-                className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/30 rounded-full text-xs"
+                className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full text-xs"
               >
                 <Tag className="w-2 h-2" />
                 {tag}

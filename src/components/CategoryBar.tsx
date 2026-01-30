@@ -16,13 +16,13 @@ export default function CategoryBar() {
           onClick={() => setSelectedCategory(null)}
           className={clsx(
             'flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap',
-            'backdrop-blur-lg transition-all duration-300',
+            'transition-all duration-300',
             !selectedCategory
-              ? 'bg-gradient-to-r from-pink-400 to-purple-500 text-white shadow-lg'
-              : 'bg-white/30 hover:bg-white/40 border border-white/30'
+              ? 'bg-black dark:bg-white text-white dark:text-black'
+              : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
           )}
         >
-          <span>✨</span>
+          <span>📦</span>
           <span className="text-sm font-medium">すべて</span>
         </motion.button>
 
@@ -34,10 +34,10 @@ export default function CategoryBar() {
             onClick={() => setSelectedCategory(category.id)}
             className={clsx(
               'flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap',
-              'backdrop-blur-lg transition-all duration-300',
+              'transition-all duration-300',
               selectedCategory === category.id
-                ? 'bg-gradient-to-r from-pink-400 to-purple-500 text-white shadow-lg'
-                : 'bg-white/30 hover:bg-white/40 border border-white/30'
+                ? 'bg-black dark:bg-white text-white dark:text-black'
+                : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
             )}
           >
             <span>{category.icon}</span>
@@ -47,8 +47,8 @@ export default function CategoryBar() {
                 className={clsx(
                   'text-xs px-2 py-0.5 rounded-full',
                   selectedCategory === category.id
-                    ? 'bg-white/30'
-                    : 'bg-pink-400/20 text-pink-600'
+                    ? 'bg-white/20 dark:bg-black/20'
+                    : 'bg-gray-200 dark:bg-gray-700'
                 )}
               >
                 {category.itemCount}

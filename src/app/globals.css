@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fef7ff;
+  --background: #fafafa;
   --foreground: #171717;
 }
 
@@ -14,7 +14,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1a1a2e;
+    --background: #0a0a0a;
     --foreground: #ededed;
   }
 }
@@ -25,33 +25,6 @@ body {
   font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Arial, sans-serif;
   min-height: 100vh;
   min-height: 100dvh;
-}
-
-/* Gradient background */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 20% 80%, rgba(255, 107, 157, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(96, 165, 250, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 60% 60%, rgba(251, 191, 36, 0.1) 0%, transparent 40%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-@media (prefers-color-scheme: dark) {
-  body::before {
-    background:
-      radial-gradient(circle at 20% 80%, rgba(255, 107, 157, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(96, 165, 250, 0.05) 0%, transparent 40%),
-      radial-gradient(circle at 60% 60%, rgba(251, 191, 36, 0.05) 0%, transparent 40%);
-  }
 }
 
 /* Hide scrollbar but keep functionality */
@@ -71,28 +44,25 @@ html {
 
 /* Custom selection color */
 ::selection {
-  background-color: rgba(236, 72, 153, 0.3);
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  ::selection {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
 }
 
 /* Focus outline */
 *:focus-visible {
-  outline: 2px solid rgba(236, 72, 153, 0.5);
+  outline: 2px solid rgba(0, 0, 0, 0.3);
   outline-offset: 2px;
 }
 
-/* Animation for gradient text */
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
+@media (prefers-color-scheme: dark) {
+  *:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.3);
   }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
 }
 
 /* Glass card effect enhancement */

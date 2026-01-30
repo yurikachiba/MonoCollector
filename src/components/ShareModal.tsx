@@ -51,7 +51,7 @@ ${item.notes ? `メモ: ${item.notes}` : ''}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           onClick={onClose}
         >
           <motion.div
@@ -61,10 +61,10 @@ ${item.notes ? `メモ: ${item.notes}` : ''}
             onClick={(e) => e.stopPropagation()}
             className="w-full max-w-md"
           >
-            <GlassCard className="!bg-white/90 dark:!bg-gray-900/90">
+            <GlassCard>
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                   <Share2 className="w-5 h-5" />
                   共有する
                 </h2>
@@ -77,16 +77,15 @@ ${item.notes ? `メモ: ${item.notes}` : ''}
               </div>
 
               {/* Preview */}
-              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 mb-4">
+              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800 mb-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                    style={{ backgroundColor: `${category?.color}20` }}
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-gray-100 dark:bg-gray-700"
                   >
                     {item.icon}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-800 dark:text-white">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
                       {item.name}
                     </h3>
                     <p className="text-sm text-gray-500">
@@ -115,7 +114,7 @@ ${item.notes ? `メモ: ${item.notes}` : ''}
                 {/* Twitter/X */}
                 <button
                   onClick={handleTwitterShare}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 transition-colors"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="w-12 h-12 rounded-full bg-black dark:bg-white flex items-center justify-center">
                     <span className="text-white dark:text-black font-bold text-lg">𝕏</span>
@@ -131,18 +130,18 @@ ${item.notes ? `メモ: ${item.notes}` : ''}
                   className={clsx(
                     'flex flex-col items-center gap-2 p-4 rounded-xl transition-colors',
                     copied
-                      ? 'bg-green-500/10'
+                      ? 'bg-gray-900 dark:bg-white'
                       : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
                   )}
                 >
                   <div
                     className={clsx(
                       'w-12 h-12 rounded-full flex items-center justify-center transition-colors',
-                      copied ? 'bg-green-500' : 'bg-gray-400 dark:bg-gray-600'
+                      copied ? 'bg-white dark:bg-black' : 'bg-gray-400 dark:bg-gray-600'
                     )}
                   >
                     {copied ? (
-                      <Check className="w-6 h-6 text-white" />
+                      <Check className="w-6 h-6 text-black dark:text-white" />
                     ) : (
                       <Copy className="w-6 h-6 text-white" />
                     )}
@@ -150,7 +149,7 @@ ${item.notes ? `メモ: ${item.notes}` : ''}
                   <span
                     className={clsx(
                       'text-sm font-medium',
-                      copied ? 'text-green-600' : 'text-gray-600 dark:text-gray-400'
+                      copied ? 'text-white dark:text-black' : 'text-gray-600 dark:text-gray-400'
                     )}
                   >
                     {copied ? 'コピー完了' : 'コピー'}

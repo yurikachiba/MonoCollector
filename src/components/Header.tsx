@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Grid, List, Sparkles, Settings } from 'lucide-react';
+import { Search, Grid, List, Box, Settings } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import GlassCard from './GlassCard';
 import SettingsModal from './SettingsModal';
@@ -12,43 +12,43 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 px-4 py-4">
-      <GlassCard className="!rounded-3xl">
+      <GlassCard className="!rounded-2xl">
         <div className="flex flex-col gap-4">
           {/* Logo and Title */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center shadow-lg">
-                <Sparkles className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-black dark:bg-white flex items-center justify-center">
+                <Box className="w-5 h-5 text-white dark:text-black" />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                   モノコレクター
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {stats?.totalItems || 0} アイテム収集中
+                  {stats?.totalItems || 0} アイテム
                 </p>
               </div>
             </div>
 
             {/* View Toggle & Settings */}
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 p-1 bg-white/30 dark:bg-white/10 rounded-xl">
+              <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`p-2 rounded-md transition-all ${
                     viewMode === 'grid'
-                      ? 'bg-white/60 dark:bg-white/20 shadow-sm'
-                      : 'hover:bg-white/30'
+                      ? 'bg-white dark:bg-gray-700 shadow-sm'
+                      : 'hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`p-2 rounded-md transition-all ${
                     viewMode === 'list'
-                      ? 'bg-white/60 dark:bg-white/20 shadow-sm'
-                      : 'hover:bg-white/30'
+                      ? 'bg-white dark:bg-gray-700 shadow-sm'
+                      : 'hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
                 >
                   <List className="w-4 h-4" />
@@ -56,7 +56,7 @@ export default function Header() {
               </div>
               <button
                 onClick={() => setIsSettingsOpen(true)}
-                className="p-2 rounded-xl bg-white/30 dark:bg-white/10 hover:bg-white/50 dark:hover:bg-white/20 transition-all"
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
                 title="設定"
               >
                 <Settings className="w-4 h-4" />
@@ -72,10 +72,10 @@ export default function Header() {
               placeholder="アイテムを検索..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/40 dark:bg-white/10
-                         border border-white/30 rounded-xl
+              className="w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-gray-800
+                         border border-gray-200 dark:border-gray-700 rounded-xl
                          placeholder-gray-400 text-gray-700 dark:text-gray-200
-                         focus:outline-none focus:ring-2 focus:ring-pink-400/50
+                         focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600
                          transition-all"
             />
           </div>

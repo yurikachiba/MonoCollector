@@ -48,20 +48,20 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50"
         onClick={handleClose}
       />
 
       {/* Modal */}
-      <GlassCard className="relative w-full max-w-md !bg-white/95 dark:!bg-gray-900/95 !p-0 overflow-hidden">
+      <GlassCard className="relative w-full max-w-md !p-0 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200/50 dark:border-gray-700/50">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-white">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             設定
           </h2>
           <button
             onClick={handleClose}
-            className="p-2 rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors"
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -72,8 +72,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           {/* API Key Section */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Key className="w-5 h-5 text-purple-500" />
-              <h3 className="font-semibold text-gray-800 dark:text-white">
+              <Key className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <h3 className="font-semibold text-gray-900 dark:text-white">
                 Groq API キー
               </h3>
             </div>
@@ -88,10 +88,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="gsk_xxxxxxxxxxxxxxxx"
-                className="w-full px-4 py-3 pr-12 bg-white/50 dark:bg-gray-800/50
+                className="w-full px-4 py-3 pr-12 bg-gray-100 dark:bg-gray-800
                          border border-gray-200 dark:border-gray-700 rounded-xl
                          text-gray-700 dark:text-gray-200
-                         focus:outline-none focus:ring-2 focus:ring-purple-400/50
+                         focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600
                          transition-all font-mono text-sm"
               />
               <button
@@ -110,9 +110,9 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 onClick={handleSave}
                 disabled={!apiKey.trim()}
                 className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5
-                         bg-gradient-to-r from-purple-500 to-pink-500
-                         text-white font-medium rounded-xl
-                         hover:from-purple-600 hover:to-pink-600
+                         bg-black dark:bg-white
+                         text-white dark:text-black font-medium rounded-xl
+                         hover:bg-gray-800 dark:hover:bg-gray-100
                          disabled:opacity-50 disabled:cursor-not-allowed
                          transition-all"
               >
@@ -140,7 +140,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               href="https://console.groq.com/keys"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-sm text-purple-500 hover:text-purple-600 transition-colors"
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Groq APIキーを取得する（無料）
