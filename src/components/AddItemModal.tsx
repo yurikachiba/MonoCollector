@@ -278,7 +278,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                 <button
                   onClick={handleSubmit}
                   disabled={!name.trim()}
-                  className="w-full py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium disabled:opacity-50"
+                  className="w-full py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {editItem ? '保存' : '追加'}
                 </button>
