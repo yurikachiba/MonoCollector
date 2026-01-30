@@ -47,6 +47,9 @@ ${CATEGORY_LIST}
 }
 
 注意事項:
+- nameには素材名（ガラス、プラスチック、金属など）ではなく、具体的な製品名を使ってください
+  - 良い例: コップ、グラス、マグカップ、ワイングラス、タンブラー
+  - 悪い例: ガラス、陶器、プラスチック
 - カテゴリIDは上記リストのIDのみ使用（food, kitchen, clothes, electronics, books, cosmetics, stationery, toys, cleaning, medicine, furniture, sports, other）
 - 画像に複数のアイテムが写っている場合は、メインのアイテムを認識
 - 数量が複数見える場合は推定してquantityに反映
