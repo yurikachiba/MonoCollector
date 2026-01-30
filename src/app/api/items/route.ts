@@ -51,13 +51,38 @@ export async function POST(request: NextRequest) {
   }
 }
 
+const defaultCategories: Record<string, { name: string; icon: string; color: string }> = {
+  food: { name: '食品・食材', icon: '🍎', color: '#FF6B6B' },
+  kitchen: { name: 'キッチン用品', icon: '🍳', color: '#4ECDC4' },
+  clothes: { name: '衣類', icon: '👕', color: '#45B7D1' },
+  electronics: { name: '電子機器', icon: '📱', color: '#96CEB4' },
+  books: { name: '本・書籍', icon: '📚', color: '#FFEAA7' },
+  cosmetics: { name: 'コスメ・美容', icon: '💄', color: '#DDA0DD' },
+  stationery: { name: '文房具', icon: '✏️', color: '#98D8C8' },
+  toys: { name: 'おもちゃ・ホビー', icon: '🎮', color: '#F7DC6F' },
+  cleaning: { name: '掃除用品', icon: '🧹', color: '#85C1E9' },
+  medicine: { name: '薬・医療品', icon: '💊', color: '#F1948A' },
+  furniture: { name: '家具・インテリア', icon: '🪑', color: '#D7BDE2' },
+  sports: { name: 'スポーツ用品', icon: '⚽', color: '#82E0AA' },
+  other: { name: 'その他', icon: '📦', color: '#AEB6BF' },
+};
+
 async function updateCategoryCount(categoryId: string) {
   const count = await prisma.item.count({
     where: { category: categoryId },
   });
 
-  await prisma.category.update({
+  const defaultCategory = defaultCategories[categoryId] || defaultCategories.other;
+
+  await prisma.category.upsert({
     where: { id: categoryId },
-    data: { itemCount: count },
+    update: { itemCount: count },
+    create: {
+      id: categoryId,
+      name: defaultCategory.name,
+      icon: defaultCategory.icon,
+      color: defaultCategory.color,
+      itemCount: count,
+    },
   });
 }
