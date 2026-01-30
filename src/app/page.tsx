@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Item } from '@/lib/db';
-import { useStore } from '@/lib/store';
 import Header from '@/components/Header';
 import CategoryBar from '@/components/CategoryBar';
 import ItemGrid from '@/components/ItemGrid';
@@ -10,13 +9,8 @@ import FloatingActionButton from '@/components/FloatingActionButton';
 import AddItemModal from '@/components/AddItemModal';
 
 export default function Home() {
-  const { loadData } = useStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
 
   const handleEdit = (item: Item) => {
     setEditItem(item);
