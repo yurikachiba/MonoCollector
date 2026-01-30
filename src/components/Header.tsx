@@ -1,11 +1,14 @@
 'use client';
 
-import { Search, Grid, List, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Grid, List, Sparkles, Settings } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import GlassCard from './GlassCard';
+import SettingsModal from './SettingsModal';
 
 export default function Header() {
   const { searchQuery, setSearchQuery, viewMode, setViewMode, stats } = useStore();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 px-4 py-4">
@@ -27,27 +30,36 @@ export default function Header() {
               </div>
             </div>
 
-            {/* View Toggle */}
-            <div className="flex items-center gap-1 p-1 bg-white/30 dark:bg-white/10 rounded-xl">
+            {/* View Toggle & Settings */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 p-1 bg-white/30 dark:bg-white/10 rounded-xl">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2 rounded-lg transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-white/60 dark:bg-white/20 shadow-sm'
+                      : 'hover:bg-white/30'
+                  }`}
+                >
+                  <Grid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded-lg transition-all ${
+                    viewMode === 'list'
+                      ? 'bg-white/60 dark:bg-white/20 shadow-sm'
+                      : 'hover:bg-white/30'
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-all ${
-                  viewMode === 'grid'
-                    ? 'bg-white/60 dark:bg-white/20 shadow-sm'
-                    : 'hover:bg-white/30'
-                }`}
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 rounded-xl bg-white/30 dark:bg-white/10 hover:bg-white/50 dark:hover:bg-white/20 transition-all"
+                title="設定"
               >
-                <Grid className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-all ${
-                  viewMode === 'list'
-                    ? 'bg-white/60 dark:bg-white/20 shadow-sm'
-                    : 'hover:bg-white/30'
-                }`}
-              >
-                <List className="w-4 h-4" />
+                <Settings className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -69,6 +81,11 @@ export default function Header() {
           </div>
         </div>
       </GlassCard>
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </header>
   );
 }
