@@ -7,7 +7,13 @@ export async function GET() {
     const items = await prisma.item.findMany({
       orderBy: { createdAt: 'desc' },
     });
-    return NextResponse.json(items);
+    
+    const itemsWithBase64 = items.map(item => ({
+      ...item,
+      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+    }));
+
+    return NextResponse.json(itemsWithBase64);
   } catch (error) {
     console.error('Failed to fetch items:', error);
     return NextResponse.json(
@@ -20,28 +26,40 @@ export async function GET() {
 // POST /api/items - Create a new item
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const formData = await request.formData();
+    
+    const imageFile = formData.get('image') as File;
+    const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
+    
+    const tagsStr = formData.get('tags') as string;
+    const tags = tagsStr ? JSON.parse(tagsStr) : [];
 
     const item = await prisma.item.create({
       data: {
-        id: body.id,
-        name: body.name,
-        category: body.category,
-        icon: body.icon,
-        image: body.image,
-        location: body.location,
-        quantity: body.quantity,
-        notes: body.notes,
-        tags: body.tags,
-        isCollected: body.isCollected,
-        createdAt: body.createdAt ? new Date(body.createdAt) : new Date(),
+        id: formData.get('id') as string,
+        name: formData.get('name') as string,
+        category: formData.get('category') as string,
+        icon: formData.get('icon') as string,
+        image: imageBuffer,
+        location: formData.get('location') as string,
+        quantity: parseInt(formData.get('quantity') as string) || 1,
+        notes: formData.get('notes') as string || "",
+        tags: tags,
+        isCollected: formData.get('isCollected') === 'true',
+        createdAt: formData.get('createdAt') ? new Date(formData.get('createdAt') as string) : new Date(),
       },
     });
 
     // Update category item count
-    await updateCategoryCount(body.category);
+    await updateCategoryCount(item.category);
 
-    return NextResponse.json(item, { status: 201 });
+    // Convert Buffer back to Base64 for the response
+    const itemResponse = {
+      ...item,
+      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+    };
+
+    return NextResponse.json(itemResponse, { status: 201 });
   } catch (error) {
     console.error('Failed to create item:', error);
     return NextResponse.json(

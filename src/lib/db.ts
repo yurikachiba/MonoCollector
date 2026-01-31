@@ -3,7 +3,7 @@ export interface Item {
   name: string;
   category: string;
   icon: string;
-  image: string;
+  image: Uint8Array | string;
   location: string;
   quantity: number;
   notes: string;
@@ -39,10 +39,31 @@ export const defaultCategories: Category[] = [
 
 // Item operations
 export async function addItem(item: Item): Promise<void> {
+  const formData = new FormData();
+  Object.entries(item).forEach(([key, value]) => {
+    if (key === 'image' && typeof value === 'string' && value.startsWith('data:')) {
+      // Base64 string to Blob
+      const byteString = atob(value.split(',')[1]);
+      const mimeString = value.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: mimeString });
+      formData.append(key, blob);
+    } else if (key === 'tags') {
+      formData.append(key, JSON.stringify(value));
+    } else if (value instanceof Date) {
+      formData.append(key, value.toISOString());
+    } else {
+      formData.append(key, String(value));
+    }
+  });
+
   const response = await fetch('/api/items', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item),
+    body: formData,
   });
 
   if (!response.ok) {
@@ -51,10 +72,30 @@ export async function addItem(item: Item): Promise<void> {
 }
 
 export async function updateItem(item: Item): Promise<void> {
+  const formData = new FormData();
+  Object.entries(item).forEach(([key, value]) => {
+    if (key === 'image' && typeof value === 'string' && value.startsWith('data:')) {
+      const byteString = atob(value.split(',')[1]);
+      const mimeString = value.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: mimeString });
+      formData.append(key, blob);
+    } else if (key === 'tags') {
+      formData.append(key, JSON.stringify(value));
+    } else if (value instanceof Date) {
+      formData.append(key, value.toISOString());
+    } else {
+      formData.append(key, String(value));
+    }
+  });
+
   const response = await fetch(`/api/items/${item.id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(item),
+    body: formData,
   });
 
   if (!response.ok) {

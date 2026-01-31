@@ -18,7 +18,10 @@ export async function GET() {
       }))
       .filter((c) => c.count > 0);
 
-    const recentItems = items.slice(0, 5);
+    const recentItems = items.slice(0, 5).map(item => ({
+      ...item,
+      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+    }));
 
     return NextResponse.json({
       totalItems: items.length,

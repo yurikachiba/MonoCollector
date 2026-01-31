@@ -18,7 +18,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json(item);
+    const itemWithBase64 = {
+      ...item,
+      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+    };
+
+    return NextResponse.json(itemWithBase64);
   } catch (error) {
     console.error('Failed to fetch item:', error);
     return NextResponse.json(
@@ -32,25 +37,40 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const body = await request.json();
+    const formData = await request.formData();
+    
+    const updateData: any = {
+      name: formData.get('name') as string,
+      category: formData.get('category') as string,
+      icon: formData.get('icon') as string,
+      location: formData.get('location') as string,
+      quantity: parseInt(formData.get('quantity') as string) || 1,
+      notes: formData.get('notes') as string || "",
+      isCollected: formData.get('isCollected') === 'true',
+      updatedAt: new Date(),
+    };
+
+    const imageFile = formData.get('image');
+    if (imageFile instanceof File) {
+      updateData.image = Buffer.from(await imageFile.arrayBuffer());
+    }
+
+    const tagsStr = formData.get('tags') as string;
+    if (tagsStr) {
+      updateData.tags = JSON.parse(tagsStr);
+    }
 
     const item = await prisma.item.update({
       where: { id },
-      data: {
-        name: body.name,
-        category: body.category,
-        icon: body.icon,
-        image: body.image,
-        location: body.location,
-        quantity: body.quantity,
-        notes: body.notes,
-        tags: body.tags,
-        isCollected: body.isCollected,
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
 
-    return NextResponse.json(item);
+    const itemWithBase64 = {
+      ...item,
+      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+    };
+
+    return NextResponse.json(itemWithBase64);
   } catch (error) {
     console.error('Failed to update item:', error);
     return NextResponse.json(

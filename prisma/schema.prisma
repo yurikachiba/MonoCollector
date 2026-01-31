@@ -12,7 +12,7 @@ model Item {
   name        String
   category    String
   icon        String
-  image       String
+  image       Bytes
   location    String
   quantity    Int      @default(1)
   notes       String   @default("")
