@@ -77,7 +77,7 @@ export async function analyzeImage(imageBase64: string, apiKey: string): Promise
   }
 
   const response = await groq.chat.completions.create({
-    model: 'llama-3.2-11b-vision-preview',
+    model: 'llama-3.2-11b-vision-instant',
     messages: [
       {
         role: 'user',
