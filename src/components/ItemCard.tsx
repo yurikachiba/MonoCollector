@@ -33,6 +33,12 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
     setShowMenu(false);
   };
 
+  const displayImage = typeof item.image === 'string' 
+    ? item.image 
+    : (item.image instanceof Uint8Array 
+        ? `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
+        : '');
+
   // List View
   if (viewMode === 'list') {
     return (
@@ -47,7 +53,7 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
         <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
           {item.image ? (
             <Image
-              src={item.image}
+              src={displayImage}
               alt={item.name}
               width={48}
               height={48}
@@ -115,7 +121,7 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
         <div className="aspect-square bg-gray-100 dark:bg-gray-800 relative">
           {item.image ? (
             <Image
-              src={item.image}
+              src={displayImage}
               alt={item.name}
               fill
               className="object-cover"
