@@ -55,7 +55,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [mode, setMode] = useState<'form' | 'camera'>('form');
-  const [image, setImage] = useState('');
+  const [image, setImage] = useState<string | Uint8Array>('');
   const [name, setName] = useState('');
   const [category, setCategory] = useState('other');
   const [location, setLocation] = useState('');
@@ -65,7 +65,13 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
     if (editItem) {
       setName(editItem.name);
       setCategory(editItem.category);
-      setImage(editItem.image);
+      if (editItem.image instanceof Uint8Array) {
+        // Convert Uint8Array to Base64 for display
+        const base64 = `data:image/jpeg;base64,${Buffer.from(editItem.image).toString('base64')}`;
+        setImage(base64);
+      } else {
+        setImage(editItem.image);
+      }
       setLocation(editItem.location);
     } else if (isOpen) {
       setImage('');
@@ -108,7 +114,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
 
     setIsAnalyzing(true);
     try {
-      const result = await analyzeImage(image, apiKey);
+      const result = await analyzeImage(typeof image === 'string' ? image : '', apiKey);
       setName(result.name);
       setCategory(result.category);
       setLocation(result.location);
@@ -153,6 +159,8 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   };
 
   if (!isOpen) return null;
+
+  const displayImage = typeof image === 'string' ? image : '';
 
   return (
     <AnimatePresence>
@@ -218,7 +226,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                 >
                   {image ? (
                     <div className="relative w-full h-full group">
-                      <img src={image} alt="" className="w-full h-full object-cover" />
+                      <img src={displayImage} alt="" className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-opacity">
                         <button
                           onClick={(e) => { e.stopPropagation(); setMode('camera'); }}
