@@ -10,7 +10,7 @@ export async function GET() {
     
     const itemsWithBase64 = items.map(item => ({
       ...item,
-      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+      image: `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
     }));
 
     return NextResponse.json(itemsWithBase64);
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     // Convert Buffer back to Base64 for the response
     const itemResponse = {
       ...item,
-      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+      image: `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
     };
 
     return NextResponse.json(itemResponse, { status: 201 });

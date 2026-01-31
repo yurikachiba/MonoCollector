@@ -20,7 +20,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const itemWithBase64 = {
       ...item,
-      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+      image: `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
     };
 
     return NextResponse.json(itemWithBase64);
@@ -67,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const itemWithBase64 = {
       ...item,
-      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+      image: `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
     };
 
     return NextResponse.json(itemWithBase64);

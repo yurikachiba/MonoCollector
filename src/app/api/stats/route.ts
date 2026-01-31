@@ -20,7 +20,7 @@ export async function GET() {
 
     const recentItems = items.slice(0, 5).map(item => ({
       ...item,
-      image: `data:image/jpeg;base64,${item.image.toString('base64')}`
+      image: `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
     }));
 
     return NextResponse.json({
