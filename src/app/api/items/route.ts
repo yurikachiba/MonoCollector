@@ -72,15 +72,38 @@ export async function POST(request: NextRequest) {
     const tags = tagsStr ? JSON.parse(tagsStr) : [];
     console.log(`[${requestId}] Parsed tags:`, tags);
 
+    // Extract and validate required fields
+    const id = formData.get('id');
+    const name = formData.get('name');
+    const category = formData.get('category');
+    const icon = formData.get('icon');
+    const location = formData.get('location');
+
+    // Validate required string fields
+    const missingFields: string[] = [];
+    if (!id || typeof id !== 'string') missingFields.push('id');
+    if (!name || typeof name !== 'string') missingFields.push('name');
+    if (!category || typeof category !== 'string') missingFields.push('category');
+    if (!icon || typeof icon !== 'string') missingFields.push('icon');
+    if (!location || typeof location !== 'string') missingFields.push('location');
+
+    if (missingFields.length > 0) {
+      console.error(`[${requestId}] Missing required fields:`, missingFields);
+      return NextResponse.json(
+        { error: `Missing required fields: ${missingFields.join(', ')}`, requestId },
+        { status: 400 }
+      );
+    }
+
     const itemData = {
-      id: formData.get('id') as string,
-      name: formData.get('name') as string,
-      category: formData.get('category') as string,
-      icon: formData.get('icon') as string,
+      id: id as string,
+      name: name as string,
+      category: category as string,
+      icon: icon as string,
       image: imageBuffer,
-      location: formData.get('location') as string,
+      location: location as string,
       quantity: parseInt(formData.get('quantity') as string) || 1,
-      notes: formData.get('notes') as string || "",
+      notes: (formData.get('notes') as string) || "",
       tags: tags,
       isCollected: formData.get('isCollected') === 'true',
       createdAt: formData.get('createdAt') ? new Date(formData.get('createdAt') as string) : new Date(),

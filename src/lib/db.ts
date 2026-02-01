@@ -150,7 +150,10 @@ export async function addItem(item: Item): Promise<void> {
       status: response.status,
       data,
     });
-    throw new Error(data.details || data.error || 'Failed to add item');
+    // Include full error details in the message
+    const errorMsg = data.details || data.error || 'Failed to add item';
+    const fullError = data.details && data.error ? `${data.error}: ${data.details}` : errorMsg;
+    throw new Error(fullError);
   }
 
   console.log(`[${clientRequestId}] Item created successfully`);
