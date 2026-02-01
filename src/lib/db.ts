@@ -41,17 +41,21 @@ export const defaultCategories: Category[] = [
 export async function addItem(item: Item): Promise<void> {
   const formData = new FormData();
   Object.entries(item).forEach(([key, value]) => {
-    if (key === 'image' && typeof value === 'string' && value.startsWith('data:')) {
-      // Base64 string to Blob
-      const byteString = atob(value.split(',')[1]);
-      const mimeString = value.split(',')[0].split(':')[1].split(';')[0];
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
+    if (key === 'image') {
+      if (typeof value === 'string' && value.startsWith('data:')) {
+        // Base64 string to Blob
+        const byteString = atob(value.split(',')[1]);
+        const mimeString = value.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        const extension = mimeString.split('/')[1] || 'jpg';
+        formData.append(key, blob, `image.${extension}`);
       }
-      const blob = new Blob([ab], { type: mimeString });
-      formData.append(key, blob);
+      // Skip empty strings or invalid image values
     } else if (key === 'tags') {
       formData.append(key, JSON.stringify(value));
     } else if (value instanceof Date) {
@@ -67,23 +71,28 @@ export async function addItem(item: Item): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to add item');
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to add item');
   }
 }
 
 export async function updateItem(item: Item): Promise<void> {
   const formData = new FormData();
   Object.entries(item).forEach(([key, value]) => {
-    if (key === 'image' && typeof value === 'string' && value.startsWith('data:')) {
-      const byteString = atob(value.split(',')[1]);
-      const mimeString = value.split(',')[0].split(':')[1].split(';')[0];
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
+    if (key === 'image') {
+      if (typeof value === 'string' && value.startsWith('data:')) {
+        const byteString = atob(value.split(',')[1]);
+        const mimeString = value.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        const extension = mimeString.split('/')[1] || 'jpg';
+        formData.append(key, blob, `image.${extension}`);
       }
-      const blob = new Blob([ab], { type: mimeString });
-      formData.append(key, blob);
+      // Skip empty strings or invalid image values
     } else if (key === 'tags') {
       formData.append(key, JSON.stringify(value));
     } else if (value instanceof Date) {
@@ -99,7 +108,8 @@ export async function updateItem(item: Item): Promise<void> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update item');
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to update item');
   }
 }
 
