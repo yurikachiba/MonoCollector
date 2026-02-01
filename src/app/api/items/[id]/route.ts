@@ -48,7 +48,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       notes: string;
       isCollected: boolean;
       updatedAt: Date;
-      image?: Buffer;
+      image?: Uint8Array;
       tags?: string[];
     } = {
       name: formData.get('name') as string,
@@ -63,7 +63,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const imageFile = formData.get('image');
     if (imageFile instanceof File) {
-      updateData.image = Buffer.from(await imageFile.arrayBuffer());
+      updateData.image = new Uint8Array(await imageFile.arrayBuffer());
     }
 
     const tagsStr = formData.get('tags') as string;
