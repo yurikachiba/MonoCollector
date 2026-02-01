@@ -14,13 +14,14 @@ const globalForPrisma = globalThis as unknown as {
 function parseConnectionString(connectionString: string): PoolConfig {
   // Parse from the end to handle @ in passwords correctly
   // Format: postgresql://user:password@host:port/database?params
+  // Port is optional (defaults to 5432)
 
   // Remove protocol
   const withoutProtocol = connectionString.replace(/^postgresql:\/\//, '');
 
-  // Find host:port/database from the end (look for pattern like @hostname:port/db)
-  // The host cannot contain @ so we find the last @ that's followed by host:port/db pattern
-  const hostPortDbMatch = withoutProtocol.match(/@([^@:]+):(\d+)\/([^?]+)(\?.*)?$/);
+  // Find host:port/database or host/database from the end
+  // Port is optional - pattern: @hostname:port/db or @hostname/db
+  const hostPortDbMatch = withoutProtocol.match(/@([^@:/]+)(?::(\d+))?\/([^?]+)(\?.*)?$/);
 
   if (!hostPortDbMatch) {
     // Fallback: return as connection string and let pg handle it
@@ -48,16 +49,23 @@ function parseConnectionString(connectionString: string): PoolConfig {
     decodedPassword = password;
   }
 
+  // Check if this is an external database (not localhost)
+  const isExternalDb = !host.includes('localhost') && !host.includes('127.0.0.1');
+
   const config: PoolConfig = {
     user,
     password: decodedPassword,
     host,
-    port: parseInt(port, 10),
+    port: port ? parseInt(port, 10) : 5432,
     database,
+    // Enable SSL for external databases (like Render) by default
+    ssl: isExternalDb ? { rejectUnauthorized: false } : undefined,
   };
 
-  // Handle SSL mode from query params
-  if (queryString?.includes('sslmode=require')) {
+  // Override SSL if explicitly set in query params
+  if (queryString?.includes('sslmode=disable')) {
+    config.ssl = undefined;
+  } else if (queryString?.includes('sslmode=require')) {
     config.ssl = { rejectUnauthorized: false };
   }
 
