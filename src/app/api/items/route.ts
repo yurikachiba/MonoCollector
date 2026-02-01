@@ -27,8 +27,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    
-    const imageFile = formData.get('image') as File;
+
+    const imageFile = formData.get('image');
+    if (!imageFile || !(imageFile instanceof File) || imageFile.size === 0) {
+      return NextResponse.json(
+        { error: 'Image is required' },
+        { status: 400 }
+      );
+    }
     const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
     
     const tagsStr = formData.get('tags') as string;

@@ -1,0 +1,57 @@
+# Labels based on file changes
+
+# Frontend
+frontend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/components/**/*'
+          - 'src/app/**/*.tsx'
+          - 'src/app/**/*.css'
+
+# API
+api:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/app/api/**/*'
+
+# Database
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'prisma/**/*'
+          - 'src/lib/prisma.ts'
+          - 'src/lib/db.ts'
+
+# Configuration
+config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '*.json'
+          - '*.config.*'
+          - '.env*'
+          - 'tsconfig.json'
+
+# CI/CD
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**/*'
+
+# Documentation
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - 'docs/**/*'
+
+# Hooks
+hooks:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/hooks/**/*'
+
+# Utilities
+utils:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'src/lib/**/*'
