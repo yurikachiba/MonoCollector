@@ -29,8 +29,12 @@ function parseConnectionString(connectionString: string): string {
 
 function createPrismaClient() {
   const rawConnectionString = process.env.DATABASE_URL;
+  // During build time, DATABASE_URL may not be set - use a dummy client that will
+  // fail gracefully at runtime if actually used without proper configuration
   if (!rawConnectionString) {
-    throw new Error('DATABASE_URL environment variable is not set');
+    return new PrismaClient({
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+    });
   }
   const connectionString = parseConnectionString(rawConnectionString);
   const pool = new Pool({ connectionString });
