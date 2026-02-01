@@ -133,6 +133,14 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
 
     if (!name.trim()) {
       console.warn(`[${submitId}] Name is empty, aborting`);
+      alert('名前を入力してください');
+      return;
+    }
+
+    // Validate image for new items
+    if (!editItem && (!image || (typeof image === 'string' && !image.startsWith('data:')))) {
+      console.warn(`[${submitId}] Image is missing or invalid, aborting`);
+      alert('画像を追加してください');
       return;
     }
 
@@ -354,7 +362,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                 {/* Submit */}
                 <button
                   onClick={handleSubmit}
-                  disabled={!name.trim() || addItemMutation.isPending || updateItemMutation.isPending}
+                  disabled={!name.trim() || (!editItem && !image) || addItemMutation.isPending || updateItemMutation.isPending}
                   className="w-full py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {addItemMutation.isPending || updateItemMutation.isPending
