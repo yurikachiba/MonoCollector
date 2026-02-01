@@ -6,7 +6,7 @@ interface PrismaItem {
   name: string;
   category: string;
   icon: string;
-  image: Buffer;
+  image: Uint8Array;
   location: string;
   quantity: number;
   notes: string;
