@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera, Upload, Wand2, ChevronDown } from 'lucide-react';
 import Webcam from 'react-webcam';
@@ -227,7 +227,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                 >
                   {image ? (
                     <div className="relative w-full h-full group">
-                      <Image src={displayImage} alt="" fill className="object-cover" unoptimized />
+                      <NextImage src={displayImage} alt="" fill className="object-cover" unoptimized />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-opacity">
                         <button
                           onClick={(e) => { e.stopPropagation(); setMode('camera'); }}
