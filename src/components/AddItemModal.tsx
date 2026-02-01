@@ -3,13 +3,15 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import NextImage from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Camera, Upload, Wand2, ChevronDown } from 'lucide-react';
+import { X, Camera, Upload, Wand2, ChevronDown, Sparkles } from 'lucide-react';
 import Webcam from 'react-webcam';
 import { v4 as uuidv4 } from 'uuid';
 import { Item } from '@/lib/db';
 import { useCategories } from '@/hooks/useCategories';
 import { useAddItem, useUpdateItem } from '@/hooks/useItems';
 import { analyzeImage, getStoredApiKey } from '@/lib/groq-vision';
+import IconGenerator from './IconGenerator';
+import { GeneratedIcon } from '@/lib/icon-generator';
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -61,6 +63,8 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   const [category, setCategory] = useState('other');
   const [location, setLocation] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [useAutoIcon, setUseAutoIcon] = useState(false);
+  const [generatedIcon, setGeneratedIcon] = useState<GeneratedIcon | null>(null);
 
   useEffect(() => {
     if (editItem) {
@@ -80,6 +84,8 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       setCategory('other');
       setLocation('');
       setMode('form');
+      setUseAutoIcon(false);
+      setGeneratedIcon(null);
     }
   }, [editItem, isOpen]);
 
@@ -137,11 +143,31 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       return;
     }
 
-    // Validate image for new items
-    if (!editItem && (!image || (typeof image === 'string' && !image.startsWith('data:')))) {
+    // Validate image for new items (auto icon mode allows no image)
+    if (!editItem && !useAutoIcon && (!image || (typeof image === 'string' && !image.startsWith('data:')))) {
       console.warn(`[${submitId}] Image is missing or invalid, aborting`);
-      alert('画像を追加してください');
+      alert('画像を追加するか、自動アイコンを使用してください');
       return;
+    }
+
+    // If using auto icon, generate PNG from SVG
+    let finalImage: string | Uint8Array = image;
+    if (useAutoIcon && generatedIcon && !image) {
+      // Convert SVG to PNG data URL
+      finalImage = await new Promise<string>((resolve) => {
+        const img = new Image();
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+
+        img.onload = () => {
+          ctx?.drawImage(img, 0, 0, 256, 256);
+          resolve(canvas.toDataURL('image/png'));
+        };
+
+        img.src = generatedIcon.dataUrl;
+      });
     }
 
     const cat = categories.find((c) => c.id === category);
@@ -152,7 +178,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       name: name.trim(),
       category,
       icon: cat?.icon || '📦',
-      image,
+      image: finalImage,
       location,
       quantity: editItem?.quantity || 1,
       notes: editItem?.notes || '',
@@ -313,6 +339,34 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                   className="hidden"
                 />
 
+                {/* Auto Icon Mode Toggle */}
+                {!image && !editItem && (
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setUseAutoIcon(!useAutoIcon)}
+                      className={`w-full py-2.5 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors ${
+                        useAutoIcon
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      {useAutoIcon ? '自動アイコン使用中' : '写真なしで自動アイコンを使う'}
+                    </button>
+
+                    {/* Icon Generator Preview */}
+                    {useAutoIcon && name.trim() && (
+                      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3">
+                        <IconGenerator
+                          name={name.trim()}
+                          onSelect={(icon) => setGeneratedIcon(icon)}
+                          showAllStyles
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* AI Button */}
                 {image && (
                   <button
@@ -362,7 +416,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                 {/* Submit */}
                 <button
                   onClick={handleSubmit}
-                  disabled={!name.trim() || (!editItem && !image) || addItemMutation.isPending || updateItemMutation.isPending}
+                  disabled={!name.trim() || (!editItem && !image && !useAutoIcon) || addItemMutation.isPending || updateItemMutation.isPending}
                   className="w-full py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {addItemMutation.isPending || updateItemMutation.isPending

@@ -7,6 +7,7 @@ import CategoryBar from '@/components/CategoryBar';
 import ItemGrid from '@/components/ItemGrid';
 import FloatingActionButton from '@/components/FloatingActionButton';
 import AddItemModal from '@/components/AddItemModal';
+import CollectionPanel from '@/components/CollectionPanel';
 
 export default function Home() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -25,6 +26,7 @@ export default function Home() {
   return (
     <main className="min-h-screen pb-24">
       <Header />
+      <CollectionPanel />
       <CategoryBar />
       <ItemGrid onEdit={handleEdit} />
 
