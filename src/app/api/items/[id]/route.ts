@@ -39,7 +39,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const formData = await request.formData();
     
-    const updateData: any = {
+    const updateData: {
+      name: string;
+      category: string;
+      icon: string;
+      location: string;
+      quantity: number;
+      notes: string;
+      isCollected: boolean;
+      updatedAt: Date;
+      image?: Buffer;
+      tags?: string[];
+    } = {
       name: formData.get('name') as string,
       category: formData.get('category') as string,
       icon: formData.get('icon') as string,
