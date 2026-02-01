@@ -1,6 +1,29 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+interface PrismaItem {
+  id: string;
+  name: string;
+  category: string;
+  icon: string;
+  image: Buffer;
+  location: string;
+  quantity: number;
+  notes: string;
+  tags: string[];
+  isCollected: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface PrismaCategory {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  itemCount: number;
+}
+
 // GET /api/stats - Get statistics
 export async function GET() {
   try {
@@ -12,13 +35,13 @@ export async function GET() {
     ]);
 
     const categoryBreakdown = categories
-      .map((cat) => ({
+      .map((cat: PrismaCategory) => ({
         category: cat.name,
-        count: items.filter((item) => item.category === cat.id).length,
+        count: items.filter((item: PrismaItem) => item.category === cat.id).length,
       }))
-      .filter((c) => c.count > 0);
+      .filter((c: { category: string; count: number }) => c.count > 0);
 
-    const recentItems = items.slice(0, 5).map(item => ({
+    const recentItems = items.slice(0, 5).map((item: PrismaItem) => ({
       ...item,
       image: `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
     }));

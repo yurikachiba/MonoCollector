@@ -1,14 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+interface PrismaItem {
+  id: string;
+  name: string;
+  category: string;
+  icon: string;
+  image: Buffer;
+  location: string;
+  quantity: number;
+  notes: string;
+  tags: string[];
+  isCollected: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // GET /api/items - Get all items
 export async function GET() {
   try {
     const items = await prisma.item.findMany({
       orderBy: { createdAt: 'desc' },
     });
-    
-    const itemsWithBase64 = items.map(item => ({
+
+    const itemsWithBase64 = items.map((item: PrismaItem) => ({
       ...item,
       image: `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
     }));
