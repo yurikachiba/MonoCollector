@@ -6,8 +6,33 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+/**
+ * Parses DATABASE_URL and ensures the password is properly URL-encoded.
+ * This handles special characters in passwords that would otherwise cause
+ * authentication failures (P1010 errors).
+ */
+function parseConnectionString(connectionString: string): string {
+  try {
+    const url = new URL(connectionString);
+    // Re-encode the password to handle special characters
+    if (url.password) {
+      // Decode first (in case it's already encoded) then re-encode
+      const decodedPassword = decodeURIComponent(url.password);
+      url.password = encodeURIComponent(decodedPassword);
+    }
+    return url.toString();
+  } catch {
+    // If parsing fails, return the original string
+    return connectionString;
+  }
+}
+
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
+  const rawConnectionString = process.env.DATABASE_URL;
+  if (!rawConnectionString) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+  const connectionString = parseConnectionString(rawConnectionString);
   const pool = new Pool({ connectionString });
   const adapter = new PrismaPg(pool);
 
