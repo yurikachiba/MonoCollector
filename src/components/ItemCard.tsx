@@ -7,6 +7,7 @@ import { Trash2, MoreHorizontal } from 'lucide-react';
 import { Item, Category } from '@/lib/db';
 import { useUIStore } from '@/lib/store';
 import { useDeleteItem } from '@/hooks/useItems';
+import { ItemRarityBadge } from './RarityBadge';
 
 interface ItemCardProps {
   item: Item;
@@ -146,6 +147,11 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
               ×{item.quantity}
             </div>
           )}
+
+          {/* Rarity badge */}
+          <div className="absolute top-2 left-2">
+            <ItemRarityBadge itemName={item.name} createdAt={item.createdAt} />
+          </div>
         </div>
 
         {/* Info */}
