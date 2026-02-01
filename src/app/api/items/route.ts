@@ -25,39 +25,90 @@ export async function GET() {
 
 // POST /api/items - Create a new item
 export async function POST(request: NextRequest) {
+  const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  console.log(`[${requestId}] POST /api/items - Starting item creation`);
+
   try {
     const formData = await request.formData();
 
+    // Log all form data keys for debugging
+    const formDataKeys = Array.from(formData.keys());
+    console.log(`[${requestId}] FormData keys:`, formDataKeys);
+
+    // Log form data values (except image binary)
+    formDataKeys.forEach(key => {
+      if (key !== 'image') {
+        const value = formData.get(key);
+        console.log(`[${requestId}] FormData[${key}]:`, value);
+      }
+    });
+
     const imageFile = formData.get('image');
+    console.log(`[${requestId}] Image validation:`, {
+      exists: !!imageFile,
+      isFile: imageFile instanceof File,
+      type: imageFile instanceof File ? imageFile.type : typeof imageFile,
+      size: imageFile instanceof File ? imageFile.size : 'N/A',
+      name: imageFile instanceof File ? imageFile.name : 'N/A',
+    });
+
     if (!imageFile || !(imageFile instanceof File) || imageFile.size === 0) {
+      console.error(`[${requestId}] Image validation failed:`, {
+        imageFile: imageFile,
+        isFile: imageFile instanceof File,
+        size: imageFile instanceof File ? imageFile.size : 'undefined',
+      });
       return NextResponse.json(
-        { error: 'Image is required' },
+        { error: 'Image is required', requestId },
         { status: 400 }
       );
     }
+
+    console.log(`[${requestId}] Converting image to buffer...`);
     const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
-    
+    console.log(`[${requestId}] Image buffer size: ${imageBuffer.length} bytes`);
+
     const tagsStr = formData.get('tags') as string;
     const tags = tagsStr ? JSON.parse(tagsStr) : [];
+    console.log(`[${requestId}] Parsed tags:`, tags);
 
-    const item = await prisma.item.create({
-      data: {
-        id: formData.get('id') as string,
-        name: formData.get('name') as string,
-        category: formData.get('category') as string,
-        icon: formData.get('icon') as string,
-        image: imageBuffer,
-        location: formData.get('location') as string,
-        quantity: parseInt(formData.get('quantity') as string) || 1,
-        notes: formData.get('notes') as string || "",
-        tags: tags,
-        isCollected: formData.get('isCollected') === 'true',
-        createdAt: formData.get('createdAt') ? new Date(formData.get('createdAt') as string) : new Date(),
-      },
+    const itemData = {
+      id: formData.get('id') as string,
+      name: formData.get('name') as string,
+      category: formData.get('category') as string,
+      icon: formData.get('icon') as string,
+      image: imageBuffer,
+      location: formData.get('location') as string,
+      quantity: parseInt(formData.get('quantity') as string) || 1,
+      notes: formData.get('notes') as string || "",
+      tags: tags,
+      isCollected: formData.get('isCollected') === 'true',
+      createdAt: formData.get('createdAt') ? new Date(formData.get('createdAt') as string) : new Date(),
+    };
+
+    console.log(`[${requestId}] Creating item in database:`, {
+      id: itemData.id,
+      name: itemData.name,
+      category: itemData.category,
+      icon: itemData.icon,
+      location: itemData.location,
+      quantity: itemData.quantity,
+      notes: itemData.notes,
+      tags: itemData.tags,
+      isCollected: itemData.isCollected,
+      createdAt: itemData.createdAt,
+      imageSize: itemData.image.length,
     });
 
+    const item = await prisma.item.create({
+      data: itemData,
+    });
+    console.log(`[${requestId}] Item created successfully:`, item.id);
+
     // Update category item count
+    console.log(`[${requestId}] Updating category count for: ${item.category}`);
     await updateCategoryCount(item.category);
+    console.log(`[${requestId}] Category count updated`);
 
     // Convert Buffer back to Base64 for the response
     const itemResponse = {
@@ -65,11 +116,17 @@ export async function POST(request: NextRequest) {
       image: `data:image/jpeg;base64,${Buffer.from(item.image).toString('base64')}`
     };
 
+    console.log(`[${requestId}] Item creation completed successfully`);
     return NextResponse.json(itemResponse, { status: 201 });
   } catch (error) {
-    console.error('Failed to create item:', error);
+    console.error(`[${requestId}] Failed to create item:`, error);
+    console.error(`[${requestId}] Error name:`, error instanceof Error ? error.name : 'Unknown');
+    console.error(`[${requestId}] Error message:`, error instanceof Error ? error.message : String(error));
+    console.error(`[${requestId}] Error stack:`, error instanceof Error ? error.stack : 'No stack');
+
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create item';
     return NextResponse.json(
-      { error: 'Failed to create item' },
+      { error: 'Failed to create item', details: errorMessage, requestId },
       { status: 500 }
     );
   }

@@ -128,9 +128,17 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   };
 
   const handleSubmit = async () => {
-    if (!name.trim()) return;
+    const submitId = `submit_${Date.now()}`;
+    console.log(`[${submitId}] handleSubmit - Starting`);
+
+    if (!name.trim()) {
+      console.warn(`[${submitId}] Name is empty, aborting`);
+      return;
+    }
 
     const cat = categories.find((c) => c.id === category);
+    console.log(`[${submitId}] Category found:`, cat);
+
     const itemData: Item = {
       id: editItem?.id || uuidv4(),
       name: name.trim(),
@@ -146,14 +154,34 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       isCollected: editItem?.isCollected || false,
     };
 
+    console.log(`[${submitId}] Item data prepared:`, {
+      id: itemData.id,
+      name: itemData.name,
+      category: itemData.category,
+      icon: itemData.icon,
+      location: itemData.location,
+      quantity: itemData.quantity,
+      imageType: typeof itemData.image,
+      imageLength: typeof itemData.image === 'string' ? itemData.image.length : 'Uint8Array',
+      imagePrefix: typeof itemData.image === 'string' ? itemData.image.substring(0, 50) : 'N/A',
+      isEdit: !!editItem,
+    });
+
     try {
       if (editItem) {
+        console.log(`[${submitId}] Updating existing item`);
         await updateItemMutation.mutateAsync(itemData);
       } else {
+        console.log(`[${submitId}] Creating new item`);
         await addItemMutation.mutateAsync(itemData);
       }
+      console.log(`[${submitId}] Operation completed successfully`);
       onClose();
     } catch (error) {
+      console.error(`[${submitId}] Operation failed:`, error);
+      console.error(`[${submitId}] Error type:`, error instanceof Error ? error.constructor.name : typeof error);
+      console.error(`[${submitId}] Error message:`, error instanceof Error ? error.message : String(error));
+      console.error(`[${submitId}] Error stack:`, error instanceof Error ? error.stack : 'No stack');
       const message = error instanceof Error ? error.message : '不明なエラー';
       alert(`保存に失敗しました: ${message}`);
     }

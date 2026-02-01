@@ -39,21 +39,79 @@ export const defaultCategories: Category[] = [
 
 // Item operations
 export async function addItem(item: Item): Promise<void> {
+  const clientRequestId = `client_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  console.log(`[${clientRequestId}] addItem - Starting item creation`);
+  console.log(`[${clientRequestId}] Item data:`, {
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    icon: item.icon,
+    location: item.location,
+    quantity: item.quantity,
+    notes: item.notes,
+    tags: item.tags,
+    isCollected: item.isCollected,
+    createdAt: item.createdAt,
+    imageType: typeof item.image,
+    imageLength: typeof item.image === 'string' ? item.image.length : 'Uint8Array',
+  });
+
   const formData = new FormData();
+  let imageProcessed = false;
+
   Object.entries(item).forEach(([key, value]) => {
     if (key === 'image') {
+      console.log(`[${clientRequestId}] Processing image field:`, {
+        type: typeof value,
+        isString: typeof value === 'string',
+        startsWithData: typeof value === 'string' && value.startsWith('data:'),
+        length: typeof value === 'string' ? value.length : 'N/A',
+        prefix: typeof value === 'string' ? value.substring(0, 50) : 'N/A',
+      });
+
       if (typeof value === 'string' && value.startsWith('data:')) {
-        // Base64 string to Blob
-        const byteString = atob(value.split(',')[1]);
-        const mimeString = value.split(',')[0].split(':')[1].split(';')[0];
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) {
-          ia[i] = byteString.charCodeAt(i);
+        try {
+          // Base64 string to Blob
+          const parts = value.split(',');
+          const mimeMatch = parts[0].match(/:(.*?);/);
+          const mimeString = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+          const base64Data = parts[1];
+
+          console.log(`[${clientRequestId}] Image conversion:`, {
+            mimeString,
+            base64DataLength: base64Data?.length || 0,
+          });
+
+          if (!base64Data) {
+            console.error(`[${clientRequestId}] No base64 data found in image string`);
+            return;
+          }
+
+          const byteString = atob(base64Data);
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          const blob = new Blob([ab], { type: mimeString });
+          const extension = mimeString.split('/')[1] || 'jpg';
+
+          console.log(`[${clientRequestId}] Created blob:`, {
+            blobSize: blob.size,
+            blobType: blob.type,
+            filename: `image.${extension}`,
+          });
+
+          formData.append(key, blob, `image.${extension}`);
+          imageProcessed = true;
+        } catch (err) {
+          console.error(`[${clientRequestId}] Error converting image:`, err);
         }
-        const blob = new Blob([ab], { type: mimeString });
-        const extension = mimeString.split('/')[1] || 'jpg';
-        formData.append(key, blob, `image.${extension}`);
+      } else {
+        console.warn(`[${clientRequestId}] Skipping invalid image value:`, {
+          type: typeof value,
+          value: typeof value === 'string' ? value.substring(0, 100) : 'not a string',
+        });
       }
       // Skip empty strings or invalid image values
     } else if (key === 'tags') {
@@ -65,15 +123,37 @@ export async function addItem(item: Item): Promise<void> {
     }
   });
 
+  console.log(`[${clientRequestId}] FormData prepared:`, {
+    imageProcessed,
+    keys: Array.from(formData.keys()),
+  });
+
+  if (!imageProcessed) {
+    console.error(`[${clientRequestId}] Warning: No image was added to FormData!`);
+  }
+
+  console.log(`[${clientRequestId}] Sending POST request to /api/items`);
   const response = await fetch('/api/items', {
     method: 'POST',
     body: formData,
   });
 
+  console.log(`[${clientRequestId}] Response received:`, {
+    ok: response.ok,
+    status: response.status,
+    statusText: response.statusText,
+  });
+
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(data.error || 'Failed to add item');
+    console.error(`[${clientRequestId}] Request failed:`, {
+      status: response.status,
+      data,
+    });
+    throw new Error(data.details || data.error || 'Failed to add item');
   }
+
+  console.log(`[${clientRequestId}] Item created successfully`);
 }
 
 export async function updateItem(item: Item): Promise<void> {
