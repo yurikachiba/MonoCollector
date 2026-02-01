@@ -79,13 +79,14 @@ export async function POST(request: NextRequest) {
     const icon = formData.get('icon');
     const location = formData.get('location');
 
-    // Validate required string fields
+    // Validate required string fields (location can be empty string)
     const missingFields: string[] = [];
     if (!id || typeof id !== 'string') missingFields.push('id');
     if (!name || typeof name !== 'string') missingFields.push('name');
     if (!category || typeof category !== 'string') missingFields.push('category');
     if (!icon || typeof icon !== 'string') missingFields.push('icon');
-    if (!location || typeof location !== 'string') missingFields.push('location');
+    // Location is optional in UI but required in DB, allow empty string
+    if (location === null || location === undefined || typeof location !== 'string') missingFields.push('location');
 
     if (missingFields.length > 0) {
       console.error(`[${requestId}] Missing required fields:`, missingFields);
@@ -95,6 +96,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Safely parse quantity - ensure it's a valid integer
+    const quantityStr = formData.get('quantity') as string;
+    const quantity = quantityStr ? parseInt(quantityStr, 10) : 1;
+    const safeQuantity = Number.isNaN(quantity) ? 1 : quantity;
+
+    // Safely handle notes - ensure it's a string
+    const notesValue = formData.get('notes');
+    const notes = typeof notesValue === 'string' ? notesValue : '';
+
+    // Safely handle createdAt
+    const createdAtStr = formData.get('createdAt') as string;
+    let createdAt: Date;
+    try {
+      createdAt = createdAtStr ? new Date(createdAtStr) : new Date();
+      if (isNaN(createdAt.getTime())) {
+        createdAt = new Date();
+      }
+    } catch {
+      createdAt = new Date();
+    }
+
+    // Validate tags is an array of strings
+    const safeTags = Array.isArray(tags) ? tags.filter((t): t is string => typeof t === 'string') : [];
+
     const itemData = {
       id: id as string,
       name: name as string,
@@ -102,11 +127,12 @@ export async function POST(request: NextRequest) {
       icon: icon as string,
       image: imageBuffer,
       location: location as string,
-      quantity: parseInt(formData.get('quantity') as string) || 1,
-      notes: (formData.get('notes') as string) || "",
-      tags: tags,
+      quantity: safeQuantity,
+      notes: notes,
+      tags: safeTags,
       isCollected: formData.get('isCollected') === 'true',
-      createdAt: formData.get('createdAt') ? new Date(formData.get('createdAt') as string) : new Date(),
+      createdAt: createdAt,
+      updatedAt: new Date(),
     };
 
     console.log(`[${requestId}] Creating item in database:`, {
@@ -120,6 +146,7 @@ export async function POST(request: NextRequest) {
       tags: itemData.tags,
       isCollected: itemData.isCollected,
       createdAt: itemData.createdAt,
+      updatedAt: itemData.updatedAt,
       imageSize: itemData.image.length,
     });
 
@@ -147,9 +174,24 @@ export async function POST(request: NextRequest) {
     console.error(`[${requestId}] Error message:`, error instanceof Error ? error.message : String(error));
     console.error(`[${requestId}] Error stack:`, error instanceof Error ? error.stack : 'No stack');
 
-    const errorMessage = error instanceof Error ? error.message : 'Failed to create item';
+    // Handle Prisma-specific errors
+    let errorDetails = 'Failed to create item';
+    if (error instanceof Error) {
+      errorDetails = error.message;
+      // Check for Prisma validation errors
+      if ('code' in error) {
+        const prismaError = error as Error & { code: string; meta?: Record<string, unknown> };
+        console.error(`[${requestId}] Prisma error code:`, prismaError.code);
+        console.error(`[${requestId}] Prisma error meta:`, prismaError.meta);
+        errorDetails = `Prisma error (${prismaError.code}): ${error.message}`;
+        if (prismaError.meta) {
+          errorDetails += ` Meta: ${JSON.stringify(prismaError.meta)}`;
+        }
+      }
+    }
+
     return NextResponse.json(
-      { error: 'Failed to create item', details: errorMessage, requestId },
+      { error: 'Failed to create item', details: errorDetails, requestId },
       { status: 500 }
     );
   }
