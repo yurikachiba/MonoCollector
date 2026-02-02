@@ -13,7 +13,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
-    ...authConfig.providers.filter((p) => (p as { id?: string }).id !== "guest"),
+    // Google provider from authConfig (Edge-compatible)
+    ...authConfig.providers,
+    // Guest provider with Prisma (Node.js runtime only)
     CredentialsProvider({
       id: "guest",
       name: "Guest",
