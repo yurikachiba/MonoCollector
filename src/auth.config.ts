@@ -87,9 +87,9 @@ export const authConfig: NextAuthConfig = {
 
       // Admin pages/APIs require admin email
       if (isAdminPage || isAdminApi) {
-        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminEmails = process.env.ADMIN_EMAIL?.split(",").map(e => e.trim()) || [];
         const userEmail = auth?.user?.email;
-        if (!isLoggedIn || !adminEmail || userEmail !== adminEmail) {
+        if (!isLoggedIn || !userEmail || !adminEmails.includes(userEmail)) {
           return Response.redirect(new URL("/collection", nextUrl.origin));
         }
       }
