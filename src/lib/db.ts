@@ -4,6 +4,9 @@ export interface Item {
   category: string;
   icon: string;
   image: Uint8Array | string;
+  generatedIcon?: string;  // 写真から生成したオリジナルアイコン（SVG data URL）
+  iconStyle?: string;      // アイコンスタイル（mosaic, gradient, geometric, abstract, pixel）
+  iconColors?: string[];   // アイコンに使われた色
   location: string;
   quantity: number;
   notes: string;
@@ -114,11 +117,11 @@ export async function addItem(item: Item): Promise<void> {
         });
       }
       // Skip empty strings or invalid image values
-    } else if (key === 'tags') {
+    } else if (key === 'tags' || key === 'iconColors') {
       formData.append(key, JSON.stringify(value));
     } else if (value instanceof Date) {
       formData.append(key, value.toISOString());
-    } else {
+    } else if (value !== undefined && value !== null) {
       formData.append(key, String(value));
     }
   });
@@ -176,11 +179,11 @@ export async function updateItem(item: Item): Promise<void> {
         formData.append(key, blob, `image.${extension}`);
       }
       // Skip empty strings or invalid image values
-    } else if (key === 'tags') {
+    } else if (key === 'tags' || key === 'iconColors') {
       formData.append(key, JSON.stringify(value));
     } else if (value instanceof Date) {
       formData.append(key, value.toISOString());
-    } else {
+    } else if (value !== undefined && value !== null) {
       formData.append(key, String(value));
     }
   });

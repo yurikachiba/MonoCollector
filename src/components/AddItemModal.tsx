@@ -11,7 +11,9 @@ import { useCategories } from '@/hooks/useCategories';
 import { useAddItem, useUpdateItem } from '@/hooks/useItems';
 import { analyzeImage, getStoredApiKey } from '@/lib/groq-vision';
 import IconGenerator from './IconGenerator';
+import PhotoIconGenerator from './PhotoIconGenerator';
 import { GeneratedIcon } from '@/lib/icon-generator';
+import { PhotoIcon } from '@/lib/photo-icon-generator';
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -65,6 +67,8 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [useAutoIcon, setUseAutoIcon] = useState(false);
   const [generatedIcon, setGeneratedIcon] = useState<GeneratedIcon | null>(null);
+  const [generatedPhotoIcon, setGeneratedPhotoIcon] = useState<PhotoIcon | null>(null);
+  const [enablePhotoIcon, setEnablePhotoIcon] = useState(true); // デフォルトでON
 
   useEffect(() => {
     if (editItem) {
@@ -86,6 +90,8 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       setMode('form');
       setUseAutoIcon(false);
       setGeneratedIcon(null);
+      setGeneratedPhotoIcon(null);
+      setEnablePhotoIcon(true);
     }
   }, [editItem, isOpen]);
 
@@ -179,6 +185,10 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       category,
       icon: cat?.icon || '📦',
       image: finalImage,
+      // 写真からオリジナルアイコンを生成した場合
+      generatedIcon: enablePhotoIcon && generatedPhotoIcon ? generatedPhotoIcon.dataUrl : editItem?.generatedIcon,
+      iconStyle: enablePhotoIcon && generatedPhotoIcon ? generatedPhotoIcon.style : editItem?.iconStyle,
+      iconColors: enablePhotoIcon && generatedPhotoIcon ? generatedPhotoIcon.colors : editItem?.iconColors,
       location,
       quantity: editItem?.quantity || 1,
       notes: editItem?.notes || '',
@@ -339,7 +349,35 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                   className="hidden"
                 />
 
-                {/* Auto Icon Mode Toggle */}
+                {/* Photo Icon Generator - 写真からオリジナルアイコン生成 */}
+                {image && typeof image === 'string' && image.startsWith('data:') && !editItem && (
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setEnablePhotoIcon(!enablePhotoIcon)}
+                      className={`w-full py-2.5 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors ${
+                        enablePhotoIcon
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      {enablePhotoIcon ? 'オリジナルアイコン生成ON' : 'オリジナルアイコンを生成する'}
+                    </button>
+
+                    {/* Photo Icon Generator */}
+                    {enablePhotoIcon && (
+                      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3">
+                        <PhotoIconGenerator
+                          imageDataUrl={image}
+                          onSelect={(icon) => setGeneratedPhotoIcon(icon)}
+                          showAllStyles
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Auto Icon Mode Toggle - 写真がない場合のみ表示 */}
                 {!image && !editItem && (
                   <div className="space-y-3">
                     <button

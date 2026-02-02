@@ -8,18 +8,21 @@ datasource db {
 }
 
 model Item {
-  id          String   @id @default(uuid())
-  name        String
-  category    String
-  icon        String
-  image       Bytes
-  location    String
-  quantity    Int      @default(1)
-  notes       String   @default("")
-  tags        String[] @default([])
-  isCollected Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(uuid())
+  name            String
+  category        String
+  icon            String
+  image           Bytes
+  generatedIcon   String?  // 写真から生成したオリジナルアイコン（SVG data URL）
+  iconStyle       String?  // アイコンスタイル（mosaic, gradient, geometric, abstract, pixel）
+  iconColors      String[] @default([]) // アイコンに使われた色
+  location        String
+  quantity        Int      @default(1)
+  notes           String   @default("")
+  tags            String[] @default([])
+  isCollected     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([category])
   @@index([createdAt])

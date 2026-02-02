@@ -7,6 +7,9 @@ interface PrismaItem {
   category: string;
   icon: string;
   image: Uint8Array;
+  generatedIcon: string | null;
+  iconStyle: string | null;
+  iconColors: string[];
   location: string;
   quantity: number;
   notes: string;
@@ -135,12 +138,22 @@ export async function POST(request: NextRequest) {
     // Validate tags is an array of strings
     const safeTags = Array.isArray(tags) ? tags.filter((t): t is string => typeof t === 'string') : [];
 
+    // Handle generated icon fields
+    const generatedIcon = formData.get('generatedIcon') as string | null;
+    const iconStyle = formData.get('iconStyle') as string | null;
+    const iconColorsStr = formData.get('iconColors') as string;
+    const iconColors = iconColorsStr ? JSON.parse(iconColorsStr) : [];
+    const safeIconColors = Array.isArray(iconColors) ? iconColors.filter((c): c is string => typeof c === 'string') : [];
+
     const itemData = {
       id: id as string,
       name: name as string,
       category: category as string,
       icon: icon as string,
       image: imageBuffer,
+      generatedIcon: generatedIcon || null,
+      iconStyle: iconStyle || null,
+      iconColors: safeIconColors,
       location: location as string,
       quantity: safeQuantity,
       notes: notes,

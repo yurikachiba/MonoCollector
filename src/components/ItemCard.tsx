@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Trash2, MoreHorizontal } from 'lucide-react';
+import { Trash2, MoreHorizontal, Sparkles } from 'lucide-react';
 import { Item, Category } from '@/lib/db';
 import { useUIStore } from '@/lib/store';
 import { useDeleteItem } from '@/hooks/useItems';
@@ -51,7 +51,7 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
         onClick={() => onEdit(item)}
       >
         {/* Image/Icon */}
-        <div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="relative w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
           {item.image ? (
             <Image
               src={displayImage}
@@ -62,6 +62,19 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
             />
           ) : (
             <span className="text-xl">{item.icon}</span>
+          )}
+          {/* Generated Icon indicator */}
+          {item.generatedIcon && (
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full overflow-hidden ring-1 ring-white dark:ring-gray-900">
+              <Image
+                src={item.generatedIcon}
+                alt=""
+                width={20}
+                height={20}
+                className="w-full h-full object-cover"
+                unoptimized
+              />
+            </div>
           )}
         </div>
 
@@ -145,6 +158,23 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
           {item.quantity > 1 && (
             <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/70 text-white text-xs rounded">
               ×{item.quantity}
+            </div>
+          )}
+
+          {/* Generated Icon badge - オリジナルアイコン */}
+          {item.generatedIcon && (
+            <div className="absolute bottom-2 left-2 w-8 h-8 rounded-lg overflow-hidden ring-2 ring-white dark:ring-gray-900 shadow-md">
+              <Image
+                src={item.generatedIcon}
+                alt="Generated Icon"
+                width={32}
+                height={32}
+                className="w-full h-full object-cover"
+                unoptimized
+              />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full flex items-center justify-center">
+                <Sparkles className="w-2 h-2 text-white" />
+              </div>
             </div>
           )}
 
