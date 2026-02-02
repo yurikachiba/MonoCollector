@@ -2,6 +2,7 @@
 
 import { useUIStore } from '@/lib/store';
 import { useCategories } from '@/hooks/useCategories';
+import { CategoryIcon } from '@/components/icons/CategoryIcons';
 
 export default function CategoryBar() {
   const { selectedCategory, setSelectedCategory } = useUIStore();
@@ -25,13 +26,14 @@ export default function CategoryBar() {
           <button
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
-            className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-colors ${
+            className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-colors flex items-center gap-1 ${
               selectedCategory === category.id
                 ? 'bg-black dark:bg-white text-white dark:text-black'
                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
-            {category.icon} {category.name}
+            <CategoryIcon categoryId={category.id} size={18} />
+            {category.name}
             {category.itemCount > 0 && (
               <span className="ml-1 opacity-60">{category.itemCount}</span>
             )}
