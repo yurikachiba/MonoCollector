@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { X, ArrowRight, Package, AlertCircle, Check } from 'lucide-react';
 
@@ -12,51 +12,85 @@ interface GuestInfo {
 }
 
 export default function GuestDataMigrationDialog() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [guestInfo, setGuestInfo] = useState<GuestInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
   const [migrationResult, setMigrationResult] = useState<{ success: boolean; message: string } | null>(null);
   const [guestId, setGuestId] = useState<string | null>(null);
+  const hasChecked = useRef(false);
 
   // 初期化時にゲストデータをチェック
   useEffect(() => {
     const checkGuestData = async () => {
-      // ゲストユーザーの場合は何もしない
-      if (!session?.user?.id || session.user.isGuest) {
+      // セッションがloading中の場合は待機
+      if (status === 'loading') {
         return;
       }
 
-      // localStorageからゲストIDを取得
+      // 認証されていない場合は何もしない
+      if (status === 'unauthenticated' || !session?.user?.id) {
+        return;
+      }
+
+      // ゲストユーザーの場合は何もしない（isGuestがtrueまたはundefinedの場合）
+      if (session.user.isGuest === true) {
+        return;
+      }
+
+      // 既にチェック済みの場合はスキップ
+      if (hasChecked.current) {
+        return;
+      }
+      hasChecked.current = true;
+
+      // localStorageからゲストIDを取得（SSR対策）
+      if (typeof window === 'undefined') {
+        return;
+      }
       const storedGuestId = localStorage.getItem('guestUserId');
       if (!storedGuestId) {
+        console.log('[GuestMigration] No guest ID found in localStorage');
         return;
       }
 
+      // 現在のユーザーIDと同じ場合は何もしない（ゲストが自分自身を引き継ごうとしている）
+      if (storedGuestId === session.user.id) {
+        console.log('[GuestMigration] Guest ID matches current user, skipping');
+        return;
+      }
+
+      console.log('[GuestMigration] Found guest ID:', storedGuestId, 'Current user:', session.user.id, 'isGuest:', session.user.isGuest);
       setGuestId(storedGuestId);
       setIsLoading(true);
 
       try {
         const response = await fetch(`/api/auth/link-guest?guestId=${encodeURIComponent(storedGuestId)}`);
         const data = await response.json();
+        console.log('[GuestMigration] API response:', data);
 
         if (data.exists && data.itemCount > 0) {
           setGuestInfo(data);
           setIsOpen(true);
         } else if (!data.exists) {
           // ゲストIDが無効な場合はlocalStorageから削除
+          console.log('[GuestMigration] Guest user not found, removing from localStorage');
+          localStorage.removeItem('guestUserId');
+        } else if (data.itemCount === 0) {
+          // アイテムが0個の場合もlocalStorageから削除
+          console.log('[GuestMigration] Guest has no items, removing from localStorage');
           localStorage.removeItem('guestUserId');
         }
       } catch (error) {
-        console.error('Failed to check guest data:', error);
+        console.error('[GuestMigration] Failed to check guest data:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     checkGuestData();
-  }, [session]);
+  }, [session, status]);
 
   const handleMigrate = async () => {
     if (!guestId) return;
