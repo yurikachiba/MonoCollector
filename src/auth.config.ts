@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 // Edge-compatible auth config (no Prisma)
 export const authConfig: NextAuthConfig = {
+  secret: process.env.AUTH_SECRET,
   trustHost: true,
   session: {
     strategy: "jwt",
