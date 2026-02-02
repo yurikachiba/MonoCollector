@@ -188,7 +188,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       // AIでオリジナルアイコンを生成した場合
       generatedIcon: enableAIIcon && generatedAIIcon ? generatedAIIcon.dataUrl : editItem?.generatedIcon,
       iconStyle: enableAIIcon && generatedAIIcon ? generatedAIIcon.style : editItem?.iconStyle,
-      iconColors: editItem?.iconColors, // AIアイコンでは色抽出は使わない
+      iconColors: editItem?.iconColors || [], // AIアイコンでは色抽出は使わない
       location,
       quantity: editItem?.quantity || 1,
       notes: editItem?.notes || '',

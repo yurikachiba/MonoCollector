@@ -118,7 +118,8 @@ export async function addItem(item: Item): Promise<void> {
       }
       // Skip empty strings or invalid image values
     } else if (key === 'tags' || key === 'iconColors') {
-      formData.append(key, JSON.stringify(value));
+      // undefined や null の場合は空配列としてシリアライズ
+      formData.append(key, JSON.stringify(value ?? []));
     } else if (value instanceof Date) {
       formData.append(key, value.toISOString());
     } else if (value !== undefined && value !== null) {
@@ -180,7 +181,8 @@ export async function updateItem(item: Item): Promise<void> {
       }
       // Skip empty strings or invalid image values
     } else if (key === 'tags' || key === 'iconColors') {
-      formData.append(key, JSON.stringify(value));
+      // undefined や null の場合は空配列としてシリアライズ
+      formData.append(key, JSON.stringify(value ?? []));
     } else if (value instanceof Date) {
       formData.append(key, value.toISOString());
     } else if (value !== undefined && value !== null) {

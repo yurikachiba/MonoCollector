@@ -106,7 +106,8 @@ export async function POST(request: NextRequest) {
     console.log(`[${requestId}] Image buffer size: ${imageBuffer.length} bytes`);
 
     const tagsStr = formData.get('tags') as string;
-    const tags = tagsStr ? JSON.parse(tagsStr) : [];
+    // "undefined" 文字列の場合は空配列として扱う（クライアント側でundefinedがシリアライズされた場合の対策）
+    const tags = tagsStr && tagsStr !== 'undefined' ? JSON.parse(tagsStr) : [];
     console.log(`[${requestId}] Parsed tags:`, tags);
 
     // Extract and validate required fields
@@ -161,7 +162,8 @@ export async function POST(request: NextRequest) {
     const generatedIcon = formData.get('generatedIcon') as string | null;
     const iconStyle = formData.get('iconStyle') as string | null;
     const iconColorsStr = formData.get('iconColors') as string;
-    const iconColors = iconColorsStr ? JSON.parse(iconColorsStr) : [];
+    // "undefined" 文字列の場合は空配列として扱う
+    const iconColors = iconColorsStr && iconColorsStr !== 'undefined' ? JSON.parse(iconColorsStr) : [];
     const safeIconColors = Array.isArray(iconColors) ? iconColors.filter((c): c is string => typeof c === 'string') : [];
 
     const itemData = {

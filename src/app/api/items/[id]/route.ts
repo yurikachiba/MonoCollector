@@ -100,7 +100,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const tagsStr = formData.get('tags') as string;
-    if (tagsStr) {
+    // "undefined" 文字列の場合はスキップ
+    if (tagsStr && tagsStr !== 'undefined') {
       updateData.tags = JSON.parse(tagsStr);
     }
 
@@ -116,7 +117,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const iconColorsStr = formData.get('iconColors') as string;
-    if (iconColorsStr) {
+    // "undefined" 文字列の場合はスキップ
+    if (iconColorsStr && iconColorsStr !== 'undefined') {
       const iconColors = JSON.parse(iconColorsStr);
       updateData.iconColors = Array.isArray(iconColors) ? iconColors.filter((c): c is string => typeof c === 'string') : [];
     }
