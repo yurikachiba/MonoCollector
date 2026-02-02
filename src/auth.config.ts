@@ -48,6 +48,17 @@ export const authConfig: NextAuthConfig = {
     error: "/login", // Redirect to login page with error
   },
   providers,
+  logger: {
+    error(code, ...message) {
+      console.error("[AUTH ERROR]", code, JSON.stringify(message, null, 2));
+    },
+    warn(code, ...message) {
+      console.warn("[AUTH WARN]", code, JSON.stringify(message, null, 2));
+    },
+    debug(code, ...message) {
+      console.log("[AUTH DEBUG]", code, JSON.stringify(message, null, 2));
+    },
+  },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
