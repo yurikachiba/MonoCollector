@@ -1,7 +1,7 @@
 {
-  "name": "モノコレクター",
+  "name": "モノコレクター - モノを、思い出に。",
   "short_name": "モノコレ",
-  "description": "家にあるモノを楽しく管理するコレクションアプリ",
+  "description": "あなたの暮らしは、コレクションになる。日常のモノを思い出として記録するアプリ",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fef7ff",
@@ -70,9 +70,9 @@
   ],
   "shortcuts": [
     {
-      "name": "アイテムを追加",
+      "name": "思い出を追加",
       "short_name": "追加",
-      "description": "新しいアイテムをコレクションに追加",
+      "description": "新しいモノを思い出として記録",
       "url": "/?action=add",
       "icons": [{ "src": "/icons/add-icon.png", "sizes": "96x96" }]
     }
