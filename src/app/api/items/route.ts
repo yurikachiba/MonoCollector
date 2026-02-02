@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 
 interface PrismaItem {
   id: string;
@@ -17,12 +18,22 @@ interface PrismaItem {
   isCollected: boolean;
   createdAt: Date;
   updatedAt: Date;
+  userId: string | null;
 }
 
-// GET /api/items - Get all items
+// GET /api/items - Get all items for current user
 export async function GET() {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const items = await prisma.item.findMany({
+      where: { userId: session.user.id },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -47,6 +58,14 @@ export async function POST(request: NextRequest) {
   console.log(`[${requestId}] POST /api/items - Starting item creation`);
 
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized', requestId },
+        { status: 401 }
+      );
+    }
+
     const formData = await request.formData();
 
     // Log all form data keys for debugging
@@ -161,6 +180,7 @@ export async function POST(request: NextRequest) {
       isCollected: formData.get('isCollected') === 'true',
       createdAt: createdAt,
       updatedAt: new Date(),
+      userId: session.user.id,
     };
 
     console.log(`[${requestId}] Creating item in database:`, {
