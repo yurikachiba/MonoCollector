@@ -2,6 +2,32 @@ import type { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+// Build providers array conditionally
+const providers: NextAuthConfig["providers"] = [];
+
+// Only add Google provider if credentials are configured
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.push(
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    })
+  );
+}
+
+// Always add guest provider (will be overridden in auth.ts with Prisma)
+providers.push(
+  CredentialsProvider({
+    id: "guest",
+    name: "Guest",
+    credentials: {},
+    async authorize() {
+      // This will be overridden in auth.ts with Prisma
+      return null;
+    },
+  })
+);
+
 // Edge-compatible auth config (no Prisma)
 export const authConfig: NextAuthConfig = {
   secret: process.env.AUTH_SECRET,
@@ -12,21 +38,7 @@ export const authConfig: NextAuthConfig = {
   pages: {
     signIn: "/login",
   },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    }),
-    CredentialsProvider({
-      id: "guest",
-      name: "Guest",
-      credentials: {},
-      async authorize() {
-        // This will be overridden in auth.ts with Prisma
-        return null;
-      },
-    }),
-  ],
+  providers,
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
