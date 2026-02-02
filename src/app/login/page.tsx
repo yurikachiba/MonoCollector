@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { LogIn, AlertCircle } from "lucide-react";
 import Image from "next/image";
@@ -27,27 +27,31 @@ const errorMessages: Record<string, string> = {
 // Component that uses useSearchParams - must be wrapped in Suspense
 function LoginContent() {
   const [isLoading, setIsLoading] = useState<"google" | "guest" | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
-  // Check for error in URL params
-  useEffect(() => {
+  // Derive error from URL params (for redirects from auth errors)
+  const urlError = useMemo(() => {
     const error = searchParams.get("error");
     if (error) {
       console.error("Auth error from URL:", error);
-      setErrorMessage(errorMessages[error] || errorMessages.Default);
+      return errorMessages[error] || errorMessages.Default;
     }
+    return null;
   }, [searchParams]);
+
+  // Show runtime error if present, otherwise show URL error
+  const errorMessage = runtimeError || urlError;
 
   const handleGoogleLogin = async () => {
     setIsLoading("google");
-    setErrorMessage(null);
+    setRuntimeError(null);
     await signIn("google", { callbackUrl: "/collection" });
   };
 
   const handleGuestLogin = async () => {
     setIsLoading("guest");
-    setErrorMessage(null);
+    setRuntimeError(null);
     try {
       const result = await signIn("guest", {
         callbackUrl: "/collection",
@@ -55,19 +59,19 @@ function LoginContent() {
       });
       if (result?.error) {
         console.error("Guest login error:", result.error);
-        setErrorMessage(errorMessages[result.error] || errorMessages.Default);
+        setRuntimeError(errorMessages[result.error] || errorMessages.Default);
         setIsLoading(null);
       } else if (result?.ok) {
         window.location.href = "/collection";
       } else {
         // Handle case where result is not ok and no error
         console.error("Guest login returned unexpected result:", result);
-        setErrorMessage(errorMessages.Default);
+        setRuntimeError(errorMessages.Default);
         setIsLoading(null);
       }
     } catch (error) {
       console.error("Guest login error:", error);
-      setErrorMessage(errorMessages.Default);
+      setRuntimeError(errorMessages.Default);
       setIsLoading(null);
     }
   };
