@@ -146,10 +146,10 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
             </div>
           )}
 
-          {/* Delete button on hover */}
+          {/* Delete button - visible on mobile, hover on desktop */}
           <button
             onClick={handleDelete}
-            className="absolute top-2 right-2 p-1.5 bg-white/90 dark:bg-black/90 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute top-2 right-2 p-1.5 bg-white/90 dark:bg-black/90 rounded-full opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
           >
             <Trash2 className="w-3.5 h-3.5 text-red-500" />
           </button>
