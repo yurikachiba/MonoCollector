@@ -67,6 +67,8 @@ export const authConfig: NextAuthConfig = {
         nextUrl.pathname === "/terms" ||
         nextUrl.pathname === "/privacy";
       const isProtectedPage = nextUrl.pathname.startsWith("/collection");
+      const isAdminPage = nextUrl.pathname.startsWith("/admin");
+      const isAdminApi = nextUrl.pathname.startsWith("/api/admin");
 
       // API auth routes should always be accessible
       if (isApiAuthRoute) {
@@ -81,6 +83,15 @@ export const authConfig: NextAuthConfig = {
       // Protected pages require login
       if (isProtectedPage && !isLoggedIn) {
         return false;
+      }
+
+      // Admin pages/APIs require admin email
+      if (isAdminPage || isAdminApi) {
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const userEmail = auth?.user?.email;
+        if (!isLoggedIn || !adminEmail || userEmail !== adminEmail) {
+          return Response.redirect(new URL("/collection", nextUrl.origin));
+        }
       }
 
       // Redirect to collection if logged in and on login page
