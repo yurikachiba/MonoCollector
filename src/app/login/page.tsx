@@ -2,7 +2,8 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { Package, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<"google" | "guest" | null>(null);
@@ -22,8 +23,15 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-8">
         {/* Logo & Title */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg">
-            <Package className="w-10 h-10 text-white" />
+          <div className="inline-flex items-center justify-center">
+            <Image
+              src="/icon.svg"
+              alt="モノコレクター"
+              width={80}
+              height={80}
+              className="rounded-2xl shadow-lg"
+              priority
+            />
           </div>
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
             モノコレクター
