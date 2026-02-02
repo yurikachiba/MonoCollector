@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdf2f8"/>
+      <stop offset="50%" style="stop-color:#fce7f3"/>
+      <stop offset="100%" style="stop-color:#f5d0fe"/>
+    </linearGradient>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f472b6"/>
+      <stop offset="50%" style="stop-color:#ec4899"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ec4899"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#831843" flood-opacity="0.2"/>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+
+  <!-- Decorative background sparkles -->
+  <g opacity="0.3">
+    <path d="M100 100 L108 120 L128 128 L108 136 L100 156 L92 136 L72 128 L92 120 Z" fill="#f472b6"/>
+    <path d="M1100 80 L106 96 L1122 104 L1106 112 L1100 128 L1094 112 L1078 104 L1094 96 Z" fill="#a855f7"/>
+    <path d="M150 500 L156 516 L172 522 L156 528 L150 544 L144 528 L128 522 L144 516 Z" fill="#ec4899"/>
+    <path d="M1050 520 L1056 536 L1072 542 L1056 548 L1050 564 L1044 548 L1028 542 L1044 536 Z" fill="#f472b6"/>
+  </g>
+
+  <!-- Main Icon (centered left) -->
+  <g transform="translate(200, 115)" filter="url(#softShadow)">
+    <rect width="400" height="400" rx="86" fill="url(#iconGrad)"/>
+
+    <!-- Box body -->
+    <rect x="75" y="190" width="250" height="140" rx="18" fill="white" opacity="0.95"/>
+
+    <!-- Box lid -->
+    <path d="M75 205 Q75 185 95 185 L200 125 L305 185 Q325 185 325 205" fill="white" opacity="0.9"/>
+    <ellipse cx="200" cy="125" rx="10" ry="6" fill="#f9a8d4"/>
+
+    <!-- Grid lines -->
+    <g stroke="#f9a8d4" stroke-width="1.5" opacity="0.4">
+      <line x1="138" y1="190" x2="138" y2="330"/>
+      <line x1="200" y1="190" x2="200" y2="330"/>
+      <line x1="262" y1="190" x2="262" y2="330"/>
+      <line x1="75" y1="260" x2="325" y2="260"/>
+    </g>
+
+    <!-- Items in box -->
+    <circle cx="106" cy="225" r="22" fill="#fde047"/>
+    <circle cx="102" cy="220" r="6" fill="white" opacity="0.6"/>
+
+    <circle cx="169" cy="232" r="19" fill="#a78bfa"/>
+    <circle cx="165" cy="228" r="5" fill="white" opacity="0.6"/>
+
+    <circle cx="231" cy="228" r="20" fill="#34d399"/>
+    <circle cx="227" cy="224" r="5" fill="white" opacity="0.6"/>
+
+    <circle cx="294" cy="225" r="22" fill="#fb7185"/>
+    <circle cx="290" cy="220" r="6" fill="white" opacity="0.6"/>
+
+    <!-- Sparkles -->
+    <g filter="url(#glow)">
+      <path d="M200 55 L210 82 L237 92 L210 102 L200 129 L190 102 L163 92 L190 82 Z" fill="white"/>
+      <path d="M108 75 L115 92 L132 99 L115 106 L108 123 L101 106 L84 99 L101 92 Z" fill="white" opacity="0.9"/>
+      <path d="M292 68 L299 85 L316 92 L299 99 L292 116 L285 99 L268 92 L285 85 Z" fill="white" opacity="0.9"/>
+      <path d="M65 130 L68 140 L78 143 L68 146 L65 156 L62 146 L52 143 L62 140 Z" fill="white" opacity="0.7"/>
+      <path d="M335 125 L338 135 L348 138 L338 141 L335 151 L332 141 L322 138 L332 135 Z" fill="white" opacity="0.7"/>
+    </g>
+
+    <!-- Floating dots -->
+    <circle cx="78" cy="60" r="5" fill="white" opacity="0.5"/>
+    <circle cx="322" cy="50" r="4" fill="white" opacity="0.4"/>
+  </g>
+
+  <!-- Text content (right side) -->
+  <g>
+    <!-- Main title -->
+    <text x="680" y="270" font-family="'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif" font-size="72" font-weight="700" fill="url(#textGrad)">
+      モノコレクター
+    </text>
+
+    <!-- Subtitle -->
+    <text x="680" y="340" font-family="'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif" font-size="28" fill="#6b7280">
+      家にあるモノを楽しく管理
+    </text>
+
+    <!-- Feature badges -->
+    <g transform="translate(680, 380)">
+      <rect x="0" y="0" width="120" height="36" rx="18" fill="#fce7f3"/>
+      <text x="60" y="24" font-family="'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif" font-size="14" fill="#be185d" text-anchor="middle">カメラで撮影</text>
+
+      <rect x="135" y="0" width="100" height="36" rx="18" fill="#ede9fe"/>
+      <text x="185" y="24" font-family="'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif" font-size="14" fill="#7c3aed" text-anchor="middle">自動分類</text>
+
+      <rect x="250" y="0" width="100" height="36" rx="18" fill="#d1fae5"/>
+      <text x="300" y="24" font-family="'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif" font-size="14" fill="#059669" text-anchor="middle">LINE共有</text>
+    </g>
+  </g>
+
+  <!-- Bottom decorative line -->
+  <rect x="0" y="610" width="1200" height="20" fill="url(#iconGrad)" opacity="0.8"/>
+</svg>
