@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { LogIn } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<"google" | "guest" | null>(null);
@@ -107,6 +108,16 @@ export default function LoginPage() {
           <br />
           長期間のご利用にはGoogleアカウントでのログインをお勧めします。
         </p>
+
+        {/* Legal Links */}
+        <div className="flex justify-center gap-4 text-xs text-zinc-500 dark:text-zinc-500">
+          <Link href="/terms" className="hover:text-zinc-700 dark:hover:text-zinc-300 underline">
+            利用規約
+          </Link>
+          <Link href="/privacy" className="hover:text-zinc-700 dark:hover:text-zinc-300 underline">
+            プライバシーポリシー
+          </Link>
+        </div>
       </div>
     </div>
   );
