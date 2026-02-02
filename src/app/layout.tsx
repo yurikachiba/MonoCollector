@@ -14,19 +14,19 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "モノコレクター | 家にあるモノを楽しく管理",
-  description: "カメラで撮影するだけで家にあるモノを自動分類。片付け習慣化、料理の材料把握に。LINEで家族と共有もできる、コレクター欲をくすぐる整理整頓アプリ。",
+  title: "モノコレクター | モノを、思い出に。",
+  description: "あなたの暮らしは、コレクションになる。日常のモノを写真に撮るだけで、大切な思い出として記録。AIがアイコンに変換し、あなただけのコレクションを作ります。",
   keywords: [
     "モノコレクター",
-    "家庭収納",
-    "整理整頓",
-    "片付け",
-    "在庫管理",
-    "食材管理",
+    "思い出",
     "コレクション",
+    "暮らし",
+    "持ち物管理",
     "写真管理",
-    "家事アプリ",
-    "LINE共有",
+    "アイコン",
+    "ライフログ",
+    "記録",
+    "大切なもの",
   ],
   authors: [{ name: "MonoCollector" }],
   creator: "MonoCollector",
@@ -44,22 +44,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ja_JP",
     url: "/",
-    title: "モノコレクター | 家にあるモノを楽しく管理",
-    description: "カメラで撮影するだけで家にあるモノを自動分類。片付け習慣化、料理の材料把握に。LINEで家族と共有もできる、コレクター欲をくすぐる整理整頓アプリ。",
+    title: "モノコレクター | モノを、思い出に。",
+    description: "あなたの暮らしは、コレクションになる。日常のモノを写真に撮るだけで、大切な思い出として記録。AIがアイコンに変換し、あなただけのコレクションを作ります。",
     siteName: "モノコレクター",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "モノコレクター - 家にあるモノを楽しく管理",
+        alt: "モノコレクター - モノを、思い出に。",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "モノコレクター | 家にあるモノを楽しく管理",
-    description: "カメラで撮影するだけで家にあるモノを自動分類。片付け習慣化、料理の材料把握に。",
+    title: "モノコレクター | モノを、思い出に。",
+    description: "あなたの暮らしは、コレクションになる。日常のモノを写真に撮るだけで、大切な思い出として記録。",
     images: ["/og-image.png"],
   },
   robots: {
@@ -106,7 +106,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebApplication",
               "name": "モノコレクター",
-              "description": "カメラで撮影するだけで家にあるモノを自動分類。片付け習慣化、料理の材料把握に。",
+              "description": "あなたの暮らしは、コレクションになる。モノを、思い出に。",
               "applicationCategory": "LifestyleApplication",
               "operatingSystem": "Any",
               "offers": {
@@ -115,11 +115,11 @@ export default function RootLayout({
                 "priceCurrency": "JPY"
               },
               "featureList": [
-                "カメラで撮影・自動分類",
-                "カテゴリ別整理",
-                "LINE共有機能",
-                "在庫管理",
-                "食材管理"
+                "写真を撮って思い出を記録",
+                "AIでアイコンに変換",
+                "カテゴリ別コレクション",
+                "実績・バッジシステム",
+                "大切なものを永遠に保存"
               ]
             })
           }}

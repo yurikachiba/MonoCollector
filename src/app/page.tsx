@@ -12,23 +12,23 @@ export default function LandingPage() {
   const features = [
     {
       icon: Camera,
-      title: '撮るだけでOK',
-      description: '写真を撮るだけでAIが自動認識。面倒な入力は一切不要です。',
+      title: '撮るだけで記録',
+      description: '大切なモノを写真に撮るだけ。その瞬間が、思い出として残ります。',
     },
     {
       icon: Palette,
       title: 'アイコンに変身',
-      description: 'どんなものも可愛いアイコンに自動変換。あなただけのコレクションが完成。',
+      description: 'AIがあなたのモノを可愛いアイコンに。暮らしがアートに変わります。',
     },
     {
       icon: Infinity,
-      title: '無限にコレクション',
-      description: '好きなものを好きなだけ集めましょう。制限なく、永遠にコレクション。',
+      title: '暮らしをコレクション',
+      description: '日常のすべてがコレクションに。あなたの暮らしが、宝物になる。',
     },
     {
       icon: Trophy,
-      title: '実績・バッジを獲得',
-      description: '集めれば集めるほどレベルアップ。レア度やバッジで楽しさ倍増。',
+      title: '思い出を積み重ねる',
+      description: '集めるほどに増える実績とバッジ。あなたの歩みを讃えます。',
     },
   ];
 
@@ -91,22 +91,22 @@ export default function LandingPage() {
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 rounded-full mb-8 border border-purple-200 dark:border-purple-800">
             <Sparkles className="w-4 h-4 text-purple-500" />
             <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
-              AIで自動アイコン生成
+              モノを、思い出に。
             </span>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 leading-tight">
-            どんなものも
+            あなたの暮らしは、
             <br />
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
-              アイコンにして無限コレクション
+              コレクションになる。
             </span>
           </h1>
 
           <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-2xl mx-auto">
-            写真を撮るだけで、あなたの持ち物が可愛いアイコンに変身。
+            日常のモノを写真に撮るだけで、大切な思い出として記録。
             <br className="hidden md:block" />
-            好きなものを好きなだけ集めて、自分だけのコレクションを作ろう。
+            AIがアイコンに変換し、あなただけのコレクションを作ります。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -180,10 +180,10 @@ export default function LandingPage() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-              コレクションがもっと楽しくなる
+              暮らしが、宝物に変わる
             </h2>
             <p className="text-zinc-600 dark:text-zinc-400 text-lg">
-              モノコレクターの特徴をご紹介
+              モノコレクターでできること
             </p>
           </motion.div>
 
@@ -226,10 +226,10 @@ export default function LandingPage() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
-              かんたん3ステップ
+              思い出を残す、かんたん3ステップ
             </h2>
             <p className="text-zinc-600 dark:text-zinc-400 text-lg">
-              すぐに始められます
+              今日から、あなたの暮らしをコレクションに
             </p>
           </motion.div>
 
@@ -237,18 +237,18 @@ export default function LandingPage() {
             {[
               {
                 step: '1',
-                title: '写真を撮る',
-                description: 'コレクションしたいものをカメラで撮影',
+                title: '大切なモノを撮る',
+                description: '思い出にしたいモノをカメラで撮影',
               },
               {
                 step: '2',
-                title: 'AIが自動認識',
-                description: '名前やカテゴリを自動で入力',
+                title: 'AIが認識・変換',
+                description: 'AIが自動でアイコンに変換',
               },
               {
                 step: '3',
-                title: 'アイコン化して保存',
-                description: 'かわいいアイコンに変換されてコレクション完了',
+                title: '思い出として保存',
+                description: 'あなたのコレクションに永遠に残る',
               },
             ].map((item, index) => (
               <motion.div
@@ -286,10 +286,10 @@ export default function LandingPage() {
           className="max-w-4xl mx-auto text-center p-12 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            今すぐコレクションを始めよう
+            あなたの暮らしを、思い出に。
           </h2>
           <p className="text-white/90 text-lg mb-8">
-            無料で始められます。Googleアカウントですぐにスタート。
+            今日から始める、モノと思い出のコレクション。
           </p>
           <Link
             href={session ? '/collection' : '/login'}
