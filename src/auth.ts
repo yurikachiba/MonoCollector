@@ -9,7 +9,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
   providers: [
-    ...authConfig.providers.filter((p) => p.id !== "guest"),
+    ...authConfig.providers.filter((p) => (p as { id?: string }).id !== "guest"),
     CredentialsProvider({
       id: "guest",
       name: "Guest",
