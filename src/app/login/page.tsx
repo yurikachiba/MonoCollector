@@ -16,7 +16,23 @@ export default function LoginPage() {
 
   const handleGuestLogin = async () => {
     setIsLoading("guest");
-    await signIn("guest", { callbackUrl: "/collection" });
+    try {
+      const result = await signIn("guest", {
+        callbackUrl: "/collection",
+        redirect: false
+      });
+      if (result?.error) {
+        console.error("Guest login error:", result.error);
+        alert("ゲストログインに失敗しました。しばらくしてからもう一度お試しください。");
+        setIsLoading(null);
+      } else if (result?.ok) {
+        window.location.href = "/collection";
+      }
+    } catch (error) {
+      console.error("Guest login error:", error);
+      alert("ゲストログインに失敗しました。しばらくしてからもう一度お試しください。");
+      setIsLoading(null);
+    }
   };
 
   return (

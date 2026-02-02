@@ -18,21 +18,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: "Guest",
       credentials: {},
       async authorize() {
-        // ゲストユーザーを作成
-        const guestUser = await prisma.user.create({
-          data: {
-            id: uuidv4(),
-            name: `ゲスト${Math.random().toString(36).substring(2, 8)}`,
+        try {
+          // ゲストユーザーを作成
+          const guestUser = await prisma.user.create({
+            data: {
+              id: uuidv4(),
+              name: `ゲスト${Math.random().toString(36).substring(2, 8)}`,
+              isGuest: true,
+            },
+          });
+          return {
+            id: guestUser.id,
+            name: guestUser.name,
+            email: null,
+            image: null,
             isGuest: true,
-          },
-        });
-        return {
-          id: guestUser.id,
-          name: guestUser.name,
-          email: null,
-          image: null,
-          isGuest: true,
-        };
+          };
+        } catch (error) {
+          console.error("Guest user creation failed:", error);
+          return null;
+        }
       },
     }),
   ],
