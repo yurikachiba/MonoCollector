@@ -4,8 +4,17 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 // Log auth configuration status (only once at module load)
 if (typeof process !== 'undefined') {
+  console.log("[AUTH CONFIG] Initializing NextAuth configuration...");
   if (!process.env.AUTH_SECRET) {
-    console.warn("[AUTH CONFIG] WARNING: AUTH_SECRET is not set!");
+    console.error("[AUTH CONFIG] ERROR: AUTH_SECRET is not set!");
+    console.error("[AUTH CONFIG] This will cause 'Configuration' errors during login.");
+    console.error("[AUTH CONFIG] Generate a secret with: openssl rand -base64 32");
+  } else {
+    console.log("[AUTH CONFIG] AUTH_SECRET is configured");
+  }
+  if (!process.env.DATABASE_URL) {
+    console.error("[AUTH CONFIG] ERROR: DATABASE_URL is not set!");
+    console.error("[AUTH CONFIG] Database connection will fail.");
   }
 }
 

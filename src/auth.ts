@@ -52,7 +52,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           console.error("[AUTH] Error type:", error instanceof Error ? error.constructor.name : typeof error);
           console.error("[AUTH] Error message:", error instanceof Error ? error.message : String(error));
           if (error instanceof Error && 'code' in error) {
-            console.error("[AUTH] Error code:", (error as Error & { code: string }).code);
+            const errorCode = (error as Error & { code: string }).code;
+            console.error("[AUTH] Error code:", errorCode);
+
+            // Provide helpful messages for common errors
+            if (errorCode === 'P2021' || errorCode === '42P01') {
+              console.error("[AUTH] HINT: Table does not exist. Run 'npx prisma db push' to create tables.");
+            } else if (errorCode === 'ECONNREFUSED' || errorCode === 'ENOTFOUND') {
+              console.error("[AUTH] HINT: Cannot connect to database. Check DATABASE_URL and ensure database is running.");
+            } else if (errorCode === 'P1001') {
+              console.error("[AUTH] HINT: Cannot reach database server. Check hostname and port in DATABASE_URL.");
+            } else if (errorCode === 'P1010' || errorCode === '28P01') {
+              console.error("[AUTH] HINT: Authentication failed. Check username and password in DATABASE_URL.");
+            }
           }
           return null;
         }
