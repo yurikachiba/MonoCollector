@@ -1,20 +1,95 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#f472b6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f472b6"/>
+      <stop offset="50%" style="stop-color:#ec4899"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
     </linearGradient>
+    <linearGradient id="boxGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#fce7f3"/>
+    </linearGradient>
+    <linearGradient id="lidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fdf2f8"/>
+      <stop offset="100%" style="stop-color:#fbcfe8"/>
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#831843" flood-opacity="0.25"/>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="102" fill="url(#grad)"/>
-  <g fill="white">
-    <!-- Sparkle icon -->
-    <path d="M256 120l20 60 60 20-60 20-20 60-20-60-60-20 60-20z" opacity="0.9"/>
-    <path d="M180 240l12 36 36 12-36 12-12 36-12-36-36-12 36-12z" opacity="0.7"/>
-    <path d="M320 200l8 24 24 8-24 8-8 24-8-24-24-8 24-8z" opacity="0.6"/>
-    <!-- Box -->
-    <rect x="156" y="280" width="200" height="140" rx="16" fill="white" opacity="0.95"/>
-    <rect x="156" y="280" width="200" height="40" rx="16" fill="white" opacity="0.8"/>
-    <line x1="256" y1="280" x2="256" y2="420" stroke="url(#grad)" stroke-width="4" opacity="0.3"/>
-    <line x1="156" y1="350" x2="356" y2="350" stroke="url(#grad)" stroke-width="4" opacity="0.3"/>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="108" fill="url(#mainGrad)"/>
+
+  <!-- Box with shadow -->
+  <g filter="url(#softShadow)">
+    <!-- Box body -->
+    <rect x="96" y="240" width="320" height="180" rx="24" fill="url(#boxGrad)"/>
+
+    <!-- Box lid (open, tilted back) -->
+    <path d="M96 260 Q96 236 120 236 L256 160 L392 236 Q416 236 416 260" fill="url(#lidGrad)"/>
+    <ellipse cx="256" cy="160" rx="12" ry="8" fill="#f9a8d4"/>
   </g>
+
+  <!-- Grid lines on box (subtle) -->
+  <g stroke="#f9a8d4" stroke-width="2" opacity="0.4">
+    <line x1="176" y1="240" x2="176" y2="420"/>
+    <line x1="256" y1="240" x2="256" y2="420"/>
+    <line x1="336" y1="240" x2="336" y2="420"/>
+    <line x1="96" y1="320" x2="416" y2="320"/>
+  </g>
+
+  <!-- Items in box -->
+  <!-- Yellow item (left) -->
+  <circle cx="136" cy="280" r="28" fill="#fde047" filter="url(#softShadow)"/>
+  <circle cx="130" cy="274" r="8" fill="white" opacity="0.6"/>
+
+  <!-- Purple item (center-left) -->
+  <circle cx="216" cy="290" r="24" fill="#a78bfa"/>
+  <circle cx="210" cy="284" r="6" fill="white" opacity="0.6"/>
+
+  <!-- Green item (center-right) -->
+  <circle cx="296" cy="285" r="26" fill="#34d399"/>
+  <circle cx="290" cy="279" r="7" fill="white" opacity="0.6"/>
+
+  <!-- Pink item (right) -->
+  <circle cx="376" cy="280" r="28" fill="#fb7185"/>
+  <circle cx="370" cy="274" r="8" fill="white" opacity="0.6"/>
+
+  <!-- Sparkles (flying out of box) -->
+  <g filter="url(#glow)">
+    <!-- Main large sparkle (center top) -->
+    <path d="M256 80 L268 112 L300 124 L268 136 L256 168 L244 136 L212 124 L244 112 Z" fill="white"/>
+
+    <!-- Medium sparkle (left) -->
+    <path d="M140 110 L148 130 L168 138 L148 146 L140 166 L132 146 L112 138 L132 130 Z" fill="white" opacity="0.9"/>
+
+    <!-- Medium sparkle (right) -->
+    <path d="M372 100 L380 120 L400 128 L380 136 L372 156 L364 136 L344 128 L364 120 Z" fill="white" opacity="0.9"/>
+
+    <!-- Small sparkle (far left) -->
+    <path d="M84 170 L88 182 L100 186 L88 190 L84 202 L80 190 L68 186 L80 182 Z" fill="white" opacity="0.7"/>
+
+    <!-- Small sparkle (far right) -->
+    <path d="M428 160 L432 172 L444 176 L432 180 L428 192 L424 180 L412 176 L424 172 Z" fill="white" opacity="0.7"/>
+
+    <!-- Tiny sparkle (center-left) -->
+    <path d="M180 60 L183 68 L191 71 L183 74 L180 82 L177 74 L169 71 L177 68 Z" fill="white" opacity="0.6"/>
+
+    <!-- Tiny sparkle (center-right) -->
+    <path d="M332 70 L335 78 L343 81 L335 84 L332 92 L329 84 L321 81 L329 78 Z" fill="white" opacity="0.6"/>
+  </g>
+
+  <!-- Floating dots (decorative) -->
+  <circle cx="100" cy="90" r="6" fill="white" opacity="0.5"/>
+  <circle cx="412" cy="80" r="5" fill="white" opacity="0.4"/>
+  <circle cx="460" cy="140" r="4" fill="white" opacity="0.3"/>
+  <circle cx="52" cy="130" r="5" fill="white" opacity="0.4"/>
 </svg>
