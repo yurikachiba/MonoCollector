@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mono-collector.vercel.app';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://monocollector.com';
 
 export const metadata: Metadata = {
   title: '利用規約 | モノコレクター',

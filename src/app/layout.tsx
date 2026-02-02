@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://mono-collector.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://monocollector.com"),
   alternates: {
     canonical: "/",
   },
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
   },
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mono-collector.vercel.app';
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://monocollector.com';
 
 // AIO対策・SEO対策用の構造化データ
 const structuredData = {
