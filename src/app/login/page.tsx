@@ -11,12 +11,12 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     setIsLoading("google");
-    await signIn("google", { callbackUrl: "/" });
+    await signIn("google", { callbackUrl: "/collection" });
   };
 
   const handleGuestLogin = async () => {
     setIsLoading("guest");
-    await signIn("guest", { callbackUrl: "/" });
+    await signIn("guest", { callbackUrl: "/collection" });
   };
 
   return (
