@@ -7,10 +7,12 @@ import CategoryBar from '@/components/CategoryBar';
 import ItemGrid from '@/components/ItemGrid';
 import FloatingActionButton from '@/components/FloatingActionButton';
 import AddItemModal from '@/components/AddItemModal';
+import SettingsModal from '@/components/SettingsModal';
 import CollectionPanel from '@/components/CollectionPanel';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
 
   const handleEdit = (item: Item) => {
@@ -25,7 +27,7 @@ export default function CollectionPage() {
 
   return (
     <main className="min-h-screen pb-24">
-      <Header />
+      <Header onOpenSettings={() => setIsSettingsOpen(true)} />
       <CollectionPanel />
       <CategoryBar />
       <ItemGrid onEdit={handleEdit} />
@@ -36,6 +38,11 @@ export default function CollectionPage() {
         isOpen={isAddModalOpen}
         onClose={handleCloseAddModal}
         editItem={editItem}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </main>
   );

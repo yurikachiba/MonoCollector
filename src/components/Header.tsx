@@ -4,11 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 import { Search, Grid, List, Settings, LogOut, User } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import { useUIStore } from '@/lib/store';
-import SettingsModal from './SettingsModal';
 
-export default function Header() {
+interface HeaderProps {
+  onOpenSettings: () => void;
+}
+
+export default function Header({ onOpenSettings }: HeaderProps) {
   const { searchQuery, setSearchQuery, viewMode, setViewMode } = useUIStore();
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
@@ -58,7 +60,7 @@ export default function Header() {
               <List className="w-4 h-4" />
             </button>
             <button
-              onClick={() => setIsSettingsOpen(true)}
+              onClick={onOpenSettings}
               className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               <Settings className="w-4 h-4" />
@@ -128,11 +130,6 @@ export default function Header() {
           />
         </div>
       </div>
-
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-      />
     </header>
   );
 }
