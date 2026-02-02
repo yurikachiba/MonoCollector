@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Search, Grid, List, Settings, LogOut, User } from 'lucide-react';
-import { useSession, signOut } from 'next-auth/react';
+import { Search, Grid, List, Settings, LogOut, User, ArrowRightLeft } from 'lucide-react';
+import { useSession, signOut, signIn } from 'next-auth/react';
 import { useUIStore } from '@/lib/store';
 
 interface HeaderProps {
@@ -102,6 +102,15 @@ export default function Header({ onOpenSettings }: HeaderProps) {
                       </span>
                     )}
                   </div>
+                  {session?.user?.isGuest && (
+                    <button
+                      onClick={() => signIn('google', { callbackUrl: '/collection' })}
+                      className="w-full flex items-center gap-2 px-4 py-3 text-sm text-indigo-600 dark:text-indigo-400 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors border-b border-gray-200 dark:border-zinc-700"
+                    >
+                      <ArrowRightLeft className="w-4 h-4" />
+                      <span>Googleアカウントに引き継ぐ</span>
+                    </button>
+                  )}
                   <button
                     onClick={handleSignOut}
                     className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"

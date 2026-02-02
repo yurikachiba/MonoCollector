@@ -19,8 +19,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     CredentialsProvider({
       id: "guest",
       name: "Guest",
-      credentials: {},
-      async authorize() {
+      credentials: {
+        guestId: { label: "Guest ID", type: "text" },
+      },
+      async authorize(credentials) {
         console.log("[AUTH] Guest login attempt started");
         try {
           // データベース接続テスト
@@ -28,7 +30,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           await prisma.$queryRaw`SELECT 1`;
           console.log("[AUTH] Database connection OK");
 
-          // ゲストユーザーを作成
+          const existingGuestId = credentials?.guestId as string | undefined;
+
+          // 既存のゲストIDが提供された場合、そのユーザーを取得
+          if (existingGuestId) {
+            console.log("[AUTH] Attempting to restore guest session:", existingGuestId);
+            const existingUser = await prisma.user.findUnique({
+              where: { id: existingGuestId, isGuest: true },
+            });
+
+            if (existingUser) {
+              console.log("[AUTH] Guest session restored successfully:", existingUser.id);
+              return {
+                id: existingUser.id,
+                name: existingUser.name,
+                email: null,
+                image: null,
+                isGuest: true,
+              };
+            }
+            console.log("[AUTH] Guest ID not found, creating new guest user");
+          }
+
+          // 新規ゲストユーザーを作成
           const guestId = uuidv4();
           const guestName = `ゲスト${Math.random().toString(36).substring(2, 8)}`;
           console.log("[AUTH] Creating guest user:", { id: guestId, name: guestName });
