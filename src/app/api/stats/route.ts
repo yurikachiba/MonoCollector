@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 
 interface PrismaItem {
   id: string;
@@ -14,6 +15,7 @@ interface PrismaItem {
   isCollected: boolean;
   createdAt: Date;
   updatedAt: Date;
+  userId: string | null;
 }
 
 interface PrismaCategory {
@@ -24,11 +26,20 @@ interface PrismaCategory {
   itemCount: number;
 }
 
-// GET /api/stats - Get statistics
+// GET /api/stats - Get statistics for current user
 export async function GET() {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const [items, categories] = await Promise.all([
       prisma.item.findMany({
+        where: { userId: session.user.id },
         orderBy: { createdAt: 'desc' },
       }),
       prisma.category.findMany(),
