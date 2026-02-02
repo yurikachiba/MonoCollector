@@ -2,8 +2,10 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Package, Trophy, Star, ChevronRight, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import { Flame, Package, Trophy, Star, ChevronRight, Sparkles, Palette } from 'lucide-react';
 import { useItems } from '@/hooks/useItems';
+import { Item } from '@/lib/db';
 import { useStats } from '@/hooks/useStats';
 import { useCategories } from '@/hooks/useCategories';
 import GlassCard from './GlassCard';
@@ -19,7 +21,12 @@ export default function CollectionPanel() {
   const { data: items = [] } = useItems();
   const { data: categories = [] } = useCategories();
   const [showDetails, setShowDetails] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'badges' | 'rarity'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'achievements' | 'badges' | 'rarity' | 'icons'>('overview');
+
+  // 生成アイコンを持つアイテムを抽出
+  const itemsWithIcons = useMemo(() => {
+    return items.filter((item) => item.generatedIcon);
+  }, [items]);
 
   // 連続日数を計算
   const getStreak = useMemo(() => {
@@ -94,7 +101,7 @@ export default function CollectionPanel() {
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-5 gap-2">
             <StatItem
               icon={<Package className="w-4 h-4" />}
               value={stats.totalItems}
@@ -115,6 +122,12 @@ export default function CollectionPanel() {
               icon={<Star className="w-4 h-4" />}
               value={unlockedBadges.length}
               label="バッジ"
+            />
+            <StatItem
+              icon={<Palette className="w-4 h-4" />}
+              value={itemsWithIcons.length}
+              label="アイコン"
+              highlight={itemsWithIcons.length > 0}
             />
           </div>
 
@@ -150,6 +163,7 @@ export default function CollectionPanel() {
         {showDetails && (
           <CollectionDetailModal
             stats={collectionStats}
+            itemsWithIcons={itemsWithIcons}
             onClose={() => setShowDetails(false)}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -241,20 +255,23 @@ function getCurrentValue(
 // 詳細モーダル
 function CollectionDetailModal({
   stats,
+  itemsWithIcons,
   onClose,
   activeTab,
   setActiveTab,
 }: {
   stats: CollectionStats;
+  itemsWithIcons: Item[];
   onClose: () => void;
-  activeTab: 'overview' | 'achievements' | 'badges' | 'rarity';
-  setActiveTab: (tab: 'overview' | 'achievements' | 'badges' | 'rarity') => void;
+  activeTab: 'overview' | 'achievements' | 'badges' | 'rarity' | 'icons';
+  setActiveTab: (tab: 'overview' | 'achievements' | 'badges' | 'rarity' | 'icons') => void;
 }) {
   const tabs = [
     { id: 'overview', label: '概要', icon: '📊' },
     { id: 'achievements', label: '実績', icon: '🏆' },
     { id: 'badges', label: 'バッジ', icon: '⭐' },
     { id: 'rarity', label: 'レア度', icon: '✨' },
+    { id: 'icons', label: 'アイコン', icon: '🎨' },
   ] as const;
 
   return (
@@ -311,6 +328,7 @@ function CollectionDetailModal({
           {activeTab === 'achievements' && <AchievementsTab stats={stats} />}
           {activeTab === 'badges' && <BadgesTab stats={stats} />}
           {activeTab === 'rarity' && <RarityTab stats={stats} />}
+          {activeTab === 'icons' && <IconsTab itemsWithIcons={itemsWithIcons} />}
         </div>
       </motion.div>
     </motion.div>
@@ -474,6 +492,118 @@ function RarityTab({ stats }: { stats: CollectionStats }) {
           <p>• <span className="text-amber-500">レジェンダリー</span> - 伝説級のアイテム</p>
         </div>
       </div>
+    </div>
+  );
+}
+
+// アイコンギャラリータブ
+function IconsTab({ itemsWithIcons }: { itemsWithIcons: Item[] }) {
+  const styleLabels: Record<string, string> = {
+    mosaic: 'モザイク',
+    gradient: 'グラデーション',
+    geometric: '幾何学',
+    abstract: '抽象',
+    pixel: 'ピクセル',
+  };
+
+  // スタイル別にグループ化
+  const iconsByStyle = useMemo(() => {
+    const grouped: Record<string, Item[]> = {};
+    itemsWithIcons.forEach((item) => {
+      const style = item.iconStyle || 'unknown';
+      if (!grouped[style]) {
+        grouped[style] = [];
+      }
+      grouped[style].push(item);
+    });
+    return grouped;
+  }, [itemsWithIcons]);
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-600 dark:text-gray-400">
+        生成したオリジナルアイコン: {itemsWithIcons.length}個
+      </p>
+
+      {itemsWithIcons.length === 0 ? (
+        <div className="text-center py-8">
+          <Palette className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600" />
+          <p className="mt-2 text-sm text-gray-500">
+            写真を追加するとオリジナルアイコンが生成されます
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* 全アイコンギャラリー */}
+          <div className="grid grid-cols-5 gap-2">
+            {itemsWithIcons.map((item) => (
+              <motion.div
+                key={item.id}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                whileHover={{ scale: 1.1 }}
+                className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-md cursor-pointer group"
+                title={item.name}
+              >
+                {item.generatedIcon && (
+                  <Image
+                    src={item.generatedIcon}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                )}
+                {/* ホバー時にアイテム名を表示 */}
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-1">
+                  <p className="text-[8px] text-white text-center leading-tight truncate">
+                    {item.name}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* スタイル別内訳 */}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              スタイル別
+            </h3>
+            <div className="space-y-2">
+              {Object.entries(iconsByStyle).map(([style, items]) => (
+                <div key={style} className="flex items-center gap-2">
+                  <div className="flex -space-x-1">
+                    {items.slice(0, 3).map((item, i) => (
+                      <div
+                        key={item.id}
+                        className="w-6 h-6 rounded-full overflow-hidden ring-2 ring-white dark:ring-gray-900"
+                        style={{ zIndex: 3 - i }}
+                      >
+                        {item.generatedIcon && (
+                          <Image
+                            src={item.generatedIcon}
+                            alt=""
+                            width={24}
+                            height={24}
+                            className="w-full h-full object-cover"
+                            unoptimized
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">
+                    {styleLabels[style] || style}
+                  </span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {items.length}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

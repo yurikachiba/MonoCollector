@@ -50,6 +50,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       updatedAt: Date;
       image?: Uint8Array<ArrayBuffer>;
       tags?: string[];
+      generatedIcon?: string | null;
+      iconStyle?: string | null;
+      iconColors?: string[];
     } = {
       name: formData.get('name') as string,
       category: formData.get('category') as string,
@@ -70,6 +73,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const tagsStr = formData.get('tags') as string;
     if (tagsStr) {
       updateData.tags = JSON.parse(tagsStr);
+    }
+
+    // Handle generated icon fields
+    const generatedIcon = formData.get('generatedIcon') as string | null;
+    if (generatedIcon !== null) {
+      updateData.generatedIcon = generatedIcon || null;
+    }
+
+    const iconStyle = formData.get('iconStyle') as string | null;
+    if (iconStyle !== null) {
+      updateData.iconStyle = iconStyle || null;
+    }
+
+    const iconColorsStr = formData.get('iconColors') as string;
+    if (iconColorsStr) {
+      const iconColors = JSON.parse(iconColorsStr);
+      updateData.iconColors = Array.isArray(iconColors) ? iconColors.filter((c): c is string => typeof c === 'string') : [];
     }
 
     const item = await prisma.item.update({
