@@ -9,6 +9,7 @@ import FloatingActionButton from '@/components/FloatingActionButton';
 import AddItemModal from '@/components/AddItemModal';
 import SettingsModal from '@/components/SettingsModal';
 import CollectionPanel from '@/components/CollectionPanel';
+import GuestDataMigrationDialog from '@/components/GuestDataMigrationDialog';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -44,6 +45,8 @@ export default function CollectionPage() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
+
+      <GuestDataMigrationDialog />
     </main>
   );
 }

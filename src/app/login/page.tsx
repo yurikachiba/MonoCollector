@@ -53,7 +53,13 @@ function LoginContent() {
     setIsLoading("guest");
     setRuntimeError(null);
     try {
+      // localStorageから既存のゲストIDを取得
+      const existingGuestId = typeof window !== 'undefined'
+        ? localStorage.getItem("guestUserId")
+        : null;
+
       const result = await signIn("guest", {
+        guestId: existingGuestId || "",
         callbackUrl: "/collection",
         redirect: false
       });
@@ -171,9 +177,9 @@ function LoginContent() {
 
       {/* Notice */}
       <p className="text-center text-xs text-zinc-500 dark:text-zinc-500">
-        ゲストデータはブラウザを閉じると失われる可能性があります。
+        ゲストデータは同じブラウザで保持されます。
         <br />
-        長期間のご利用にはGoogleアカウントでのログインをお勧めします。
+        Googleアカウントでログインすると、ゲストデータを引き継げます。
       </p>
 
       {/* Legal Links */}
