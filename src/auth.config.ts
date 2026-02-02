@@ -32,26 +32,29 @@ export const authConfig: NextAuthConfig = {
       const isLoginPage = nextUrl.pathname === "/login";
       const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
       const isPublicPage =
-        nextUrl.pathname === "/terms" || nextUrl.pathname === "/privacy";
+        nextUrl.pathname === "/" ||
+        nextUrl.pathname === "/terms" ||
+        nextUrl.pathname === "/privacy";
+      const isProtectedPage = nextUrl.pathname.startsWith("/collection");
 
       // API auth routes should always be accessible
       if (isApiAuthRoute) {
         return true;
       }
 
-      // Public pages (terms, privacy) should always be accessible
+      // Public pages (home, terms, privacy) should always be accessible
       if (isPublicPage) {
         return true;
       }
 
-      // Redirect to login if not logged in
-      if (!isLoggedIn && !isLoginPage) {
+      // Protected pages require login
+      if (isProtectedPage && !isLoggedIn) {
         return false;
       }
 
-      // Redirect to home if logged in and on login page
+      // Redirect to collection if logged in and on login page
       if (isLoggedIn && isLoginPage) {
-        return Response.redirect(nextUrl.origin);
+        return Response.redirect(new URL("/collection", nextUrl.origin));
       }
 
       return true;
