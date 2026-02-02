@@ -30,6 +30,7 @@ providers.push(
 
 // Edge-compatible auth config (no Prisma)
 export const authConfig: NextAuthConfig = {
+  debug: true,
   secret: process.env.AUTH_SECRET,
   trustHost: true,
   session: {
