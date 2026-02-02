@@ -114,7 +114,7 @@ export async function GET() {
     return NextResponse.json({
       status: "success",
       message: "Migration completed",
-      tables: tables.map((t) => t.table_name),
+      tables: tables.map((t: { table_name: string }) => t.table_name),
     });
   } catch (error) {
     console.error("Migration error:", error);
