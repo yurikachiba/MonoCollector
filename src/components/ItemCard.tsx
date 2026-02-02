@@ -101,7 +101,7 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
         </button>
 
         {showMenu && (
-          <div className="absolute right-12 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-10">
+          <div className="absolute right-12 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
             <button
               onClick={handleEdit}
               className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
