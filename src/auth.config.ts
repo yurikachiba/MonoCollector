@@ -50,7 +50,7 @@ export const authConfig: NextAuthConfig = {
 
       // Redirect to home if logged in and on login page
       if (isLoggedIn && isLoginPage) {
-        return Response.redirect(new URL("/", nextUrl));
+        return Response.redirect(nextUrl.origin);
       }
 
       return true;
