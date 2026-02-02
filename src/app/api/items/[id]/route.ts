@@ -1,14 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 
 type RouteParams = { params: Promise<{ id: string }> };
 
 // GET /api/items/[id] - Get a single item
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const item = await prisma.item.findUnique({
-      where: { id },
+      where: { id, userId: session.user.id },
     });
 
     if (!item) {
@@ -36,9 +45,29 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT /api/items/[id] - Update an item
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
+
+    // Verify item belongs to user
+    const existingItem = await prisma.item.findUnique({
+      where: { id, userId: session.user.id },
+    });
+    if (!existingItem) {
+      return NextResponse.json(
+        { error: 'Item not found' },
+        { status: 404 }
+      );
+    }
+
     const formData = await request.formData();
-    
+
     const updateData: {
       name: string;
       category: string;
@@ -115,11 +144,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/items/[id] - Delete an item
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
-    // Get item to know its category
+    // Get item to know its category (and verify ownership)
     const item = await prisma.item.findUnique({
-      where: { id },
+      where: { id, userId: session.user.id },
     });
 
     if (!item) {
