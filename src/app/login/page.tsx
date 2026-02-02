@@ -1,21 +1,52 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
-import { LogIn } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { LogIn, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+// Map NextAuth error codes to Japanese messages
+const errorMessages: Record<string, string> = {
+  Configuration: "サーバーの設定に問題があります。管理者にお問い合わせください。",
+  AccessDenied: "アクセスが拒否されました。",
+  Verification: "認証リンクの有効期限が切れています。",
+  OAuthSignin: "OAuth認証の開始に失敗しました。",
+  OAuthCallback: "OAuth認証の処理中にエラーが発生しました。",
+  OAuthCreateAccount: "アカウントの作成に失敗しました。",
+  EmailCreateAccount: "アカウントの作成に失敗しました。",
+  Callback: "認証コールバックでエラーが発生しました。",
+  OAuthAccountNotLinked: "このメールアドレスは別の方法でログインされています。",
+  EmailSignin: "メール送信に失敗しました。",
+  CredentialsSignin: "ログインに失敗しました。サーバーへの接続を確認してください。",
+  SessionRequired: "ログインが必要です。",
+  Default: "ログイン中にエラーが発生しました。しばらくしてからもう一度お試しください。",
+};
+
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<"google" | "guest" | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  // Check for error in URL params
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      console.error("Auth error from URL:", error);
+      setErrorMessage(errorMessages[error] || errorMessages.Default);
+    }
+  }, [searchParams]);
 
   const handleGoogleLogin = async () => {
     setIsLoading("google");
+    setErrorMessage(null);
     await signIn("google", { callbackUrl: "/collection" });
   };
 
   const handleGuestLogin = async () => {
     setIsLoading("guest");
+    setErrorMessage(null);
     try {
       const result = await signIn("guest", {
         callbackUrl: "/collection",
@@ -23,14 +54,19 @@ export default function LoginPage() {
       });
       if (result?.error) {
         console.error("Guest login error:", result.error);
-        alert("ゲストログインに失敗しました。しばらくしてからもう一度お試しください。");
+        setErrorMessage(errorMessages[result.error] || errorMessages.Default);
         setIsLoading(null);
       } else if (result?.ok) {
         window.location.href = "/collection";
+      } else {
+        // Handle case where result is not ok and no error
+        console.error("Guest login returned unexpected result:", result);
+        setErrorMessage(errorMessages.Default);
+        setIsLoading(null);
       }
     } catch (error) {
       console.error("Guest login error:", error);
-      alert("ゲストログインに失敗しました。しばらくしてからもう一度お試しください。");
+      setErrorMessage(errorMessages.Default);
       setIsLoading(null);
     }
   };
@@ -57,6 +93,17 @@ export default function LoginPage() {
             家にあるモノを楽しく管理
           </p>
         </div>
+
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium">ログインエラー</p>
+              <p className="mt-1">{errorMessage}</p>
+            </div>
+          </div>
+        )}
 
         {/* Login Buttons */}
         <div className="space-y-3">

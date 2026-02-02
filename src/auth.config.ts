@@ -2,6 +2,13 @@ import type { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+// Log auth configuration status (only once at module load)
+if (typeof process !== 'undefined') {
+  if (!process.env.AUTH_SECRET) {
+    console.warn("[AUTH CONFIG] WARNING: AUTH_SECRET is not set!");
+  }
+}
+
 // Build providers array conditionally
 const providers: NextAuthConfig["providers"] = [];
 
@@ -38,6 +45,7 @@ export const authConfig: NextAuthConfig = {
   },
   pages: {
     signIn: "/login",
+    error: "/login", // Redirect to login page with error
   },
   providers,
   callbacks: {
@@ -75,6 +83,7 @@ export const authConfig: NextAuthConfig = {
     },
     async jwt({ token, user }) {
       if (user) {
+        console.log("[AUTH JWT] Setting user info in token:", { id: user.id, name: user.name });
         token.id = user.id;
         token.isGuest = (user as { isGuest?: boolean }).isGuest ?? false;
       }
@@ -82,6 +91,7 @@ export const authConfig: NextAuthConfig = {
     },
     async session({ session, token }) {
       if (session.user) {
+        console.log("[AUTH SESSION] Setting user info in session:", { id: token.id });
         session.user.id = token.id as string;
         session.user.isGuest = token.isGuest as boolean;
       }

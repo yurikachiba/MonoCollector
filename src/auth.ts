@@ -10,6 +10,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
     ...authConfig.providers.filter((p) => (p as { id?: string }).id !== "guest"),
@@ -18,15 +19,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: "Guest",
       credentials: {},
       async authorize() {
+        console.log("[AUTH] Guest login attempt started");
         try {
+          // データベース接続テスト
+          console.log("[AUTH] Testing database connection...");
+          await prisma.$queryRaw`SELECT 1`;
+          console.log("[AUTH] Database connection OK");
+
           // ゲストユーザーを作成
+          const guestId = uuidv4();
+          const guestName = `ゲスト${Math.random().toString(36).substring(2, 8)}`;
+          console.log("[AUTH] Creating guest user:", { id: guestId, name: guestName });
+
           const guestUser = await prisma.user.create({
             data: {
-              id: uuidv4(),
-              name: `ゲスト${Math.random().toString(36).substring(2, 8)}`,
+              id: guestId,
+              name: guestName,
               isGuest: true,
             },
           });
+          console.log("[AUTH] Guest user created successfully:", guestUser.id);
+
           return {
             id: guestUser.id,
             name: guestUser.name,
@@ -35,7 +48,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             isGuest: true,
           };
         } catch (error) {
-          console.error("Guest user creation failed:", error);
+          console.error("[AUTH] Guest user creation failed:", error);
+          console.error("[AUTH] Error type:", error instanceof Error ? error.constructor.name : typeof error);
+          console.error("[AUTH] Error message:", error instanceof Error ? error.message : String(error));
+          if (error instanceof Error && 'code' in error) {
+            console.error("[AUTH] Error code:", (error as Error & { code: string }).code);
+          }
           return null;
         }
       },
