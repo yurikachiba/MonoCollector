@@ -32,6 +32,9 @@ const nextConfig: NextConfig = {
     // Enable optimized package imports
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
+
+  // Empty turbopack config to acknowledge webpack usage by next-pwa
+  turbopack: {},
 };
 
 export default withPWA(nextConfig);
