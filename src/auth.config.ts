@@ -1,6 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
 
 // Log auth configuration status (only once at module load)
 if (typeof process !== 'undefined') {
@@ -19,6 +18,9 @@ if (typeof process !== 'undefined') {
 }
 
 // Build providers array conditionally
+// NOTE: CredentialsProvider is NOT included here because it causes "Configuration"
+// errors when loaded in Edge Runtime (middleware). It's added only in auth.ts
+// which runs in Node.js runtime.
 const providers: NextAuthConfig["providers"] = [];
 
 // Only add Google provider if credentials are configured
@@ -30,19 +32,6 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     })
   );
 }
-
-// Always add guest provider (will be overridden in auth.ts with Prisma)
-providers.push(
-  CredentialsProvider({
-    id: "guest",
-    name: "Guest",
-    credentials: {},
-    async authorize() {
-      // This will be overridden in auth.ts with Prisma
-      return null;
-    },
-  })
-);
 
 // Edge-compatible auth config (no Prisma)
 export const authConfig: NextAuthConfig = {
