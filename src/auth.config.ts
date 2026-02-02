@@ -30,9 +30,16 @@ export const authConfig: NextAuthConfig = {
       const isLoggedIn = !!auth?.user;
       const isLoginPage = nextUrl.pathname === "/login";
       const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
+      const isPublicPage =
+        nextUrl.pathname === "/terms" || nextUrl.pathname === "/privacy";
 
       // API auth routes should always be accessible
       if (isApiAuthRoute) {
+        return true;
+      }
+
+      // Public pages (terms, privacy) should always be accessible
+      if (isPublicPage) {
         return true;
       }
 
