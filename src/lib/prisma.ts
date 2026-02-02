@@ -74,12 +74,35 @@ function parseConnectionString(connectionString: string): PoolConfig {
 
 function createPrismaClient() {
   const rawConnectionString = process.env.DATABASE_URL;
+
+  // Log environment variable status for debugging
+  if (!rawConnectionString) {
+    console.error('[PRISMA] ERROR: DATABASE_URL environment variable is not set!');
+    console.error('[PRISMA] Please set DATABASE_URL in your environment variables.');
+    console.error('[PRISMA] Example: postgresql://user:password@host:5432/database');
+  } else {
+    // Log connection info (without password) for debugging
+    try {
+      const url = new URL(rawConnectionString);
+      console.log(`[PRISMA] Connecting to database: ${url.host}${url.pathname}`);
+    } catch {
+      console.log('[PRISMA] Connecting with custom connection string format');
+    }
+  }
+
   // During build time, DATABASE_URL may not be set - use a placeholder that will
   // fail at runtime if actually used without proper configuration
   const poolConfig = rawConnectionString
     ? parseConnectionString(rawConnectionString)
     : { connectionString: 'postgresql://build:build@localhost:5432/build' };
+
   const pool = new Pool(poolConfig);
+
+  // Add error handler for pool connection errors
+  pool.on('error', (err) => {
+    console.error('[PRISMA] Pool connection error:', err.message);
+  });
+
   const adapter = new PrismaPg(pool);
 
   return new PrismaClient({
