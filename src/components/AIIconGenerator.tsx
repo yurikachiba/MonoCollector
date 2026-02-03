@@ -120,7 +120,7 @@ export default function AIIconGenerator({
     return (
       <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl text-sm text-yellow-700 dark:text-yellow-300">
         <AlertCircle className="w-4 h-4 flex-shrink-0" />
-        <span>設定からAPIキーを登録すると、AIがかわいいアイコンを生成します</span>
+        <span>右上の設定⚙️からGroq APIキーを登録すると、AIがかわいいアイコンを生成します（無料）</span>
       </div>
     );
   }
