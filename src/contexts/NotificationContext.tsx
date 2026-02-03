@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import {
   NotificationSettings,
   getNotificationSettings,
@@ -89,26 +89,15 @@ function savePreviousState(state: PreviousState): void {
 }
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<NotificationSettings>(defaultNotificationSettings);
-  const [permission, setPermission] = useState<NotificationPermission>('default');
-  const [isSupported, setIsSupported] = useState(false);
+  // Lazy initialization - 初期レンダリング時に一度だけ実行
+  const [settings, setSettings] = useState<NotificationSettings>(() => getNotificationSettings());
+  const [permission, setPermission] = useState<NotificationPermission>(() => getNotificationPermission());
+  const [isSupported] = useState(() => isNotificationSupported());
   const [badgePopupData, setBadgePopupData] = useState<BadgePopupData | null>(null);
 
-  const [previousBadges, setPreviousBadges] = useState<string[]>([]);
-  const [previousAchievements, setPreviousAchievements] = useState<string[]>([]);
-  const [previousLevel, setPreviousLevel] = useState(1);
-
-  // 初期化
-  useEffect(() => {
-    setSettings(getNotificationSettings());
-    setIsSupported(isNotificationSupported());
-    setPermission(getNotificationPermission());
-
-    const prev = loadPreviousState();
-    setPreviousBadges(prev.badges);
-    setPreviousAchievements(prev.achievements);
-    setPreviousLevel(prev.level);
-  }, []);
+  const [previousBadges, setPreviousBadges] = useState<string[]>(() => loadPreviousState().badges);
+  const [previousAchievements, setPreviousAchievements] = useState<string[]>(() => loadPreviousState().achievements);
+  const [previousLevel, setPreviousLevel] = useState(() => loadPreviousState().level);
 
   // 設定の更新
   const updateSettings = useCallback((newSettings: Partial<NotificationSettings>) => {

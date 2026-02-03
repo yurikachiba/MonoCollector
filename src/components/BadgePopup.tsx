@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Trophy, Star, ArrowUp } from 'lucide-react';
 import { useNotifications, BadgePopupData } from '@/contexts/NotificationContext';
@@ -63,6 +63,16 @@ const tierColors = {
   },
 };
 
+// キラキラエフェクトの固定位置（レンダリング時にMath.random()を避けるため）
+const sparklePositions = [
+  { x: 50, y: 30 },
+  { x: 200, y: 80 },
+  { x: 120, y: 150 },
+  { x: 280, y: 200 },
+  { x: 30, y: 250 },
+  { x: 180, y: 100 },
+];
+
 interface PopupContentProps {
   data: BadgePopupData;
   onClose: () => void;
@@ -97,13 +107,13 @@ function PopupContent({ data, onClose }: PopupContentProps) {
 
         {/* キラキラエフェクト */}
         <div className="absolute inset-0 overflow-hidden">
-          {[...Array(6)].map((_, i) => (
+          {sparklePositions.map((pos, i) => (
             <motion.div
               key={i}
               className="absolute w-2 h-2 bg-white/30 rounded-full"
               initial={{
-                x: Math.random() * 300,
-                y: Math.random() * 300,
+                x: pos.x,
+                y: pos.y,
                 scale: 0,
               }}
               animate={{
@@ -340,19 +350,12 @@ function PopupContent({ data, onClose }: PopupContentProps) {
 
 export default function BadgePopup() {
   const { badgePopupData, closeBadgePopup } = useNotifications();
-  const [isVisible, setIsVisible] = useState(false);
 
-  useEffect(() => {
-    if (badgePopupData) {
-      setIsVisible(true);
-    }
-  }, [badgePopupData]);
+  // badgePopupDataの有無で表示を制御
+  const isVisible = badgePopupData !== null;
 
   const handleClose = () => {
-    setIsVisible(false);
-    setTimeout(() => {
-      closeBadgePopup();
-    }, 300);
+    closeBadgePopup();
   };
 
   return (
