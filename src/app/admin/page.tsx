@@ -439,15 +439,12 @@ export default function AdminPage() {
                 key={day.date}
                 className="flex-1 flex flex-col items-center group"
               >
-                <div className="relative w-full">
+                <div className="relative w-full h-full flex items-end">
                   <motion.div
                     initial={{ height: 0 }}
-                    animate={{ height: `${(day.count / maxDailyCount) * 100}%` }}
+                    animate={{ height: `${Math.max((day.count / maxDailyCount) * 100, day.count > 0 ? 5 : 1)}%` }}
                     transition={{ delay: index * 0.02, duration: 0.3 }}
-                    className="w-full bg-blue-500 dark:bg-blue-600 rounded-t min-h-[2px]"
-                    style={{
-                      height: `${Math.max((day.count / maxDailyCount) * 128, day.count > 0 ? 8 : 2)}px`
-                    }}
+                    className="w-full bg-blue-500 dark:bg-blue-600 rounded-t"
                   />
                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 dark:bg-gray-700 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
                     {day.date}: {day.count}件
