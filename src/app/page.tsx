@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Zap } from 'lucide-react';
+import ReviewSection from '@/components/ReviewSection';
 import { motion } from 'framer-motion';
 
 export default function LandingPage() {
@@ -275,6 +276,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Reviews Section */}
+      <ReviewSection />
 
       {/* CTA Section */}
       <section className="py-20 px-4">

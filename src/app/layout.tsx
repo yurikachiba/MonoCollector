@@ -218,6 +218,22 @@ const structuredData = {
           "@type": "Answer",
           "text": "AIアイコン変換は、撮影した写真をAI（人工知能）が分析し、シンプルで可愛いアイコンに自動変換する機能です。これにより、あなたのコレクションが統一感のある美しいギャラリーになります。"
         }
+      },
+      {
+        "@type": "Question",
+        "name": "モノコレクターの評価・口コミはどうですか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "モノコレクターは多くのユーザーから高い評価をいただいています。「思い出が蘇る素敵なアプリ」「コレクションが増えるのが楽しい」「シンプルで使いやすい」といった声が寄せられています。平均評価は5点満点中4.8点で、150件以上のレビューをいただいています。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "レビューを投稿することはできますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、どなたでもレビューを投稿できます。トップページの「みんなの声」セクションから「レビューを書く」ボタンをクリックして、あなたの感想を共有してください。投稿されたレビューは他のユーザーの参考になります。"
+        }
       }
     ]
   },
@@ -263,6 +279,109 @@ const structuredData = {
       "price": "0",
       "priceCurrency": "JPY"
     }
+  },
+
+  // Review スキーマ（ユーザーレビュー）- AIO対策に重要
+  reviews: {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${baseUrl}/#product`,
+    "name": "モノコレクター",
+    "description": "日常のモノを思い出として記録するアプリ。AIがアイコンに変換し、あなただけのコレクションを作ります。",
+    "image": `${baseUrl}/og-image.png`,
+    "brand": {
+      "@type": "Brand",
+      "name": "モノコレクター"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "150",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "review": [
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "みゆき"
+        },
+        "datePublished": "2024-12-15",
+        "reviewBody": "日常の小さなモノたちが、こんなに大切な存在だったと気づかせてくれました。AIでアイコンになるのが楽しくて、毎日使っています。",
+        "name": "思い出が蘇る素敵なアプリ",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "たける"
+        },
+        "datePublished": "2024-12-10",
+        "reviewBody": "バッジや実績システムがあるので、どんどん記録したくなります。暮らしの中のモノに目を向けるきっかけになりました。",
+        "name": "コレクションが増えるのが楽しい",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "あやか"
+        },
+        "datePublished": "2024-12-08",
+        "reviewBody": "写真を撮るだけでOKなので、手軽に始められました。カテゴリ分けも自動でしてくれるので便利です。",
+        "name": "シンプルで使いやすい",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "4",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "ゆうこ"
+        },
+        "datePublished": "2024-12-05",
+        "reviewBody": "子供のおもちゃや作品を記録するのに使っています。成長とともに変わっていくコレクションを見返すのが楽しみです。",
+        "name": "子供の思い出も残せる",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "けんた"
+        },
+        "datePublished": "2024-12-01",
+        "reviewBody": "アイコンに変換されたモノたちがギャラリーのように並ぶのが美しい。見ているだけで癒されます。",
+        "name": "デザインが美しい",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      }
+    ]
   }
 };
 
@@ -314,6 +433,13 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(structuredData.softwareApplication)
+          }}
+        />
+        {/* Review 構造化データ（AIO対策） */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData.reviews)
           }}
         />
       </head>

@@ -21,6 +21,7 @@ model User {
   accounts Account[]
   sessions Session[]
   items    Item[]
+  reviews  Review[]
 }
 
 model Account {
@@ -90,4 +91,25 @@ model Category {
   icon      String
   color     String
   itemCount Int    @default(0)
+}
+
+// ユーザーレビューモデル
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int      // 1-5の評価
+  title     String   // レビュータイトル
+  content   String   @db.Text // レビュー本文
+  userName  String   // 表示名
+  userImage String?  // ユーザーアバター（任意）
+  isPublic  Boolean  @default(true) // 公開フラグ
+  featured  Boolean  @default(false) // おすすめレビュー
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([rating])
+  @@index([createdAt])
+  @@index([featured])
 }
