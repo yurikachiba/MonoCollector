@@ -144,90 +144,15 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
   );
 }
 
-// サンプルレビューデータ（APIからデータが取得できない場合のフォールバック）
-const sampleReviews: Review[] = [
-  {
-    id: '1',
-    rating: 5,
-    title: '思い出が蘇る素敵なアプリ',
-    content: '日常の小さなモノたちが、こんなに大切な存在だったと気づかせてくれました。AIでアイコンになるのが楽しくて、毎日使っています。',
-    userName: 'みゆき',
-    userImage: null,
-    featured: true,
-    createdAt: '2024-12-15T10:30:00Z',
-  },
-  {
-    id: '2',
-    rating: 5,
-    title: 'コレクションが増えるのが楽しい',
-    content: 'バッジや実績システムがあるので、どんどん記録したくなります。暮らしの中のモノに目を向けるきっかけになりました。',
-    userName: 'たける',
-    userImage: null,
-    featured: true,
-    createdAt: '2024-12-10T14:20:00Z',
-  },
-  {
-    id: '3',
-    rating: 4,
-    title: 'シンプルで使いやすい',
-    content: '写真を撮るだけでOKなので、手軽に始められました。カテゴリ分けも自動でしてくれるので便利です。',
-    userName: 'あやか',
-    userImage: null,
-    featured: true,
-    createdAt: '2024-12-08T09:15:00Z',
-  },
-  {
-    id: '4',
-    rating: 5,
-    title: '子供の思い出も残せる',
-    content: '子供のおもちゃや作品を記録するのに使っています。成長とともに変わっていくコレクションを見返すのが楽しみです。',
-    userName: 'ゆうこ',
-    userImage: null,
-    featured: true,
-    createdAt: '2024-12-05T16:45:00Z',
-  },
-  {
-    id: '5',
-    rating: 5,
-    title: 'デザインが美しい',
-    content: 'アイコンに変換されたモノたちがギャラリーのように並ぶのが美しい。見ているだけで癒されます。',
-    userName: 'けんた',
-    userImage: null,
-    featured: true,
-    createdAt: '2024-12-01T11:00:00Z',
-  },
-  {
-    id: '6',
-    rating: 4,
-    title: '断捨離の参考になる',
-    content: '持っているモノを可視化することで、本当に必要なものが見えてきました。暮らしを見直すきっかけになっています。',
-    userName: 'さとみ',
-    userImage: null,
-    featured: true,
-    createdAt: '2024-11-28T13:30:00Z',
-  },
-];
-
-const sampleStats: ReviewStats = {
-  averageRating: 4.8,
-  totalReviews: 150,
-  ratingDistribution: {
-    5: 120,
-    4: 25,
-    3: 3,
-    2: 1,
-    1: 1,
-  },
-};
 
 export default function ReviewSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const { data, isLoading } = useFeaturedReviews(12);
 
-  // APIデータまたはサンプルデータを使用
-  const reviews = data?.reviews?.length ? data.reviews : sampleReviews;
-  const stats = data?.stats?.totalReviews ? data.stats : sampleStats;
+  // APIデータを使用
+  const reviews = data?.reviews || [];
+  const stats = data?.stats;
 
   const reviewsPerPage = 3;
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
@@ -270,15 +195,23 @@ export default function ReviewSection() {
         </motion.div>
 
         {/* 統計サマリー */}
-        {!isLoading && <ReviewSummary stats={stats} />}
+        {!isLoading && stats && stats.totalReviews > 0 && <ReviewSummary stats={stats} />}
 
         {/* レビューグリッド */}
         <div className="relative">
-          <div className="grid md:grid-cols-3 gap-6">
-            {currentReviews.map((review, index) => (
-              <ReviewCard key={review.id} review={review} index={index} />
-            ))}
-          </div>
+          {reviews.length > 0 ? (
+            <div className="grid md:grid-cols-3 gap-6">
+              {currentReviews.map((review, index) => (
+                <ReviewCard key={review.id} review={review} index={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-zinc-500 dark:text-zinc-400">
+                まだレビューがありません。最初のレビューを投稿してみましょう！
+              </p>
+            </div>
+          )}
 
           {/* ナビゲーション */}
           {totalPages > 1 && (
