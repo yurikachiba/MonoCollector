@@ -121,7 +121,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
     if (!image) return;
     const apiKey = getStoredApiKey();
     if (!apiKey) {
-      alert('設定からAPIキーを登録してください');
+      alert('AI機能を使うにはGroq APIキーが必要です。\n\n右上の設定⚙️から、無料でキーを取得・登録できます。');
       return;
     }
 
