@@ -159,6 +159,27 @@ export async function GET() {
     const powerUsers = sortedByItems.slice(0, top10PercentCount);
     const powerUserItemCount = powerUsers.reduce((sum: number, u: UserWithItems) => sum + u._count.items, 0);
 
+    // パレート分析（累積分布）
+    const paretoData = [];
+    let cumulativeItems = 0;
+    for (let i = 0; i < sortedByItems.length; i++) {
+      cumulativeItems += sortedByItems[i]._count.items;
+      const userPercent = Math.round(((i + 1) / sortedByItems.length) * 100);
+      const itemPercent = totalItems > 0 ? Math.round((cumulativeItems / totalItems) * 100) : 0;
+      // 10%刻みでデータポイントを記録
+      if (userPercent % 10 === 0 || i === sortedByItems.length - 1) {
+        paretoData.push({ userPercent, itemPercent });
+      }
+    }
+
+    // トップユーザー詳細（上位5人、匿名化）
+    const topUsers = sortedByItems.slice(0, 5).map((u: UserWithItems, index: number) => ({
+      rank: index + 1,
+      itemCount: u._count.items,
+      isGuest: u.isGuest,
+      percentOfTotal: totalItems > 0 ? Math.round((u._count.items / totalItems) * 100) : 0,
+    }));
+
     const engagement = {
       distribution: itemDistribution,
       powerUsers: {
@@ -168,6 +189,8 @@ export async function GET() {
         avgItemsPerPowerUser: top10PercentCount > 0 ? Math.round((powerUserItemCount / top10PercentCount) * 10) / 10 : 0,
       },
       averageItemsPerActiveUser: usersWithItems > 0 ? Math.round((totalItems / usersWithItems) * 10) / 10 : 0,
+      paretoData,
+      topUsers,
     };
 
     // ========================================
@@ -219,6 +242,77 @@ export async function GET() {
       },
     };
 
+    // ========================================
+    // インサイト生成
+    // ========================================
+    const insights = [];
+    const registeredRate = totalUsers > 0 ? Math.round(((totalUsers - guestUsers) / totalUsers) * 100) : 0;
+    const dropOffRate = usersWithItems > 0 ? Math.round(((usersWithItems - usersWithMultipleItems) / usersWithItems) * 100) : 0;
+
+    // ゲスト→登録転換率のインサイト
+    if (registeredRate < 30) {
+      insights.push({
+        type: 'warning' as const,
+        category: 'conversion',
+        title: 'ゲスト→登録の転換率が低め',
+        message: `登録率${registeredRate}%。「データを永久保存」などのメリット訴求で改善の余地あり`,
+        metric: { label: '登録率', value: registeredRate, unit: '%' },
+      });
+    } else if (registeredRate >= 50) {
+      insights.push({
+        type: 'success' as const,
+        category: 'conversion',
+        title: '登録転換率が好調',
+        message: `${registeredRate}%のユーザーが登録済み。UXが効いている証拠`,
+        metric: { label: '登録率', value: registeredRate, unit: '%' },
+      });
+    }
+
+    // 1件登録後の離脱率インサイト
+    if (dropOffRate > 40 && usersWithItems >= 3) {
+      insights.push({
+        type: 'warning' as const,
+        category: 'engagement',
+        title: '1件登録後の離脱が多い',
+        message: `${dropOffRate}%が1件で止まっている。振り返りリマインドや「シリーズ登録」提案が効くかも`,
+        metric: { label: '離脱率', value: dropOffRate, unit: '%' },
+      });
+    }
+
+    // パワーユーザー集中のインサイト
+    const powerUserPercent = engagement.powerUsers.percentOfTotalItems;
+    if (powerUserPercent >= 70 && usersWithItems >= 5) {
+      insights.push({
+        type: 'info' as const,
+        category: 'pareto',
+        title: 'パレート則が顕著',
+        message: `上位${top10PercentCount}人が全アイテムの${powerUserPercent}%を登録。このユーザーからフィードバックを得るべき`,
+        metric: { label: 'パワーユーザー貢献', value: powerUserPercent, unit: '%' },
+      });
+    }
+
+    // リテンション率のインサイト
+    if (retention.week1Retention.cohortSize >= 3 && retention.week1Retention.rate < 20) {
+      insights.push({
+        type: 'warning' as const,
+        category: 'retention',
+        title: '週1リテンションが低い',
+        message: `7日後のリテンション率${retention.week1Retention.rate}%。プッシュ通知や振り返り機能の導入を検討`,
+        metric: { label: 'リテンション', value: retention.week1Retention.rate, unit: '%' },
+      });
+    }
+
+    // 成長トレンドのインサイト
+    if (growth.users.growthRate >= 50 && growth.users.thisWeek >= 3) {
+      insights.push({
+        type: 'success' as const,
+        category: 'growth',
+        title: 'ユーザー成長が加速中',
+        message: `今週+${growth.users.growthRate}%の成長。この勢いを維持しよう`,
+        metric: { label: '成長率', value: growth.users.growthRate, unit: '%' },
+      });
+    }
+
     return NextResponse.json({
       users: {
         total: totalUsers,
@@ -240,6 +334,7 @@ export async function GET() {
       engagement,
       retention,
       growth,
+      insights,
     });
   } catch (error) {
     console.error('Failed to fetch admin stats:', error);
