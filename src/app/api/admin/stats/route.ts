@@ -11,7 +11,14 @@ interface CategoryWithCount {
 interface ItemWithDate {
   category: string;
   createdAt: Date;
+  updatedAt: Date;
   userId?: string | null;
+  tags: string[];
+  location: string;
+  iconStyle: string | null;
+  iconColors: string[];
+  isCollected: boolean;
+  image: Buffer | null;
 }
 
 interface UserWithItems {
@@ -40,7 +47,14 @@ export async function GET() {
         select: {
           category: true,
           createdAt: true,
+          updatedAt: true,
           userId: true,
+          tags: true,
+          location: true,
+          iconStyle: true,
+          iconColors: true,
+          isCollected: true,
+          image: true,
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -313,6 +327,228 @@ export async function GET() {
       });
     }
 
+    // ========================================
+    // コンテンツ統計（新規追加）
+    // ========================================
+
+    // タグ人気度の集計
+    const tagCounts: Record<string, number> = {};
+    items.forEach((item: ItemWithDate) => {
+      item.tags.forEach((tag) => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+      });
+    });
+    const popularTags = Object.entries(tagCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([tag, count]) => ({ tag, count, percentage: totalItems > 0 ? Math.round((count / totalItems) * 100) : 0 }));
+
+    const itemsWithTags = items.filter((i: ItemWithDate) => i.tags.length > 0).length;
+    const tagUsageRate = totalItems > 0 ? Math.round((itemsWithTags / totalItems) * 100) : 0;
+
+    // ロケーション分布
+    const locationCounts: Record<string, number> = {};
+    items.forEach((item: ItemWithDate) => {
+      if (item.location) {
+        locationCounts[item.location] = (locationCounts[item.location] || 0) + 1;
+      }
+    });
+    const popularLocations = Object.entries(locationCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([location, count]) => ({ location, count, percentage: totalItems > 0 ? Math.round((count / totalItems) * 100) : 0 }));
+
+    const uniqueLocations = Object.keys(locationCounts).length;
+
+    // アイコンスタイル統計
+    const styleCounts: Record<string, number> = {};
+    items.forEach((item: ItemWithDate) => {
+      const style = item.iconStyle || 'default';
+      styleCounts[style] = (styleCounts[style] || 0) + 1;
+    });
+    const iconStyleStats = Object.entries(styleCounts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([style, count]) => ({ style, count, percentage: totalItems > 0 ? Math.round((count / totalItems) * 100) : 0 }));
+
+    // カラーパレット統計
+    const colorCounts: Record<string, number> = {};
+    items.forEach((item: ItemWithDate) => {
+      item.iconColors.forEach((color) => {
+        colorCounts[color] = (colorCounts[color] || 0) + 1;
+      });
+    });
+    const popularColors = Object.entries(colorCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([color, count]) => ({ color, count }));
+
+    const contentStats = {
+      tags: {
+        popularTags,
+        totalUniqueTags: Object.keys(tagCounts).length,
+        itemsWithTags,
+        tagUsageRate,
+        avgTagsPerItem: totalItems > 0 ? Math.round((Object.values(tagCounts).reduce((a, b) => a + b, 0) / totalItems) * 10) / 10 : 0,
+      },
+      locations: {
+        popularLocations,
+        uniqueLocations,
+      },
+      iconStyles: iconStyleStats,
+      colors: popularColors,
+    };
+
+    // ========================================
+    // アイテムライフサイクル分析（新規追加）
+    // ========================================
+
+    // 回収率
+    const collectedItems = items.filter((i: ItemWithDate) => i.isCollected).length;
+    const collectionRate = totalItems > 0 ? Math.round((collectedItems / totalItems) * 100) : 0;
+
+    // 更新率（作成日と更新日が異なるアイテム）
+    const updatedItems = items.filter((i: ItemWithDate) => {
+      const created = new Date(i.createdAt).getTime();
+      const updated = new Date(i.updatedAt).getTime();
+      return updated - created > 60000; // 1分以上の差がある場合を「更新」とみなす
+    }).length;
+    const updateRate = totalItems > 0 ? Math.round((updatedItems / totalItems) * 100) : 0;
+
+    // アイテムの平均寿命（作成からの日数）
+    const itemAges = items.map((i: ItemWithDate) => {
+      const created = new Date(i.createdAt).getTime();
+      return Math.floor((now.getTime() - created) / (24 * 60 * 60 * 1000));
+    });
+    const avgItemAge = itemAges.length > 0 ? Math.round(itemAges.reduce((a: number, b: number) => a + b, 0) / itemAges.length) : 0;
+
+    // 最近7日間に作成されたアイテムの割合
+    const recentItems = items.filter((i: ItemWithDate) => i.createdAt >= sevenDaysAgo).length;
+    const recentItemsRate = totalItems > 0 ? Math.round((recentItems / totalItems) * 100) : 0;
+
+    // 30日以上更新されていない「放置アイテム」
+    const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+    const staleItems = items.filter((i: ItemWithDate) => {
+      const updated = new Date(i.updatedAt).getTime();
+      return now.getTime() - updated > thirtyDaysInMs;
+    }).length;
+    const staleItemsRate = totalItems > 0 ? Math.round((staleItems / totalItems) * 100) : 0;
+
+    const itemLifecycle = {
+      collection: {
+        collected: collectedItems,
+        uncollected: totalItems - collectedItems,
+        rate: collectionRate,
+      },
+      updates: {
+        updated: updatedItems,
+        unchanged: totalItems - updatedItems,
+        rate: updateRate,
+      },
+      age: {
+        avgDays: avgItemAge,
+        recentItems,
+        recentItemsRate,
+        staleItems,
+        staleItemsRate,
+      },
+    };
+
+    // ========================================
+    // アクティブ時間帯分析（新規追加）
+    // ========================================
+
+    // 時間帯別のアイテム作成数（0-23時）
+    const hourlyActivity: number[] = new Array(24).fill(0);
+    items.forEach((item: ItemWithDate) => {
+      const hour = new Date(item.createdAt).getHours();
+      hourlyActivity[hour]++;
+    });
+
+    // ピーク時間の特定
+    const maxHourlyCount = Math.max(...hourlyActivity);
+    const peakHours = hourlyActivity
+      .map((count, hour) => ({ hour, count }))
+      .filter((h) => h.count === maxHourlyCount)
+      .map((h) => h.hour);
+
+    // 曜日別のアイテム作成数
+    const dailyOfWeek: number[] = new Array(7).fill(0);
+    const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+    items.forEach((item: ItemWithDate) => {
+      const day = new Date(item.createdAt).getDay();
+      dailyOfWeek[day]++;
+    });
+
+    // 時間帯カテゴリ（朝/昼/夜/深夜）
+    const timeOfDayStats = {
+      morning: hourlyActivity.slice(6, 12).reduce((a, b) => a + b, 0), // 6-11時
+      afternoon: hourlyActivity.slice(12, 18).reduce((a, b) => a + b, 0), // 12-17時
+      evening: hourlyActivity.slice(18, 24).reduce((a, b) => a + b, 0), // 18-23時
+      night: hourlyActivity.slice(0, 6).reduce((a, b) => a + b, 0), // 0-5時
+    };
+
+    const activeHours = {
+      hourly: hourlyActivity.map((count, hour) => ({ hour, count })),
+      peakHours,
+      daily: dailyOfWeek.map((count, day) => ({ day: dayNames[day], count })),
+      timeOfDay: timeOfDayStats,
+    };
+
+    // ========================================
+    // ストレージ統計（新規追加）
+    // ========================================
+
+    // 画像データの合計サイズ
+    let totalImageSize = 0;
+    items.forEach((item: ItemWithDate) => {
+      if (item.image) {
+        totalImageSize += item.image.length;
+      }
+    });
+
+    const avgImageSize = totalItems > 0 ? Math.round(totalImageSize / totalItems) : 0;
+    const itemsWithImages = items.filter((i: ItemWithDate) => i.image && i.image.length > 0).length;
+
+    const storage = {
+      totalSize: totalImageSize,
+      totalSizeMB: Math.round((totalImageSize / (1024 * 1024)) * 100) / 100,
+      avgSizePerItem: avgImageSize,
+      avgSizePerItemKB: Math.round((avgImageSize / 1024) * 100) / 100,
+      itemsWithImages,
+      imageUsageRate: totalItems > 0 ? Math.round((itemsWithImages / totalItems) * 100) : 0,
+    };
+
+    // コンテンツ関連のインサイト追加
+    if (tagUsageRate < 20 && totalItems >= 10) {
+      insights.push({
+        type: 'info' as const,
+        category: 'content',
+        title: 'タグの活用率が低め',
+        message: `タグ使用率${tagUsageRate}%。タグ付けを促すUIや自動タグ提案で整理しやすくなるかも`,
+        metric: { label: 'タグ使用率', value: tagUsageRate, unit: '%' },
+      });
+    }
+
+    if (collectionRate >= 30 && totalItems >= 5) {
+      insights.push({
+        type: 'success' as const,
+        category: 'lifecycle',
+        title: '回収機能が活用されている',
+        message: `${collectionRate}%のアイテムが「回収済み」。ユーザーが実際にコレクションを管理している証拠`,
+        metric: { label: '回収率', value: collectionRate, unit: '%' },
+      });
+    }
+
+    if (staleItemsRate >= 50 && totalItems >= 10) {
+      insights.push({
+        type: 'warning' as const,
+        category: 'lifecycle',
+        title: '放置アイテムが多い',
+        message: `${staleItemsRate}%のアイテムが30日以上更新なし。リマインド通知で再エンゲージメントを促せるかも`,
+        metric: { label: '放置率', value: staleItemsRate, unit: '%' },
+      });
+    }
+
     return NextResponse.json({
       users: {
         total: totalUsers,
@@ -335,6 +571,11 @@ export async function GET() {
       retention,
       growth,
       insights,
+      // 追加の分析データ
+      contentStats,
+      itemLifecycle,
+      activeHours,
+      storage,
     });
   } catch (error) {
     console.error('Failed to fetch admin stats:', error);
