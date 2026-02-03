@@ -3,6 +3,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider, useSession } from 'next-auth/react';
 import { useState, useEffect, ReactNode } from 'react';
+import { NotificationProvider } from '@/contexts/NotificationContext';
+import BadgePopup from '@/components/BadgePopup';
 
 interface ProvidersProps {
   children: ReactNode;
@@ -40,7 +42,10 @@ export default function Providers({ children }: ProvidersProps) {
     <SessionProvider>
       <GuestSessionPersister>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <NotificationProvider>
+            {children}
+            <BadgePopup />
+          </NotificationProvider>
         </QueryClientProvider>
       </GuestSessionPersister>
     </SessionProvider>
