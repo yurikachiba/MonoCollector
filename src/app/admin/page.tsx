@@ -437,7 +437,7 @@ export default function AdminPage() {
             {stats.activity.daily.map((day, index) => (
               <div
                 key={day.date}
-                className="flex-1 flex flex-col items-center group"
+                className="flex-1 h-full flex flex-col items-center group"
               >
                 <div className="relative w-full h-full flex items-end">
                   <motion.div
