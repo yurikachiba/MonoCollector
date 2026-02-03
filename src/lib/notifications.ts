@@ -77,9 +77,7 @@ export function saveNotificationSettings(settings: NotificationSettings): void {
 // ========================================
 
 export function isNotificationSupported(): boolean {
-  return typeof window !== 'undefined' &&
-         'Notification' in window &&
-         'serviceWorker' in navigator;
+  return typeof window !== 'undefined' && 'Notification' in window;
 }
 
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
@@ -135,31 +133,44 @@ export async function showNotification(payload: NotificationPayload): Promise<vo
       break;
   }
 
+  // Service Workerを使った通知を試行
+  if ('serviceWorker' in navigator) {
+    try {
+      // 登録済みのService Workerを取得（タイムアウト付き）
+      const registration = await Promise.race([
+        navigator.serviceWorker.getRegistration(),
+        new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 1000)),
+      ]);
+
+      if (registration) {
+        await registration.showNotification(payload.title, {
+          body: payload.body,
+          icon: payload.icon || '/icons/icon-192x192.png',
+          badge: payload.badge || '/icons/icon-72x72.png',
+          tag: payload.tag || payload.type,
+          data: {
+            type: payload.type,
+            url: '/',
+            ...payload.data,
+          },
+          requireInteraction: payload.type === 'achievement' || payload.type === 'badge' || payload.type === 'levelup',
+        });
+        return;
+      }
+    } catch (error) {
+      console.warn('Service Worker notification failed, falling back to browser notification:', error);
+    }
+  }
+
+  // Service Workerが利用できない場合はブラウザ通知を使用
   try {
-    // Service Workerが登録されていればそれを使用
-    const registration = await navigator.serviceWorker.ready;
-
-    await registration.showNotification(payload.title, {
-      body: payload.body,
-      icon: payload.icon || '/icons/icon-192x192.png',
-      badge: payload.badge || '/icons/icon-72x72.png',
-      tag: payload.tag || payload.type,
-      data: {
-        type: payload.type,
-        url: '/',
-        ...payload.data,
-      },
-      requireInteraction: payload.type === 'achievement' || payload.type === 'badge' || payload.type === 'levelup',
-    });
-  } catch (error) {
-    // Service Workerが利用できない場合はブラウザ通知を使用
-    console.warn('Service Worker notification failed, using browser notification:', error);
-
     new Notification(payload.title, {
       body: payload.body,
       icon: payload.icon || '/icons/icon-192x192.png',
       tag: payload.tag || payload.type,
     });
+  } catch (error) {
+    console.error('Browser notification failed:', error);
   }
 }
 
