@@ -78,7 +78,7 @@ function ReviewSummary({ stats }: { stats: ReviewStats }) {
 }
 
 // 個別レビューカード
-function ReviewCard({ review, index }: { review: Review; index: number }) {
+function ReviewCard({ review, index, reviewNumber }: { review: Review; index: number; reviewNumber: number }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ja-JP', {
@@ -120,20 +120,12 @@ function ReviewCard({ review, index }: { review: Review; index: number }) {
 
       {/* ユーザー情報 */}
       <div className="flex items-center gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-700">
-        {review.userImage ? (
-          <img
-            src={review.userImage}
-            alt={review.userName}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-medium">
-            {review.userName.charAt(0)}
-          </div>
-        )}
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-medium text-xs">
+          {reviewNumber}
+        </div>
         <div>
           <p className="font-medium text-zinc-900 dark:text-zinc-100 text-sm">
-            {review.userName}
+            モノコレさん{reviewNumber}
           </p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             {formatDate(review.createdAt)}
@@ -202,7 +194,12 @@ export default function ReviewSection() {
           {reviews.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-6">
               {currentReviews.map((review, index) => (
-                <ReviewCard key={review.id} review={review} index={index} />
+                <ReviewCard
+                  key={review.id}
+                  review={review}
+                  index={index}
+                  reviewNumber={currentPage * reviewsPerPage + index + 1}
+                />
               ))}
             </div>
           ) : (
