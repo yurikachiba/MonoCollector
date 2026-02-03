@@ -23,6 +23,18 @@ import {
   Info,
   Crown,
   PieChart,
+  Tag,
+  MapPin,
+  Palette,
+  Clock,
+  HardDrive,
+  Calendar,
+  CheckSquare,
+  Edit3,
+  Sun,
+  Moon,
+  Sunset,
+  Sunrise,
 } from 'lucide-react';
 
 interface AdminStats {
@@ -113,6 +125,59 @@ interface AdminStats {
     message: string;
     metric: { label: string; value: number; unit: string };
   }>;
+  contentStats: {
+    tags: {
+      popularTags: Array<{ tag: string; count: number; percentage: number }>;
+      totalUniqueTags: number;
+      itemsWithTags: number;
+      tagUsageRate: number;
+      avgTagsPerItem: number;
+    };
+    locations: {
+      popularLocations: Array<{ location: string; count: number; percentage: number }>;
+      uniqueLocations: number;
+    };
+    iconStyles: Array<{ style: string; count: number; percentage: number }>;
+    colors: Array<{ color: string; count: number }>;
+  };
+  itemLifecycle: {
+    collection: {
+      collected: number;
+      uncollected: number;
+      rate: number;
+    };
+    updates: {
+      updated: number;
+      unchanged: number;
+      rate: number;
+    };
+    age: {
+      avgDays: number;
+      recentItems: number;
+      recentItemsRate: number;
+      staleItems: number;
+      staleItemsRate: number;
+    };
+  };
+  activeHours: {
+    hourly: Array<{ hour: number; count: number }>;
+    peakHours: number[];
+    daily: Array<{ day: string; count: number }>;
+    timeOfDay: {
+      morning: number;
+      afternoon: number;
+      evening: number;
+      night: number;
+    };
+  };
+  storage: {
+    totalSize: number;
+    totalSizeMB: number;
+    avgSizePerItem: number;
+    avgSizePerItemKB: number;
+    itemsWithImages: number;
+    imageUsageRate: number;
+  };
 }
 
 export default function AdminPage() {
@@ -839,6 +904,380 @@ export default function AdminPage() {
               </div>
             </motion.div>
           </div>
+        )}
+
+        {/* Content Stats - Tags & Locations */}
+        {stats.contentStats && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Tag className="w-5 h-5 text-cyan-500" />
+              コンテンツ統計
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Tags */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-blue-500" />
+                  人気タグ TOP 10
+                </h3>
+                {stats.contentStats.tags.popularTags.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {stats.contentStats.tags.popularTags.map((tag, index) => (
+                      <span
+                        key={tag.tag}
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          index === 0
+                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                            : index < 3
+                            ? 'bg-cyan-50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
+                            : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                        }`}
+                      >
+                        {tag.tag} ({tag.count})
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400 mb-4">タグなし</p>
+                )}
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                    <p className="text-gray-500 text-xs">ユニークタグ数</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.contentStats.tags.totalUniqueTags}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                    <p className="text-gray-500 text-xs">タグ使用率</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.contentStats.tags.tagUsageRate}%</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Locations */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-red-500" />
+                  場所分布 TOP 10
+                </h3>
+                {stats.contentStats.locations.popularLocations.length > 0 ? (
+                  <div className="space-y-2 mb-4">
+                    {stats.contentStats.locations.popularLocations.slice(0, 5).map((loc) => (
+                      <div key={loc.location} className="flex items-center gap-2">
+                        <span className="text-sm text-gray-700 dark:text-gray-300 truncate flex-1">{loc.location}</span>
+                        <div className="w-20 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-red-400 rounded-full"
+                            style={{ width: `${loc.percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-500 w-8 text-right">{loc.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400 mb-4">場所データなし</p>
+                )}
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+                  <p className="text-gray-500 text-xs">ユニークな場所</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.contentStats.locations.uniqueLocations}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Icon Styles & Colors */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              {/* Icon Styles */}
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-purple-500" />
+                  アイコンスタイル
+                </h3>
+                <div className="space-y-2">
+                  {stats.contentStats.iconStyles.map((style) => (
+                    <div key={style.style} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{style.style}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-2 bg-white/50 dark:bg-gray-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-purple-500 rounded-full"
+                            style={{ width: `${style.percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-500 w-10 text-right">{style.percentage}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color Palette */}
+              <div className="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-orange-500" />
+                  人気カラー
+                </h3>
+                {stats.contentStats.colors.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {stats.contentStats.colors.map((c) => (
+                      <div
+                        key={c.color}
+                        className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/50 dark:bg-gray-800/50"
+                      >
+                        <div
+                          className="w-4 h-4 rounded-full border border-gray-200 dark:border-gray-700"
+                          style={{ backgroundColor: c.color }}
+                        />
+                        <span className="text-xs text-gray-600 dark:text-gray-400">{c.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">カラーデータなし</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Item Lifecycle */}
+        {stats.itemLifecycle && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-teal-500" />
+              アイテムライフサイクル
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Collection Status */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-green-500" />
+                  回収状況
+                </h3>
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="relative w-16 h-16">
+                    <svg className="w-16 h-16 transform -rotate-90">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-200 dark:text-gray-700" />
+                      <motion.circle
+                        cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="8"
+                        strokeDasharray={`${stats.itemLifecycle.collection.rate * 1.76} 176`}
+                        className="text-green-500"
+                        initial={{ strokeDasharray: '0 176' }}
+                        animate={{ strokeDasharray: `${stats.itemLifecycle.collection.rate * 1.76} 176` }}
+                        transition={{ duration: 1, delay: 1.1 }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{stats.itemLifecycle.collection.rate}%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">回収済み: <span className="font-semibold">{stats.itemLifecycle.collection.collected}</span></p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">未回収: <span className="font-semibold">{stats.itemLifecycle.collection.uncollected}</span></p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Update Status */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-blue-500" />
+                  更新状況
+                </h3>
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="relative w-16 h-16">
+                    <svg className="w-16 h-16 transform -rotate-90">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-200 dark:text-gray-700" />
+                      <motion.circle
+                        cx="32" cy="32" r="28" fill="none" stroke="currentColor" strokeWidth="8"
+                        strokeDasharray={`${stats.itemLifecycle.updates.rate * 1.76} 176`}
+                        className="text-blue-500"
+                        initial={{ strokeDasharray: '0 176' }}
+                        animate={{ strokeDasharray: `${stats.itemLifecycle.updates.rate * 1.76} 176` }}
+                        transition={{ duration: 1, delay: 1.1 }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{stats.itemLifecycle.updates.rate}%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">更新あり: <span className="font-semibold">{stats.itemLifecycle.updates.updated}</span></p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">未更新: <span className="font-semibold">{stats.itemLifecycle.updates.unchanged}</span></p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Age Stats */}
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-amber-500" />
+                  アイテム鮮度
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">平均経過日数</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{stats.itemLifecycle.age.avgDays}日</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">7日以内の新規</span>
+                    <span className="font-semibold text-green-600 dark:text-green-400">{stats.itemLifecycle.age.recentItemsRate}%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">30日以上放置</span>
+                    <span className={`font-semibold ${stats.itemLifecycle.age.staleItemsRate >= 50 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+                      {stats.itemLifecycle.age.staleItemsRate}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Active Hours */}
+        {stats.activeHours && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.1 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-violet-500" />
+              アクティブ時間帯
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Hourly Chart */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">時間帯別アクティビティ</h3>
+                <div className="flex items-end gap-0.5 h-24">
+                  {stats.activeHours.hourly.map((h) => {
+                    const maxCount = Math.max(...stats.activeHours.hourly.map(x => x.count), 1);
+                    const isPeak = stats.activeHours.peakHours.includes(h.hour);
+                    return (
+                      <div key={h.hour} className="flex-1 flex flex-col items-center group relative">
+                        <motion.div
+                          initial={{ height: 0 }}
+                          animate={{ height: `${(h.count / maxCount) * 100}%` }}
+                          transition={{ delay: 1.1 + h.hour * 0.02, duration: 0.3 }}
+                          className={`w-full rounded-t min-h-[2px] ${
+                            isPeak ? 'bg-violet-500' : 'bg-violet-300 dark:bg-violet-700'
+                          }`}
+                          style={{ height: `${Math.max((h.count / maxCount) * 96, h.count > 0 ? 4 : 2)}px` }}
+                        />
+                        <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-[10px] px-1 py-0.5 rounded whitespace-nowrap z-10">
+                          {h.hour}時: {h.count}件
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-1 text-[10px] text-gray-400">
+                  <span>0時</span>
+                  <span>12時</span>
+                  <span>24時</span>
+                </div>
+                {stats.activeHours.peakHours.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    ピーク: {stats.activeHours.peakHours.map(h => `${h}時`).join(', ')}
+                  </p>
+                )}
+              </div>
+
+              {/* Time of Day & Day of Week */}
+              <div className="space-y-4">
+                {/* Time of Day */}
+                <div className="bg-gradient-to-r from-orange-50 via-blue-50 to-indigo-50 dark:from-orange-900/20 dark:via-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">時間帯カテゴリ</h3>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { key: 'morning', label: '朝', icon: <Sunrise className="w-4 h-4" />, color: 'text-orange-500' },
+                      { key: 'afternoon', label: '昼', icon: <Sun className="w-4 h-4" />, color: 'text-yellow-500' },
+                      { key: 'evening', label: '夜', icon: <Sunset className="w-4 h-4" />, color: 'text-indigo-500' },
+                      { key: 'night', label: '深夜', icon: <Moon className="w-4 h-4" />, color: 'text-purple-500' },
+                    ].map((period) => {
+                      const count = stats.activeHours.timeOfDay[period.key as keyof typeof stats.activeHours.timeOfDay];
+                      const total = Object.values(stats.activeHours.timeOfDay).reduce((a, b) => a + b, 0);
+                      const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                      return (
+                        <div key={period.key} className="text-center">
+                          <div className={`${period.color} flex justify-center mb-1`}>{period.icon}</div>
+                          <p className="text-xs text-gray-500">{period.label}</p>
+                          <p className="text-sm font-bold text-gray-900 dark:text-white">{percentage}%</p>
+                          <p className="text-[10px] text-gray-400">{count}件</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Day of Week */}
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">曜日別</h3>
+                  <div className="flex items-end gap-1">
+                    {stats.activeHours.daily.map((d) => {
+                      const maxCount = Math.max(...stats.activeHours.daily.map(x => x.count), 1);
+                      return (
+                        <div key={d.day} className="flex-1 flex flex-col items-center">
+                          <div
+                            className="w-full bg-teal-400 dark:bg-teal-600 rounded-t"
+                            style={{ height: `${Math.max((d.count / maxCount) * 40, d.count > 0 ? 4 : 2)}px` }}
+                          />
+                          <span className="text-[10px] text-gray-500 mt-1">{d.day}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Storage Stats */}
+        {stats.storage && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <HardDrive className="w-5 h-5 text-slate-500" />
+              ストレージ統計
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900/30 dark:to-gray-900/30 rounded-xl p-4 text-center">
+                <HardDrive className="w-8 h-8 text-slate-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.storage.totalSizeMB}</p>
+                <p className="text-xs text-gray-500">総容量 (MB)</p>
+              </div>
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-4 text-center">
+                <Package className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.storage.avgSizePerItemKB}</p>
+                <p className="text-xs text-gray-500">平均 (KB/アイテム)</p>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 text-center">
+                <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.storage.itemsWithImages}</p>
+                <p className="text-xs text-gray-500">画像ありアイテム</p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 text-center">
+                <PieChart className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.storage.imageUsageRate}%</p>
+                <p className="text-xs text-gray-500">画像使用率</p>
+              </div>
+            </div>
+          </motion.div>
         )}
       </main>
     </div>
