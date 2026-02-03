@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react';
 import {
   NotificationSettings,
   getNotificationSettings,
@@ -38,6 +38,9 @@ interface NotificationContextType {
   badgePopupData: BadgePopupData | null;
   showBadgePopup: (data: BadgePopupData) => void;
   closeBadgePopup: () => void;
+
+  // 通知キュー（複数の通知を順番に表示）
+  addToNotificationQueue: (data: BadgePopupData) => void;
 
   // 通知トリガー
   notifyBadgeUnlocked: (badge: CollectionBadge) => void;
@@ -95,6 +98,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [isSupported] = useState(() => isNotificationSupported());
   const [badgePopupData, setBadgePopupData] = useState<BadgePopupData | null>(null);
 
+  // 通知キュー
+  const notificationQueueRef = useRef<BadgePopupData[]>([]);
+
   const [previousBadges, setPreviousBadges] = useState<string[]>(() => loadPreviousState().badges);
   const [previousAchievements, setPreviousAchievements] = useState<string[]>(() => loadPreviousState().achievements);
   const [previousLevel, setPreviousLevel] = useState(() => loadPreviousState().level);
@@ -120,45 +126,73 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setBadgePopupData(data);
   }, []);
 
+  // キューから次の通知を表示
+  const showNextNotification = useCallback(() => {
+    if (notificationQueueRef.current.length > 0) {
+      const next = notificationQueueRef.current.shift();
+      if (next) {
+        setTimeout(() => {
+          setBadgePopupData(next);
+        }, 300); // 少し間隔を開けて次を表示
+      }
+    }
+  }, []);
+
   const closeBadgePopup = useCallback(() => {
     setBadgePopupData(null);
+    // キューに次の通知があれば表示
+    showNextNotification();
+  }, [showNextNotification]);
+
+  // 通知をキューに追加
+  const addToNotificationQueue = useCallback((data: BadgePopupData) => {
+    // 現在ポップアップが表示されていなければ直接表示
+    setBadgePopupData((current) => {
+      if (current === null) {
+        return data;
+      } else {
+        // 既に表示中ならキューに追加
+        notificationQueueRef.current.push(data);
+        return current;
+      }
+    });
   }, []);
 
   // バッジ獲得通知
   const notifyBadgeUnlocked = useCallback((badge: CollectionBadge) => {
-    // ポップアップを表示
-    showBadgePopup({ type: 'badge', badge });
+    // ポップアップをキューに追加
+    addToNotificationQueue({ type: 'badge', badge });
 
     // プッシュ通知
     if (settings.enabled && settings.achievementAlert) {
       const notification = createBadgeNotification(badge.name, badge.icon);
       showNotification(notification);
     }
-  }, [settings, showBadgePopup]);
+  }, [settings, addToNotificationQueue]);
 
   // 実績解除通知
   const notifyAchievementUnlocked = useCallback((achievement: Achievement) => {
-    // ポップアップを表示
-    showBadgePopup({ type: 'achievement', achievement });
+    // ポップアップをキューに追加
+    addToNotificationQueue({ type: 'achievement', achievement });
 
     // プッシュ通知
     if (settings.enabled && settings.achievementAlert) {
       const notification = createAchievementNotification(achievement.name, achievement.icon);
       showNotification(notification);
     }
-  }, [settings, showBadgePopup]);
+  }, [settings, addToNotificationQueue]);
 
   // レベルアップ通知
   const notifyLevelUp = useCallback((levelInfo: LevelInfo) => {
-    // ポップアップを表示
-    showBadgePopup({ type: 'levelup', levelInfo });
+    // ポップアップをキューに追加
+    addToNotificationQueue({ type: 'levelup', levelInfo });
 
     // プッシュ通知
     if (settings.enabled && settings.achievementAlert) {
       const notification = createLevelUpNotification(levelInfo.level, levelInfo.title);
       showNotification(notification);
     }
-  }, [settings, showBadgePopup]);
+  }, [settings, addToNotificationQueue]);
 
   // 前回の状態を保存
   const setPreviousState = useCallback((badges: string[], achievements: string[], level: number) => {
@@ -179,6 +213,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         badgePopupData,
         showBadgePopup,
         closeBadgePopup,
+        addToNotificationQueue,
         notifyBadgeUnlocked,
         notifyAchievementUnlocked,
         notifyLevelUp,

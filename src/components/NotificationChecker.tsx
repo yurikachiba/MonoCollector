@@ -139,42 +139,38 @@ export default function NotificationChecker() {
 
     // 新しいバッジの検出
     const newBadgeIds = currentBadgeIds.filter((id) => !previousBadges.includes(id));
-    if (newBadgeIds.length > 0) {
-      const newBadge = collectionBadges.find((b) => b.id === newBadgeIds[0]);
-      if (newBadge) {
-        // バッジ獲得通知を遅延表示（アイテム保存後に表示）
-        setTimeout(() => {
+
+    // 新しい実績の検出
+    const newAchievementIds = currentAchievementIds.filter(
+      (id) => !previousAchievements.includes(id)
+    );
+
+    // レベルアップの検出
+    const hasLeveledUp = currentLevel > previousLevel && previousLevel > 0;
+
+    // 通知を遅延表示（アイテム保存後に表示）
+    setTimeout(() => {
+      // バッジ獲得通知（すべての新しいバッジを順番に表示）
+      newBadgeIds.forEach((badgeId) => {
+        const newBadge = collectionBadges.find((b) => b.id === badgeId);
+        if (newBadge) {
           notifyBadgeUnlocked(newBadge);
-        }, 500);
-      }
-    }
-
-    // 新しい実績の検出（バッジと同時に表示しない）
-    if (newBadgeIds.length === 0) {
-      const newAchievementIds = currentAchievementIds.filter(
-        (id) => !previousAchievements.includes(id)
-      );
-      if (newAchievementIds.length > 0) {
-        const newAchievement = allAchievements.find((a) => a.id === newAchievementIds[0]);
-        if (newAchievement) {
-          setTimeout(() => {
-            notifyAchievementUnlocked(newAchievement);
-          }, 500);
         }
-      }
-    }
+      });
 
-    // レベルアップの検出（バッジ・実績と同時に表示しない）
-    if (newBadgeIds.length === 0 && currentLevel > previousLevel && previousLevel > 0) {
-      const newAchievementIds = currentAchievementIds.filter(
-        (id) => !previousAchievements.includes(id)
-      );
-      if (newAchievementIds.length === 0) {
-        setTimeout(() => {
-          notifyLevelUp(collectionStats.level);
-        }, 500);
+      // 実績解除通知（すべての新しい実績を順番に表示）
+      newAchievementIds.forEach((achievementId) => {
+        const newAchievement = allAchievements.find((a) => a.id === achievementId);
+        if (newAchievement) {
+          notifyAchievementUnlocked(newAchievement);
+        }
+      });
+
+      // レベルアップ通知
+      if (hasLeveledUp) {
+        notifyLevelUp(collectionStats.level);
       }
-    }
+    }, 500);
 
     // 状態を保存
     setPreviousState(currentBadgeIds, currentAchievementIds, currentLevel);
