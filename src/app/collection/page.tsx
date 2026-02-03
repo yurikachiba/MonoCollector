@@ -12,6 +12,7 @@ import CollectionPanel from '@/components/CollectionPanel';
 import GuestDataMigrationDialog from '@/components/GuestDataMigrationDialog';
 import MemoryReminderPopup from '@/components/MemoryReminderPopup';
 import GuestSignupPrompt from '@/components/GuestSignupPrompt';
+import PushNotificationPrompt from '@/components/PushNotificationPrompt';
 import NotificationChecker from '@/components/NotificationChecker';
 
 export default function CollectionPage() {
@@ -52,6 +53,7 @@ export default function CollectionPage() {
       <GuestDataMigrationDialog />
       <MemoryReminderPopup />
       <GuestSignupPrompt />
+      <PushNotificationPrompt />
       <NotificationChecker />
     </main>
   );
