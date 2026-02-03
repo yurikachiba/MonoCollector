@@ -13,6 +13,10 @@ import {
   RefreshCw,
   UserCheck,
   UserX,
+  Filter,
+  Zap,
+  Target,
+  Repeat,
 } from 'lucide-react';
 
 interface AdminStats {
@@ -38,6 +42,55 @@ interface AdminStats {
     weekly: {
       thisWeek: number;
       lastWeek: number;
+    };
+  };
+  funnel: {
+    stages: Array<{
+      name: string;
+      from: number;
+      to: number;
+      rate: number;
+    }>;
+    guestToRegistered: {
+      guests: number;
+      registered: number;
+      conversionRate: number;
+    };
+  };
+  engagement: {
+    distribution: {
+      zero: number;
+      one: number;
+      twoToFive: number;
+      sixToTen: number;
+      elevenPlus: number;
+    };
+    powerUsers: {
+      count: number;
+      itemCount: number;
+      percentOfTotalItems: number;
+      avgItemsPerPowerUser: number;
+    };
+    averageItemsPerActiveUser: number;
+  };
+  retention: {
+    newUsersLast7Days: number;
+    week1Retention: {
+      cohortSize: number;
+      retained: number;
+      rate: number;
+    };
+  };
+  growth: {
+    users: {
+      thisWeek: number;
+      lastWeek: number;
+      growthRate: number;
+    };
+    items: {
+      thisWeek: number;
+      lastWeek: number;
+      growthRate: number;
     };
   };
 }
@@ -375,6 +428,220 @@ export default function AdminPage() {
             </div>
           </div>
         </motion.div>
+
+        {/* Funnel Analysis */}
+        {stats.funnel && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Filter className="w-5 h-5 text-indigo-500" />
+              ファネル分析
+            </h2>
+            <div className="space-y-3">
+              {stats.funnel.stages.slice(1).map((stage, index) => (
+                <motion.div
+                  key={stage.name}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + index * 0.1 }}
+                  className="relative"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{stage.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500">
+                        {stage.from} → {stage.to}
+                      </span>
+                      <span className={`text-sm font-bold ${
+                        stage.rate >= 50 ? 'text-green-600' : stage.rate >= 25 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
+                        {stage.rate}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${stage.rate}%` }}
+                      transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
+                      className={`h-full rounded-full ${
+                        stage.rate >= 50 ? 'bg-green-500' : stage.rate >= 25 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Engagement Analysis */}
+        {stats.engagement && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Zap className="w-5 h-5 text-yellow-500" />
+              エンゲージメント分析
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Item Distribution */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  アイテム数の分布
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { label: '0件', value: stats.engagement.distribution.zero, color: 'bg-gray-400' },
+                    { label: '1件', value: stats.engagement.distribution.one, color: 'bg-blue-400' },
+                    { label: '2-5件', value: stats.engagement.distribution.twoToFive, color: 'bg-green-400' },
+                    { label: '6-10件', value: stats.engagement.distribution.sixToTen, color: 'bg-purple-400' },
+                    { label: '11件以上', value: stats.engagement.distribution.elevenPlus, color: 'bg-orange-400' },
+                  ].map((item) => {
+                    const total = Object.values(stats.engagement.distribution).reduce((a, b) => a + b, 0);
+                    const percentage = total > 0 ? Math.round((item.value / total) * 100) : 0;
+                    return (
+                      <div key={item.label} className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${item.color}`} />
+                        <span className="text-sm text-gray-600 dark:text-gray-400 w-16">{item.label}</span>
+                        <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full ${item.color} rounded-full`}
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-500 w-12 text-right">{item.value}人</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Power Users */}
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <Target className="w-4 h-4 text-orange-500" />
+                  パワーユーザー（上位10%）
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {stats.engagement.powerUsers.count}
+                    </p>
+                    <p className="text-xs text-gray-500">人</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {stats.engagement.powerUsers.percentOfTotalItems}%
+                    </p>
+                    <p className="text-xs text-gray-500">全アイテムの割合</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {stats.engagement.powerUsers.avgItemsPerPowerUser}
+                    </p>
+                    <p className="text-xs text-gray-500">平均アイテム数</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {stats.engagement.averageItemsPerActiveUser}
+                    </p>
+                    <p className="text-xs text-gray-500">アクティブ平均</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Retention & Growth */}
+        {stats.retention && stats.growth && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Retention */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+            >
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <Repeat className="w-5 h-5 text-green-500" />
+                リテンション
+              </h2>
+              <div className="space-y-4">
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">新規ユーザー（過去7日）</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {stats.retention.newUsersLast7Days}人
+                  </p>
+                </div>
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">週1リテンション率</p>
+                  <div className="flex items-end gap-2">
+                    <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                      {stats.retention.week1Retention.rate}%
+                    </p>
+                    <p className="text-xs text-gray-500 mb-1">
+                      ({stats.retention.week1Retention.retained}/{stats.retention.week1Retention.cohortSize}人)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Growth */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+            >
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-blue-500" />
+                成長トレンド
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                  <div>
+                    <p className="text-sm text-gray-500">ユーザー成長</p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {stats.growth.users.thisWeek} / {stats.growth.users.lastWeek}
+                    </p>
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    stats.growth.users.growthRate >= 0
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  }`}>
+                    {stats.growth.users.growthRate >= 0 ? '+' : ''}{stats.growth.users.growthRate}%
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                  <div>
+                    <p className="text-sm text-gray-500">アイテム成長</p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {stats.growth.items.thisWeek} / {stats.growth.items.lastWeek}
+                    </p>
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    stats.growth.items.growthRate >= 0
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  }`}>
+                    {stats.growth.items.growthRate >= 0 ? '+' : ''}{stats.growth.items.growthRate}%
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </main>
     </div>
   );
