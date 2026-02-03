@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 // 公開レビューを取得
 export async function GET(request: NextRequest) {
