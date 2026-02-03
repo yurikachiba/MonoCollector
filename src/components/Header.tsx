@@ -30,8 +30,11 @@ export default function Header({ onOpenSettings }: HeaderProps) {
   };
 
   const handleGoogleHandoff = async () => {
-    // メニューを閉じてからリダイレクト
+    // メニューを閉じる
     setIsUserMenuOpen(false);
+    // 既存のゲストセッションをサインアウトしてからGoogleログイン
+    // サインアウトしないと、既存セッションが維持されてGoogleセッションに切り替わらない
+    await signOut({ redirect: false });
     await signIn('google', { callbackUrl: '/collection' });
   };
 
