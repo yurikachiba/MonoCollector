@@ -121,8 +121,18 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 </div>
 
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  AIで自動読み取り機能を使うには、Groq APIキーが必要です。
+                  写真から自動でアイテム情報を読み取るAI機能を使うには、Groq APIキーが必要です。
                 </p>
+
+                <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
+                  <p className="font-medium text-gray-700 dark:text-gray-300">取得方法（無料・1分で完了）:</p>
+                  <ol className="list-decimal list-inside space-y-1 text-xs">
+                    <li>下のリンクからGroqのサイトにアクセス</li>
+                    <li>Googleアカウントなどで無料登録</li>
+                    <li>「Create API Key」をクリック</li>
+                    <li>作成されたキー（gsk_...）をコピーして下に貼り付け</li>
+                  </ol>
+                </div>
 
                 <div className="relative">
                   <input
