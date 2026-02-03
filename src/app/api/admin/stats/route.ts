@@ -18,7 +18,7 @@ interface ItemWithDate {
   iconStyle: string | null;
   iconColors: string[];
   isCollected: boolean;
-  image: Buffer | null;
+  image: Uint8Array | null;
 }
 
 interface UserWithItems {
