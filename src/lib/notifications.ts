@@ -18,7 +18,7 @@ export const defaultNotificationSettings: NotificationSettings = {
   achievementAlert: true,
   weeklySummary: true,
   motivationReminder: true,
-  reminderTime: '20:00',
+  reminderTime: '21:00', // 効果的な時間帯（21:00）に固定
 };
 
 // 通知タイプの定義
@@ -53,7 +53,10 @@ export function getNotificationSettings(): NotificationSettings {
   try {
     const stored = localStorage.getItem(SETTINGS_KEY);
     if (stored) {
-      return { ...defaultNotificationSettings, ...JSON.parse(stored) };
+      const settings = { ...defaultNotificationSettings, ...JSON.parse(stored) };
+      // 時間帯を効果的な21:00に固定（ユーザーによる変更を無効化）
+      settings.reminderTime = '21:00';
+      return settings;
     }
   } catch (error) {
     console.error('Failed to load notification settings:', error);

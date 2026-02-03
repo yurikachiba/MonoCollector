@@ -237,8 +237,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             {permission === 'denied'
                               ? 'ブラウザの設定で許可してください'
                               : permission === 'granted'
-                              ? 'タップして切り替え'
-                              : 'タップして許可'}
+                              ? '毎日21:00に通知をお届けします'
+                              : 'タップして許可（21:00に送信）'}
                           </p>
                         </div>
                       </div>
@@ -337,16 +337,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                           </label>
                         </div>
 
-                        {/* リマインダー時間 */}
-                        <div className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">リマインダー時間</span>
-                          <input
-                            type="time"
-                            value={notificationSettings.reminderTime}
-                            onChange={(e) => handleTimeChange(e.target.value)}
-                            className="px-2 py-1 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg"
-                          />
-                        </div>
+                        {/* リマインダー時間は21:00に固定されているため、設定UIを非表示にしました */}
                       </motion.div>
                     )}
 
