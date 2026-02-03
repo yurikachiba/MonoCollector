@@ -7,9 +7,8 @@ import {
   isNotificationSupported,
   requestNotificationPermission,
   getNotificationPermission,
-  getNotificationSettings,
-  saveNotificationSettings,
 } from '@/lib/notifications';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 const BENEFITS = [
   {
@@ -32,6 +31,7 @@ const BENEFITS = [
 export default function PushNotificationPrompt() {
   const [isOpen, setIsOpen] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
+  const { updateSettings } = useNotifications();
 
   useEffect(() => {
     // 通知がサポートされていない場合はスキップ
@@ -73,9 +73,8 @@ export default function PushNotificationPrompt() {
       const permission = await requestNotificationPermission();
 
       if (permission === 'granted') {
-        // 通知設定を有効にする
-        const settings = getNotificationSettings();
-        saveNotificationSettings({ ...settings, enabled: true });
+        // 通知設定を有効にする（Context経由で更新）
+        updateSettings({ enabled: true });
         setIsOpen(false);
       } else {
         // 拒否された場合は閉じる
