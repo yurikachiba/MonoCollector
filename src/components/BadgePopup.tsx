@@ -100,7 +100,7 @@ function PopupContent({ data, onClose }: PopupContentProps) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.5, opacity: 0, y: 50 }}
         transition={{ type: 'spring', damping: 15, stiffness: 300 }}
-        className={`relative w-full max-w-sm mx-4 rounded-3xl overflow-hidden shadow-2xl ${colors.glow}`}
+        className={`relative w-full rounded-3xl overflow-hidden shadow-2xl ${colors.glow}`}
       >
         {/* 背景グラデーション */}
         <div className={`absolute inset-0 bg-gradient-to-br ${colors.bg}`} />
@@ -205,7 +205,7 @@ function PopupContent({ data, onClose }: PopupContentProps) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.5, opacity: 0, y: 50 }}
         transition={{ type: 'spring', damping: 15, stiffness: 300 }}
-        className={`relative w-full max-w-sm mx-4 rounded-3xl overflow-hidden shadow-2xl ${colors.glow}`}
+        className={`relative w-full rounded-3xl overflow-hidden shadow-2xl ${colors.glow}`}
       >
         <div className={`absolute inset-0 bg-gradient-to-br ${colors.bg}`} />
 
@@ -276,7 +276,7 @@ function PopupContent({ data, onClose }: PopupContentProps) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.5, opacity: 0, y: 50 }}
         transition={{ type: 'spring', damping: 15, stiffness: 300 }}
-        className="relative w-full max-w-sm mx-4 rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/50"
+        className="relative w-full rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/50"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500" />
 
@@ -365,10 +365,10 @@ export default function BadgePopup() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
           onClick={handleClose}
         >
-          <div onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-sm">
             <PopupContent data={badgePopupData} onClose={handleClose} />
           </div>
         </motion.div>
