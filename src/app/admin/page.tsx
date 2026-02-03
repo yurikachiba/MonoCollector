@@ -1160,16 +1160,19 @@ export default function AdminPage() {
                   {stats.activeHours.hourly.map((h) => {
                     const maxCount = Math.max(...stats.activeHours.hourly.map(x => x.count), 1);
                     const isPeak = stats.activeHours.peakHours.includes(h.hour);
+                    // Calculate height percentage with minimum visibility
+                    const heightPercent = h.count > 0
+                      ? Math.max((h.count / maxCount) * 100, 5) // Minimum 5% for visibility
+                      : 2; // 2% for zero counts
                     return (
                       <div key={h.hour} className="flex-1 flex flex-col items-center group relative">
                         <motion.div
                           initial={{ height: 0 }}
-                          animate={{ height: `${(h.count / maxCount) * 100}%` }}
+                          animate={{ height: `${heightPercent}%` }}
                           transition={{ delay: 1.1 + h.hour * 0.02, duration: 0.3 }}
-                          className={`w-full rounded-t min-h-[2px] ${
+                          className={`w-full rounded-t ${
                             isPeak ? 'bg-violet-500' : 'bg-violet-300 dark:bg-violet-700'
                           }`}
-                          style={{ height: `${Math.max((h.count / maxCount) * 96, h.count > 0 ? 4 : 2)}px` }}
                         />
                         <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-[10px] px-1 py-0.5 rounded whitespace-nowrap z-10">
                           {h.hour}時: {h.count}件
