@@ -10,6 +10,8 @@ import AddItemModal from '@/components/AddItemModal';
 import SettingsModal from '@/components/SettingsModal';
 import CollectionPanel from '@/components/CollectionPanel';
 import GuestDataMigrationDialog from '@/components/GuestDataMigrationDialog';
+import MemoryReminderPopup from '@/components/MemoryReminderPopup';
+import GuestSignupPrompt from '@/components/GuestSignupPrompt';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -47,6 +49,8 @@ export default function CollectionPage() {
       />
 
       <GuestDataMigrationDialog />
+      <MemoryReminderPopup />
+      <GuestSignupPrompt />
     </main>
   );
 }

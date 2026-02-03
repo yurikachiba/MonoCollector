@@ -17,6 +17,12 @@ import {
   Zap,
   Target,
   Repeat,
+  Lightbulb,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  Crown,
+  PieChart,
 } from 'lucide-react';
 
 interface AdminStats {
@@ -72,6 +78,13 @@ interface AdminStats {
       avgItemsPerPowerUser: number;
     };
     averageItemsPerActiveUser: number;
+    paretoData: Array<{ userPercent: number; itemPercent: number }>;
+    topUsers: Array<{
+      rank: number;
+      itemCount: number;
+      isGuest: boolean;
+      percentOfTotal: number;
+    }>;
   };
   retention: {
     newUsersLast7Days: number;
@@ -93,6 +106,13 @@ interface AdminStats {
       growthRate: number;
     };
   };
+  insights: Array<{
+    type: 'success' | 'warning' | 'info';
+    category: string;
+    title: string;
+    message: string;
+    metric: { label: string; value: number; unit: string };
+  }>;
 }
 
 export default function AdminPage() {
@@ -218,6 +238,82 @@ export default function AdminPage() {
             color="purple"
           />
         </div>
+
+        {/* Insights Section */}
+        {stats.insights && stats.insights.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-2xl border border-indigo-200 dark:border-indigo-800/50 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-yellow-500" />
+              インサイト・アクションポイント
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {stats.insights.map((insight, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + index * 0.05 }}
+                  className={`p-4 rounded-xl border ${
+                    insight.type === 'success'
+                      ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800/50'
+                      : insight.type === 'warning'
+                      ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/50'
+                      : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      insight.type === 'success'
+                        ? 'bg-green-100 dark:bg-green-800/30'
+                        : insight.type === 'warning'
+                        ? 'bg-amber-100 dark:bg-amber-800/30'
+                        : 'bg-blue-100 dark:bg-blue-800/30'
+                    }`}>
+                      {insight.type === 'success' ? (
+                        <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      ) : insight.type === 'warning' ? (
+                        <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                      ) : (
+                        <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`font-medium ${
+                        insight.type === 'success'
+                          ? 'text-green-800 dark:text-green-300'
+                          : insight.type === 'warning'
+                          ? 'text-amber-800 dark:text-amber-300'
+                          : 'text-blue-800 dark:text-blue-300'
+                      }`}>
+                        {insight.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        {insight.message}
+                      </p>
+                      <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/50 dark:bg-black/20 text-xs font-medium">
+                        <span className="text-gray-500">{insight.metric.label}:</span>
+                        <span className={`font-bold ${
+                          insight.type === 'success'
+                            ? 'text-green-600 dark:text-green-400'
+                            : insight.type === 'warning'
+                            ? 'text-amber-600 dark:text-amber-400'
+                            : 'text-blue-600 dark:text-blue-400'
+                        }`}>
+                          {insight.metric.value}{insight.metric.unit}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Weekly Comparison */}
         <motion.div
@@ -557,6 +653,108 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Pareto Analysis & Top Users */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              {/* Pareto Chart */}
+              {stats.engagement.paretoData && stats.engagement.paretoData.length > 0 && (
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                    <PieChart className="w-4 h-4 text-indigo-500" />
+                    パレート分析（累積分布）
+                  </h3>
+                  <div className="relative h-40">
+                    {/* Background grid */}
+                    <div className="absolute inset-0 flex flex-col justify-between">
+                      {[100, 75, 50, 25, 0].map((v) => (
+                        <div key={v} className="border-b border-gray-200 dark:border-gray-700 h-0">
+                          <span className="text-[10px] text-gray-400 -mt-2 block">{v}%</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Equal distribution line (diagonal) */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                      <line x1="0" y1="100" x2="100" y2="0" stroke="#ddd" strokeWidth="1" strokeDasharray="4,4" />
+                      {/* Pareto curve */}
+                      <polyline
+                        fill="none"
+                        stroke="#6366f1"
+                        strokeWidth="2"
+                        points={`0,100 ${stats.engagement.paretoData.map(p => `${p.userPercent},${100 - p.itemPercent}`).join(' ')}`}
+                      />
+                      {/* Data points */}
+                      {stats.engagement.paretoData.map((p, i) => (
+                        <circle
+                          key={i}
+                          cx={p.userPercent}
+                          cy={100 - p.itemPercent}
+                          r="2"
+                          fill="#6366f1"
+                        />
+                      ))}
+                    </svg>
+                  </div>
+                  <div className="flex justify-between mt-2 text-[10px] text-gray-400">
+                    <span>0% ユーザー</span>
+                    <span>100%</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    曲線が対角線から離れるほど集中度が高い
+                  </p>
+                </div>
+              )}
+
+              {/* Top Users List */}
+              {stats.engagement.topUsers && stats.engagement.topUsers.length > 0 && (
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-amber-500" />
+                    トップユーザー
+                  </h3>
+                  <div className="space-y-2">
+                    {stats.engagement.topUsers.map((user) => (
+                      <div
+                        key={user.rank}
+                        className="flex items-center gap-3 p-2 rounded-lg bg-white dark:bg-gray-900/50"
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                          user.rank === 1
+                            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400'
+                            : user.rank === 2
+                            ? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                            : user.rank === 3
+                            ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-400'
+                            : 'bg-gray-50 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                        }`}>
+                          {user.rank}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">
+                              User #{user.rank}
+                            </span>
+                            {user.isGuest && (
+                              <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded">
+                                ゲスト
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {user.itemCount}件（全体の{user.percentOfTotal}%）
+                          </div>
+                        </div>
+                        <div className="h-2 w-20 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-indigo-500 rounded-full"
+                            style={{ width: `${Math.min(user.percentOfTotal * 2, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
