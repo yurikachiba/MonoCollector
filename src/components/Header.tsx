@@ -29,6 +29,12 @@ export default function Header({ onOpenSettings }: HeaderProps) {
     signOut({ callbackUrl: '/login' });
   };
 
+  const handleGoogleHandoff = async () => {
+    // メニューを閉じてからリダイレクト
+    setIsUserMenuOpen(false);
+    await signIn('google', { callbackUrl: '/collection' });
+  };
+
   return (
     <header className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
       <div className="px-4 py-3">
@@ -104,7 +110,7 @@ export default function Header({ onOpenSettings }: HeaderProps) {
                   </div>
                   {session?.user?.isGuest && (
                     <button
-                      onClick={() => signIn('google', { callbackUrl: '/collection' })}
+                      onClick={handleGoogleHandoff}
                       className="w-full flex items-center gap-2 px-4 py-3 text-sm text-indigo-600 dark:text-indigo-400 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors border-b border-gray-200 dark:border-zinc-700"
                     >
                       <ArrowRightLeft className="w-4 h-4" />
