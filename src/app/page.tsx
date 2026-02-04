@@ -125,12 +125,15 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-4 max-w-2xl mx-auto">
-            思い出を、どこか懐かしい味のある"アイコン"として残せます。
+            思い出を、どこか懐かしい味のある&ldquo;アイコン&rdquo;として残せます。
           </p>
-          <p className="text-base text-zinc-500 dark:text-zinc-500 mb-10 max-w-2xl mx-auto">
+          <p className="text-base text-zinc-500 dark:text-zinc-500 mb-6 max-w-2xl mx-auto">
             子どもの制作物や、思い出のモノを写真と一緒に、
             <br className="hidden md:block" />
             あとから見返せる形で保存できます。
+          </p>
+          <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-10 max-w-2xl mx-auto">
+            あとで見返したとき、ちゃんと覚えていられる。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -139,7 +142,7 @@ export default function LandingPage() {
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:scale-105 transition-all"
             >
               <Sparkles className="w-5 h-5" />
-              {session ? 'コレクションへ' : '思い出を1つ登録する'}
+              {session ? 'コレクションへ' : '試しに1つ、残してみる'}
             </Link>
             <a
               href="#features"
@@ -148,11 +151,15 @@ export default function LandingPage() {
               もっと詳しく
             </a>
           </div>
+          <p className="mt-4 text-xs text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1.5">
+            <Cloud className="w-3.5 h-3.5" />
+            登録すると永久保存。機種変更しても消えません。
+          </p>
 
           {/* Icon Examples */}
-          <div className="mt-10">
-            <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-4">
-              こんな思い出が多いです
+          <div className="mt-8">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+              写真を撮るだけで、&ldquo;そのものらしい&rdquo;アイコンに。
             </p>
             <div className="flex justify-center gap-6">
               <div className="flex flex-col items-center gap-2">
@@ -456,6 +463,22 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </div>
+
+          {/* Next Step Hint */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-10 p-5 rounded-2xl bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800/30 text-center"
+          >
+            <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
+              3つ集まると、振り返りがもっと楽しくなります。
+            </p>
+            <p className="text-xs text-purple-500 dark:text-purple-400 mt-1">
+              シリーズで残すと、成長の記録に。
+            </p>
+          </motion.div>
         </div>
       </section>
 
@@ -550,7 +573,7 @@ export default function LandingPage() {
             className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-purple-600 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
           >
             <Sparkles className="w-5 h-5" />
-            {session ? 'コレクションへ' : '思い出を1つ登録する'}
+            {session ? 'コレクションへ' : '試しに1つ、残してみる'}
           </Link>
         </motion.div>
       </section>
