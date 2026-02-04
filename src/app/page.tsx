@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Zap } from 'lucide-react';
+import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Cloud, Smartphone, Search, Shield, Baby, Trash2, Heart } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
 import { motion } from 'framer-motion';
 
@@ -97,17 +97,20 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 leading-tight">
-            あなたの暮らしは、
+            捨てられない思い出を、
             <br />
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
-              コレクションになる。
+              ちゃんと残す。
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-2xl mx-auto">
-            日常のモノを写真に撮るだけで、大切な思い出として記録。
+          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-4 max-w-2xl mx-auto">
+            思い出を、どこか懐かしい味のあるアイコンに。
+          </p>
+          <p className="text-base text-zinc-500 dark:text-zinc-500 mb-10 max-w-2xl mx-auto">
+            子どもの制作物や、思い出のモノを写真と一緒に、
             <br className="hidden md:block" />
-            AIがアイコンに変換し、あなただけのコレクションを作ります。
+            あとから見返せる形で保存できます。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -115,8 +118,8 @@ export default function LandingPage() {
               href={session ? '/collection' : '/login'}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:scale-105 transition-all"
             >
-              <Zap className="w-5 h-5" />
-              {session ? 'コレクションへ' : '無料ではじめる'}
+              <Sparkles className="w-5 h-5" />
+              {session ? 'コレクションへ' : '思い出を1つ登録する'}
             </Link>
             <a
               href="#features"
@@ -216,8 +219,132 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How it works */}
+      {/* Persona Section - こんな方におすすめ */}
       <section className="py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+              こんな方に使われています
+            </h2>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* 子育て中の親 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0 }}
+              className="p-6 rounded-2xl bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border border-pink-100 dark:border-pink-800/30"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center mb-4">
+                <Baby className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+                子育て中のあなたへ
+              </h3>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-4">
+                折り紙、工作、初めての絵。
+                <br />
+                かさばる制作物は、思い出として残す。
+              </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-pink-700 dark:text-pink-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                  子どもの作品を写真で永久保存
+                </div>
+                <div className="flex items-center gap-2 text-pink-700 dark:text-pink-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                  成長記録として見返せる
+                </div>
+                <div className="flex items-center gap-2 text-pink-700 dark:text-pink-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                  場所を取らずに思い出を残せる
+                </div>
+              </div>
+            </motion.div>
+
+            {/* ミニマリスト */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/30"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-4">
+                <Trash2 className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+                手放したいけど迷うあなたへ
+              </h3>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-4">
+                捨てる前に、記録するという選択。
+                <br />
+                モノは手放しても、記憶は残せる。
+              </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  思い出だけをデジタルで残す
+                </div>
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  罪悪感なくモノを手放せる
+                </div>
+                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  スッキリした暮らしを実現
+                </div>
+              </div>
+            </motion.div>
+
+            {/* コレクター・オタク */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="p-6 rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border border-violet-100 dark:border-violet-800/30"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center mb-4">
+                <Heart className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
+                コレクションを愛するあなたへ
+              </h3>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-4">
+                集めた宝物を、美しく記録。
+                <br />
+                あなたのコレクションをギャラリーに。
+              </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-violet-700 dark:text-violet-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                  コレクションを一覧で把握
+                </div>
+                <div className="flex items-center gap-2 text-violet-700 dark:text-violet-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                  AIがアイコンに変換して美しく
+                </div>
+                <div className="flex items-center gap-2 text-violet-700 dark:text-violet-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+                  実績・バッジで達成感を味わう
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="py-20 px-4 bg-white dark:bg-zinc-900/50">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -280,6 +407,72 @@ export default function LandingPage() {
       {/* Reviews Section */}
       <ReviewSection />
 
+      {/* Practical Benefits Section */}
+      <section className="py-20 px-4 bg-zinc-50 dark:bg-zinc-900/30">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+              未来のあなたを、助ける
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-lg">
+              「あれどこだっけ？」がなくなる
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              {
+                icon: Cloud,
+                title: 'データは永久保存',
+                description: 'クラウドに安全に保存。大切なデータが消える心配はありません。',
+              },
+              {
+                icon: Smartphone,
+                title: '機種変更しても安心',
+                description: 'ログインするだけで、すべてのデータがそのまま復元されます。',
+              },
+              {
+                icon: Search,
+                title: 'すぐに見つかる',
+                description: '「あの服どこにしまったっけ？」もう迷いません。検索ですぐ見つかる。',
+              },
+              {
+                icon: Shield,
+                title: 'プライバシーも安心',
+                description: 'あなたのデータはあなただけのもの。第三者に共有されることはありません。',
+              },
+            ].map((benefit, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="flex items-start gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700"
+              >
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0">
+                  <benefit.icon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">
+                    {benefit.title}
+                  </h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm">
+                    {benefit.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4">
         <motion.div
@@ -290,17 +483,19 @@ export default function LandingPage() {
           className="max-w-4xl mx-auto text-center p-12 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            あなたの暮らしを、思い出に。
+            全部は取っておけない。
+            <br />
+            でも、忘れたくない。
           </h2>
           <p className="text-white/90 text-lg mb-8">
-            今日から始める、モノと思い出のコレクション。
+            捨てる前に、記録するという選択。
           </p>
           <Link
             href={session ? '/collection' : '/login'}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-purple-600 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
           >
             <Sparkles className="w-5 h-5" />
-            {session ? 'コレクションへ' : '無料ではじめる'}
+            {session ? 'コレクションへ' : '思い出を1つ登録する'}
           </Link>
         </motion.div>
       </section>

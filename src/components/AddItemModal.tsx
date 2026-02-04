@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import NextImage from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Camera, Upload, Wand2, ChevronDown, Sparkles } from 'lucide-react';
+import { X, Camera, Upload, Wand2, ChevronDown, Sparkles, Tag, Plus } from 'lucide-react';
 import Webcam from 'react-webcam';
 import { v4 as uuidv4 } from 'uuid';
 import { Item } from '@/lib/db';
@@ -64,6 +64,8 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   const [name, setName] = useState('');
   const [category, setCategory] = useState('other');
   const [location, setLocation] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [useAutoIcon, setUseAutoIcon] = useState(false);
   const [generatedIcon, setGeneratedIcon] = useState<GeneratedIcon | null>(null);
@@ -82,11 +84,14 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
         setImage(editItem.image);
       }
       setLocation(editItem.location);
+      setTags(editItem.tags || []);
     } else if (isOpen) {
       setImage('');
       setName('');
       setCategory('other');
       setLocation('');
+      setTags([]);
+      setTagInput('');
       setMode('form');
       setUseAutoIcon(false);
       setGeneratedIcon(null);
@@ -192,7 +197,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       location,
       quantity: editItem?.quantity || 1,
       notes: editItem?.notes || '',
-      tags: editItem?.tags || [],
+      tags: tags,
       createdAt: editItem?.createdAt || new Date(),
       updatedAt: new Date(),
       isCollected: editItem?.isCollected || false,
@@ -478,6 +483,83 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                   placeholder="場所（任意）"
                   className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                 />
+
+                {/* Tags */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && tagInput.trim()) {
+                            e.preventDefault();
+                            if (!tags.includes(tagInput.trim())) {
+                              setTags([...tags, tagInput.trim()]);
+                            }
+                            setTagInput('');
+                          }
+                        }}
+                        placeholder="タグを追加（任意）"
+                        className="w-full pl-9 pr-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                      />
+                    </div>
+                    {tagInput.trim() && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!tags.includes(tagInput.trim())) {
+                            setTags([...tags, tagInput.trim()]);
+                          }
+                          setTagInput('');
+                        }}
+                        className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        <Plus className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Tag chips */}
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-sm"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => setTags(tags.filter((_, i) => i !== index))}
+                            className="p-0.5 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 rounded-full transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Quick tag suggestions */}
+                  {tags.length === 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      <span className="text-xs text-gray-400 mr-1">おすすめ:</span>
+                      {['お気に入り', '大切なもの', '普段使い', 'プレゼント'].map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => setTags([...tags, suggestion])}
+                          className="px-2.5 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          + {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* Submit */}
                 <button

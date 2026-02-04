@@ -14,19 +14,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "モノコレクター | モノを、思い出に。",
-  description: "あなたの暮らしは、コレクションになる。日常のモノを写真に撮るだけで、大切な思い出として記録。AIがアイコンに変換し、あなただけのコレクションを作ります。",
+  title: "モノコレクター | 捨てられない思い出を、ちゃんと残す。",
+  description: "子どもの制作物、思い出のモノを写真と一緒に残せるアプリ。捨てる前に記録するという選択。AIが懐かしい味のあるアイコンに変換し、あなただけのコレクションを作ります。",
   keywords: [
     "モノコレクター",
     "思い出",
+    "子供の作品",
+    "制作物",
     "コレクション",
-    "暮らし",
-    "持ち物管理",
-    "写真管理",
+    "写真保存",
     "アイコン",
     "ライフログ",
     "記録",
     "大切なもの",
+    "捨てられない",
+    "思い出保存",
   ],
   authors: [{ name: "MonoCollector" }],
   creator: "MonoCollector",
@@ -44,22 +46,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ja_JP",
     url: "/",
-    title: "モノコレクター | モノを、思い出に。",
-    description: "あなたの暮らしは、コレクションになる。日常のモノを写真に撮るだけで、大切な思い出として記録。AIがアイコンに変換し、あなただけのコレクションを作ります。",
+    title: "モノコレクター | 捨てられない思い出を、ちゃんと残す。",
+    description: "子どもの制作物、思い出のモノを写真と一緒に残せるアプリ。捨てる前に記録するという選択。AIが懐かしい味のあるアイコンに変換します。",
     siteName: "モノコレクター",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "モノコレクター - モノを、思い出に。",
+        alt: "モノコレクター - 捨てられない思い出を、ちゃんと残す。",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "モノコレクター | モノを、思い出に。",
-    description: "あなたの暮らしは、コレクションになる。日常のモノを写真に撮るだけで、大切な思い出として記録。",
+    title: "モノコレクター | 捨てられない思い出を、ちゃんと残す。",
+    description: "子どもの制作物、思い出のモノを写真と一緒に残せる。捨てる前に記録するという選択。",
     images: ["/og-image.png"],
   },
   robots: {
@@ -101,7 +103,7 @@ const structuredData = {
     "@id": `${baseUrl}/#webapp`,
     "name": "モノコレクター",
     "alternateName": "MonoCollector",
-    "description": "あなたの暮らしは、コレクションになる。日常のモノを写真に撮るだけで、大切な思い出として記録。AIがアイコンに変換し、あなただけのコレクションを作ります。",
+    "description": "捨てられない思い出を、ちゃんと残す。子どもの制作物、思い出のモノを写真と一緒に残せるアプリ。AIが懐かしい味のあるアイコンに変換します。",
     "url": baseUrl,
     "applicationCategory": "LifestyleApplication",
     "operatingSystem": "Any",
@@ -115,14 +117,14 @@ const structuredData = {
       "availability": "https://schema.org/InStock"
     },
     "featureList": [
-      "写真を撮って思い出を記録",
-      "AIでアイコンに変換",
+      "子どもの制作物・作品を写真で保存",
+      "捨てる前に記録するという選択",
+      "AIで懐かしい味のあるアイコンに変換",
       "カテゴリ別コレクション管理",
       "実績・バッジシステム",
-      "大切なものを永遠に保存",
+      "データは永久保存・機種変更も安心",
       "PWA対応でオフラインでも利用可能",
-      "Googleアカウントでログイン",
-      "ゲストログイン機能"
+      "Googleアカウントでログイン"
     ],
     "screenshot": `${baseUrl}/og-image.png`,
     "aggregateRating": {
@@ -159,7 +161,7 @@ const structuredData = {
     "name": "モノコレクター",
     "alternateName": "MonoCollector",
     "url": baseUrl,
-    "description": "日常のモノを思い出として記録するアプリ。AIがアイコンに変換し、あなただけのコレクションを作ります。",
+    "description": "捨てられない思い出を、ちゃんと残す。子どもの制作物、思い出のモノを写真と一緒に残せるアプリ。",
     "inLanguage": "ja",
     "publisher": {
       "@id": `${baseUrl}/#organization`
@@ -176,7 +178,7 @@ const structuredData = {
         "name": "モノコレクターとは何ですか？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "モノコレクターは、日常のモノを写真に撮って思い出として記録するアプリです。撮影した写真はAIが自動的にアイコンに変換し、カテゴリ別にコレクションとして管理できます。大切なものを永遠に保存し、あなただけのコレクションを作ることができます。"
+          "text": "モノコレクターは、捨てられない思い出をちゃんと残すためのアプリです。子どもの制作物や思い出のモノを写真に撮ると、AIが懐かしい味のあるアイコンに変換。かさばる制作物も、捨てる前に記録して思い出として残せます。"
         }
       },
       {
@@ -234,6 +236,14 @@ const structuredData = {
           "@type": "Answer",
           "text": "はい、どなたでもレビューを投稿できます。トップページの「みんなの声」セクションから「レビューを書く」ボタンをクリックして、あなたの感想を共有してください。投稿されたレビューは他のユーザーの参考になります。"
         }
+      },
+      {
+        "@type": "Question",
+        "name": "子どもの制作物を保存するのに向いていますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、モノコレクターは子どもの制作物の保存に最適です。折り紙、工作、初めての絵など、かさばる作品を写真で記録し、AIがかわいいアイコンに変換します。全部は取っておけないけれど、忘れたくない思い出をデジタルで永久保存できます。"
+        }
       }
     ]
   },
@@ -287,7 +297,7 @@ const structuredData = {
     "@type": "Product",
     "@id": `${baseUrl}/#product`,
     "name": "モノコレクター",
-    "description": "日常のモノを思い出として記録するアプリ。AIがアイコンに変換し、あなただけのコレクションを作ります。",
+    "description": "捨てられない思い出を、ちゃんと残す。子どもの制作物、思い出のモノを写真と一緒に残せるアプリ。AIが懐かしい味のあるアイコンに変換します。",
     "image": `${baseUrl}/og-image.png`,
     "brand": {
       "@type": "Brand",
