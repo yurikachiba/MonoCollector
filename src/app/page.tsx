@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Zap, Cloud, Smartphone, Search, Shield } from 'lucide-react';
+import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Cloud, Smartphone, Search, Shield } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
 import { motion } from 'framer-motion';
 
@@ -97,17 +97,20 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 leading-tight">
-            あなたの暮らしは、
+            捨てられない思い出を、
             <br />
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
-              コレクションになる。
+              ちゃんと残す。
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-10 max-w-2xl mx-auto">
-            日常のモノを写真に撮るだけで、大切な思い出として記録。
+          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-4 max-w-2xl mx-auto">
+            思い出を、どこか懐かしい味のあるアイコンに。
+          </p>
+          <p className="text-base text-zinc-500 dark:text-zinc-500 mb-10 max-w-2xl mx-auto">
+            子どもの制作物や、思い出のモノを写真と一緒に、
             <br className="hidden md:block" />
-            AIがアイコンに変換し、あなただけのコレクションを作ります。
+            あとから見返せる形で保存できます。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -115,8 +118,8 @@ export default function LandingPage() {
               href={session ? '/collection' : '/login'}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:scale-105 transition-all"
             >
-              <Zap className="w-5 h-5" />
-              {session ? 'コレクションへ' : '無料ではじめる'}
+              <Sparkles className="w-5 h-5" />
+              {session ? 'コレクションへ' : '思い出を1つ登録する'}
             </Link>
             <a
               href="#features"
@@ -356,17 +359,19 @@ export default function LandingPage() {
           className="max-w-4xl mx-auto text-center p-12 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            あなたの暮らしを、思い出に。
+            全部は取っておけない。
+            <br />
+            でも、忘れたくない。
           </h2>
           <p className="text-white/90 text-lg mb-8">
-            今日から始める、モノと思い出のコレクション。
+            捨てる前に、記録するという選択。
           </p>
           <Link
             href={session ? '/collection' : '/login'}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-purple-600 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
           >
             <Sparkles className="w-5 h-5" />
-            {session ? 'コレクションへ' : '無料ではじめる'}
+            {session ? 'コレクションへ' : '思い出を1つ登録する'}
           </Link>
         </motion.div>
       </section>
