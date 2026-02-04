@@ -108,7 +108,7 @@ const structuredData = {
     "applicationCategory": "LifestyleApplication",
     "operatingSystem": "Any",
     "browserRequirements": "Requires JavaScript, modern browser",
-    "softwareVersion": "1.0.0",
+    "softwareVersion": "2.0.0",
     "inLanguage": "ja",
     "offers": {
       "@type": "Offer",
@@ -126,14 +126,7 @@ const structuredData = {
       "PWA対応でオフラインでも利用可能",
       "Googleアカウントでログイン"
     ],
-    "screenshot": `${baseUrl}/og-image.png`,
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
-    }
+    "screenshot": `${baseUrl}/og-image.png`
   },
 
   // Organization スキーマ
@@ -244,6 +237,38 @@ const structuredData = {
           "@type": "Answer",
           "text": "はい、モノコレクターは子どもの制作物の保存に最適です。折り紙、工作、初めての絵など、かさばる作品を写真で記録し、AIがかわいいアイコンに変換します。全部は取っておけないけれど、忘れたくない思い出をデジタルで永久保存できます。"
         }
+      },
+      {
+        "@type": "Question",
+        "name": "断捨離や引っ越しの整理に使えますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、モノコレクターは断捨離や引っ越しの際の思い出整理に最適です。捨てる前に記録することで、モノへの執着を手放しつつ思い出はしっかり残せます。「捨てるのが辛い」という気持ちを軽くしてくれるアプリとして、多くのユーザーにご利用いただいています。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "機種変更してもデータは引き継げますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、Googleアカウントでログインしていれば、機種変更しても全てのデータを引き継げます。新しいスマートフォンでログインするだけで、これまでのコレクションがすべて復元されます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "家族でコレクションを共有できますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "現在、コレクションは個人アカウントに紐づいていますが、同じアカウントでログインすれば複数のデバイスからアクセスできます。家族共有機能は今後のアップデートで対応予定です。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "保存できるモノの数に制限はありますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "いいえ、保存数に制限はありません。何個でもコレクションに追加できます。子どもの成長記録、旅行の思い出、日常の大切なモノなど、あなたの暮らしをすべてコレクションにできます。"
+        }
       }
     ]
   },
@@ -291,105 +316,49 @@ const structuredData = {
     }
   },
 
-  // Review スキーマ（ユーザーレビュー）- AIO対策に重要
-  reviews: {
+  // ItemList スキーマ（機能一覧）- AIO対策
+  itemList: {
     "@context": "https://schema.org",
-    "@type": "Product",
-    "@id": `${baseUrl}/#product`,
-    "name": "モノコレクター",
-    "description": "捨てられない思い出を、ちゃんと残す。子どもの制作物、思い出のモノを写真と一緒に残せるアプリ。AIが懐かしい味のあるアイコンに変換します。",
-    "image": `${baseUrl}/og-image.png`,
-    "brand": {
-      "@type": "Brand",
-      "name": "モノコレクター"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "review": [
+    "@type": "ItemList",
+    "name": "モノコレクターの主な機能",
+    "description": "モノコレクターで利用できる機能の一覧です",
+    "numberOfItems": 6,
+    "itemListElement": [
       {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "みゆき"
-        },
-        "datePublished": "2024-12-15",
-        "reviewBody": "日常の小さなモノたちが、こんなに大切な存在だったと気づかせてくれました。AIでアイコンになるのが楽しくて、毎日使っています。",
-        "name": "思い出が蘇る素敵なアプリ",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
+        "@type": "ListItem",
+        "position": 1,
+        "name": "AI自動アイコン変換",
+        "description": "撮影した写真をAIが自動で分析し、シンプルで可愛いアイコンに変換します"
       },
       {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "たける"
-        },
-        "datePublished": "2024-12-10",
-        "reviewBody": "バッジや実績システムがあるので、どんどん記録したくなります。暮らしの中のモノに目を向けるきっかけになりました。",
-        "name": "コレクションが増えるのが楽しい",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
+        "@type": "ListItem",
+        "position": 2,
+        "name": "カテゴリ自動分類",
+        "description": "AIがモノの種類を判定し、自動でカテゴリを提案。手間なく整理できます"
       },
       {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "あやか"
-        },
-        "datePublished": "2024-12-08",
-        "reviewBody": "写真を撮るだけでOKなので、手軽に始められました。カテゴリ分けも自動でしてくれるので便利です。",
-        "name": "シンプルで使いやすい",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "4",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
+        "@type": "ListItem",
+        "position": 3,
+        "name": "実績・バッジシステム",
+        "description": "コレクションを増やすとバッジを獲得。楽しみながら思い出を記録できます"
       },
       {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "ゆうこ"
-        },
-        "datePublished": "2024-12-05",
-        "reviewBody": "子供のおもちゃや作品を記録するのに使っています。成長とともに変わっていくコレクションを見返すのが楽しみです。",
-        "name": "子供の思い出も残せる",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
+        "@type": "ListItem",
+        "position": 4,
+        "name": "クラウド同期・永久保存",
+        "description": "Googleアカウントでログインすれば、データはクラウドに永久保存。機種変更も安心"
       },
       {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "けんた"
-        },
-        "datePublished": "2024-12-01",
-        "reviewBody": "アイコンに変換されたモノたちがギャラリーのように並ぶのが美しい。見ているだけで癒されます。",
-        "name": "デザインが美しい",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
+        "@type": "ListItem",
+        "position": 5,
+        "name": "オフライン対応（PWA）",
+        "description": "ホーム画面に追加してアプリのように使用可能。オフラインでも基本機能が利用できます"
+      },
+      {
+        "@type": "ListItem",
+        "position": 6,
+        "name": "タグ・思い出メモ機能",
+        "description": "AIがタグを自動提案。思い出やエピソードをメモとして残せます"
       }
     ]
   }
@@ -445,11 +414,11 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData.softwareApplication)
           }}
         />
-        {/* Review 構造化データ（AIO対策） */}
+        {/* ItemList 構造化データ（AIO対策） */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData.reviews)
+            __html: JSON.stringify(structuredData.itemList)
           }}
         />
       </head>
