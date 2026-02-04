@@ -543,20 +543,25 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                     </div>
                   )}
 
-                  {/* Quick tag suggestions */}
+                  {/* Quick tag suggestions - より目立つデザイン */}
                   {tags.length === 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      <span className="text-xs text-gray-400 mr-1">おすすめ:</span>
-                      {['お気に入り', '大切なもの', '普段使い', 'プレゼント'].map((suggestion) => (
-                        <button
-                          key={suggestion}
-                          type="button"
-                          onClick={() => setTags([...tags, suggestion])}
-                          className="px-2.5 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        >
-                          + {suggestion}
-                        </button>
-                      ))}
+                    <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
+                      <p className="text-xs font-medium text-indigo-700 dark:text-indigo-300 mb-2 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        タグを付けると見返しやすくなります
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {['お気に入り', '大切なもの', '子どもの作品', '思い出'].map((suggestion) => (
+                          <button
+                            key={suggestion}
+                            type="button"
+                            onClick={() => setTags([...tags, suggestion])}
+                            className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 rounded-full border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all shadow-sm"
+                          >
+                            + {suggestion}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

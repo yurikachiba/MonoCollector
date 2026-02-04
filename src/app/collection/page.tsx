@@ -15,6 +15,8 @@ import GuestSignupPrompt from '@/components/GuestSignupPrompt';
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
 import NotificationChecker from '@/components/NotificationChecker';
 import FirstItemCelebration from '@/components/FirstItemCelebration';
+import MilestoneCelebration from '@/components/MilestoneCelebration';
+import MemoriesSection from '@/components/MemoriesSection';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -35,6 +37,9 @@ export default function CollectionPage() {
     <main className="min-h-screen pb-24">
       <Header onOpenSettings={() => setIsSettingsOpen(true)} />
       <CollectionPanel />
+      <div className="px-4">
+        <MemoriesSection />
+      </div>
       <CategoryBar />
       <ItemGrid onEdit={handleEdit} />
 
@@ -57,6 +62,7 @@ export default function CollectionPage() {
       <PushNotificationPrompt />
       <NotificationChecker />
       <FirstItemCelebration onAddAnother={() => setIsAddModalOpen(true)} />
+      <MilestoneCelebration onAddAnother={() => setIsAddModalOpen(true)} />
     </main>
   );
 }
