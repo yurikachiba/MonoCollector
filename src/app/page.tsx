@@ -119,7 +119,7 @@ export default function LandingPage() {
             いつか思い出すために、今日残す。
           </p>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 dark:text-zinc-100 mb-4 leading-tight">
             捨てられないモノを、
             <br />
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
@@ -127,14 +127,16 @@ export default function LandingPage() {
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-3 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl font-medium text-zinc-700 dark:text-zinc-300 mb-6 max-w-2xl mx-auto">
+            子どもの制作物も、思い入れのあるモノも。
+          </p>
+
+          <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400 mb-3 max-w-2xl mx-auto">
             写真1枚で、AIが懐かしいアイコンに変換。
             <br className="hidden md:block" />
-            <span className="text-base text-zinc-500 dark:text-zinc-500">手描き風・やさしい色合いのアイコンにして保存できます。</span>
+            <span className="text-sm text-zinc-500 dark:text-zinc-500">手描き風・やさしい色合いのアイコンにして保存できます。</span>
           </p>
-          <p className="text-base text-zinc-500 dark:text-zinc-500 mb-8 max-w-2xl mx-auto">
-            子どもの制作物、思い入れのあるモノ。
-            <br className="hidden md:block" />
+          <p className="text-sm text-zinc-500 dark:text-zinc-500 mb-8 max-w-2xl mx-auto">
             場所を取らずに、ずっと残せます。
           </p>
 
@@ -153,7 +155,10 @@ export default function LandingPage() {
               もっと詳しく
             </a>
           </div>
-          <p className="mt-4 text-sm text-purple-600 dark:text-purple-400 font-medium">
+          <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
+            あとで「残しておけばよかった」と思う前に。
+          </p>
+          <p className="mt-3 text-sm text-purple-600 dark:text-purple-400 font-medium">
             登録なし・1分で試せます
           </p>
           <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1.5">
@@ -480,8 +485,10 @@ export default function LandingPage() {
             <p className="text-sm text-purple-700 dark:text-purple-300 font-medium">
               3つ集まると、振り返りがもっと楽しくなります。
             </p>
-            <p className="text-xs text-purple-500 dark:text-purple-400 mt-1">
-              シリーズで残すと、成長の記録に。
+            <p className="text-xs text-purple-600 dark:text-purple-300 mt-2">
+              数年後、大きくなった子どもと一緒に見返す。
+              <br />
+              「これ覚えてる？」——そのとき、きっと笑顔になれる。
             </p>
           </motion.div>
         </div>
