@@ -1,72 +1,57 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, Sparkles, ChevronRight } from 'lucide-react';
+import { useMemories, type Memory } from '@/hooks/useMemories';
 
-interface MemoryItem {
-  id: string;
-  name: string;
-  category: string;
-  icon: string;
-  generatedIcon?: string;
-  createdAt: string;
-}
+// 表示条件をチェック
+function shouldShowReminder(): boolean {
+  if (typeof window === 'undefined') return false;
 
-interface Memory {
-  period: string;
-  days: number;
-  items: MemoryItem[];
-}
+  // 永久に非表示にした場合
+  if (localStorage.getItem('memoryReminderDismissed') === 'true') {
+    return false;
+  }
 
-interface MemoryData {
-  memories: Memory[];
-  hasRecentActivity: boolean;
-  totalItems: number;
+  // 今日既に表示した場合
+  const lastShown = sessionStorage.getItem('memoryReminderLastShown');
+  const today = new Date().toDateString();
+  if (lastShown === today) {
+    return false;
+  }
+
+  return true;
 }
 
 export default function MemoryReminderPopup() {
+  // 初期状態で表示条件をチェック
+  const shouldFetch = useMemo(() => shouldShowReminder(), []);
+
   const [isOpen, setIsOpen] = useState(false);
-  const [memoryData, setMemoryData] = useState<MemoryData | null>(null);
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [hasShownOnce, setHasShownOnce] = useState(false);
 
-  useEffect(() => {
-    const checkMemories = async () => {
-      // 今日既に表示した場合はスキップ
-      const lastShown = sessionStorage.getItem('memoryReminderLastShown');
-      const today = new Date().toDateString();
-      if (lastShown === today) {
-        setIsLoading(false);
-        return;
-      }
+  // TanStack Queryでデータ取得
+  const { data, isLoading } = useMemories(shouldFetch);
 
-      try {
-        const response = await fetch('/api/items/memories');
-        if (!response.ok) {
-          setIsLoading(false);
-          return;
-        }
+  // データがロードされたら表示（一度だけ）
+  const displayMemory = useMemo(() => {
+    if (!isLoading && data?.memories?.length && !hasShownOnce) {
+      return data.memories[0];
+    }
+    return selectedMemory;
+  }, [data, isLoading, hasShownOnce, selectedMemory]);
 
-        const data: MemoryData = await response.json();
-
-        if (data.memories.length > 0) {
-          setMemoryData(data);
-          setSelectedMemory(data.memories[0]);
-          // 少し遅延してから表示（ページロード後に自然に表示）
-          setTimeout(() => {
-            setIsOpen(true);
-          }, 2000);
-        }
-      } catch (error) {
-        console.error('Failed to fetch memories:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkMemories();
-  }, []);
+  // 表示タイミングの制御
+  if (!isLoading && data?.memories?.length && !hasShownOnce && !isOpen) {
+    // 少し遅延してから表示
+    setTimeout(() => {
+      setSelectedMemory(data.memories[0]);
+      setIsOpen(true);
+      setHasShownOnce(true);
+    }, 2000);
+  }
 
   const handleClose = () => {
     setIsOpen(false);
@@ -81,14 +66,9 @@ export default function MemoryReminderPopup() {
     sessionStorage.setItem('memoryReminderLastShown', new Date().toDateString());
   };
 
-  // 永久に非表示にした場合
-  useEffect(() => {
-    if (localStorage.getItem('memoryReminderDismissed') === 'true') {
-      setIsLoading(false);
-    }
-  }, []);
+  const currentMemory = displayMemory || selectedMemory;
 
-  if (isLoading || !memoryData || !selectedMemory) {
+  if (!data || !currentMemory) {
     return null;
   }
 
@@ -127,22 +107,22 @@ export default function MemoryReminderPopup() {
                     思い出を振り返ろう
                   </h2>
                   <p className="text-white/80 text-sm">
-                    {selectedMemory.period}に登録したモノ
+                    {currentMemory.period}に登録したモノ
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Period Tabs */}
-            {memoryData.memories.length > 1 && (
+            {data.memories.length > 1 && (
               <div className="px-4 py-2 border-b border-gray-200 dark:border-zinc-700 overflow-x-auto">
                 <div className="flex gap-2">
-                  {memoryData.memories.map((memory) => (
+                  {data.memories.map((memory) => (
                     <button
                       key={memory.days}
                       onClick={() => setSelectedMemory(memory)}
                       className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                        selectedMemory.days === memory.days
+                        currentMemory.days === memory.days
                           ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
                           : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700'
                       }`}
@@ -157,7 +137,7 @@ export default function MemoryReminderPopup() {
             {/* Items */}
             <div className="px-6 py-4 max-h-64 overflow-y-auto">
               <div className="space-y-3">
-                {selectedMemory.items.map((item) => (
+                {currentMemory.items.map((item) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, x: -10 }}
