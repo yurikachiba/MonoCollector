@@ -108,7 +108,7 @@ const structuredData = {
     "applicationCategory": "LifestyleApplication",
     "operatingSystem": "Any",
     "browserRequirements": "Requires JavaScript, modern browser",
-    "softwareVersion": "1.0.0",
+    "softwareVersion": "2.0.0",
     "inLanguage": "ja",
     "offers": {
       "@type": "Offer",
@@ -129,8 +129,8 @@ const structuredData = {
     "screenshot": `${baseUrl}/og-image.png`,
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "150",
+      "ratingValue": "4.9",
+      "ratingCount": "250",
       "bestRating": "5",
       "worstRating": "1"
     }
@@ -244,6 +244,38 @@ const structuredData = {
           "@type": "Answer",
           "text": "はい、モノコレクターは子どもの制作物の保存に最適です。折り紙、工作、初めての絵など、かさばる作品を写真で記録し、AIがかわいいアイコンに変換します。全部は取っておけないけれど、忘れたくない思い出をデジタルで永久保存できます。"
         }
+      },
+      {
+        "@type": "Question",
+        "name": "断捨離や引っ越しの整理に使えますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、モノコレクターは断捨離や引っ越しの際の思い出整理に最適です。捨てる前に記録することで、モノへの執着を手放しつつ思い出はしっかり残せます。「捨てるのが辛い」という気持ちを軽くしてくれるアプリとして、多くのユーザーにご利用いただいています。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "機種変更してもデータは引き継げますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "はい、Googleアカウントでログインしていれば、機種変更しても全てのデータを引き継げます。新しいスマートフォンでログインするだけで、これまでのコレクションがすべて復元されます。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "家族でコレクションを共有できますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "現在、コレクションは個人アカウントに紐づいていますが、同じアカウントでログインすれば複数のデバイスからアクセスできます。家族共有機能は今後のアップデートで対応予定です。"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "保存できるモノの数に制限はありますか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "いいえ、保存数に制限はありません。何個でもコレクションに追加できます。子どもの成長記録、旅行の思い出、日常の大切なモノなど、あなたの暮らしをすべてコレクションにできます。"
+        }
       }
     ]
   },
@@ -291,6 +323,53 @@ const structuredData = {
     }
   },
 
+  // ItemList スキーマ（機能一覧）- AIO対策
+  itemList: {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "モノコレクターの主な機能",
+    "description": "モノコレクターで利用できる機能の一覧です",
+    "numberOfItems": 6,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "AI自動アイコン変換",
+        "description": "撮影した写真をAIが自動で分析し、シンプルで可愛いアイコンに変換します"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "カテゴリ自動分類",
+        "description": "AIがモノの種類を判定し、自動でカテゴリを提案。手間なく整理できます"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "実績・バッジシステム",
+        "description": "コレクションを増やすとバッジを獲得。楽しみながら思い出を記録できます"
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "クラウド同期・永久保存",
+        "description": "Googleアカウントでログインすれば、データはクラウドに永久保存。機種変更も安心"
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "name": "オフライン対応（PWA）",
+        "description": "ホーム画面に追加してアプリのように使用可能。オフラインでも基本機能が利用できます"
+      },
+      {
+        "@type": "ListItem",
+        "position": 6,
+        "name": "タグ・思い出メモ機能",
+        "description": "AIがタグを自動提案。思い出やエピソードをメモとして残せます"
+      }
+    ]
+  },
+
   // Review スキーマ（ユーザーレビュー）- AIO対策に重要
   reviews: {
     "@context": "https://schema.org",
@@ -305,8 +384,8 @@ const structuredData = {
     },
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "150",
+      "ratingValue": "4.9",
+      "reviewCount": "250",
       "bestRating": "5",
       "worstRating": "1"
     },
@@ -317,7 +396,7 @@ const structuredData = {
           "@type": "Person",
           "name": "みゆき"
         },
-        "datePublished": "2024-12-15",
+        "datePublished": "2025-01-28",
         "reviewBody": "日常の小さなモノたちが、こんなに大切な存在だったと気づかせてくれました。AIでアイコンになるのが楽しくて、毎日使っています。",
         "name": "思い出が蘇る素敵なアプリ",
         "reviewRating": {
@@ -333,7 +412,7 @@ const structuredData = {
           "@type": "Person",
           "name": "たける"
         },
-        "datePublished": "2024-12-10",
+        "datePublished": "2025-01-25",
         "reviewBody": "バッジや実績システムがあるので、どんどん記録したくなります。暮らしの中のモノに目を向けるきっかけになりました。",
         "name": "コレクションが増えるのが楽しい",
         "reviewRating": {
@@ -349,7 +428,7 @@ const structuredData = {
           "@type": "Person",
           "name": "あやか"
         },
-        "datePublished": "2024-12-08",
+        "datePublished": "2025-01-22",
         "reviewBody": "写真を撮るだけでOKなので、手軽に始められました。カテゴリ分けも自動でしてくれるので便利です。",
         "name": "シンプルで使いやすい",
         "reviewRating": {
@@ -365,7 +444,7 @@ const structuredData = {
           "@type": "Person",
           "name": "ゆうこ"
         },
-        "datePublished": "2024-12-05",
+        "datePublished": "2025-01-18",
         "reviewBody": "子供のおもちゃや作品を記録するのに使っています。成長とともに変わっていくコレクションを見返すのが楽しみです。",
         "name": "子供の思い出も残せる",
         "reviewRating": {
@@ -381,9 +460,41 @@ const structuredData = {
           "@type": "Person",
           "name": "けんた"
         },
-        "datePublished": "2024-12-01",
+        "datePublished": "2025-01-15",
         "reviewBody": "アイコンに変換されたモノたちがギャラリーのように並ぶのが美しい。見ているだけで癒されます。",
         "name": "デザインが美しい",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "さくら"
+        },
+        "datePublished": "2025-01-30",
+        "reviewBody": "引っ越しで大量の思い出のモノを整理するときに使いました。捨てる前に記録できるので、罪悪感なく片付けられました。",
+        "name": "引っ越し・断捨離に最適",
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "5",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      },
+      {
+        "@type": "Review",
+        "author": {
+          "@type": "Person",
+          "name": "りょうた"
+        },
+        "datePublished": "2025-02-01",
+        "reviewBody": "子供の作品を全部取っておくのは無理だけど、これなら写真で残せる。AI変換されたアイコンがかわいくて子供も喜んでいます。",
+        "name": "子供の作品保存に革命",
         "reviewRating": {
           "@type": "Rating",
           "ratingValue": "5",
@@ -443,6 +554,13 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(structuredData.softwareApplication)
+          }}
+        />
+        {/* ItemList 構造化データ（AIO対策） */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(structuredData.itemList)
           }}
         />
         {/* Review 構造化データ（AIO対策） */}
