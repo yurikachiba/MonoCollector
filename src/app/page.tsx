@@ -109,12 +109,15 @@ export default function LandingPage() {
           transition={{ duration: 0.8 }}
           className="max-w-4xl mx-auto text-center"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 rounded-full mb-8 border border-purple-200 dark:border-purple-800">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 rounded-full mb-4 border border-purple-200 dark:border-purple-800">
             <Sparkles className="w-4 h-4 text-purple-500" />
             <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
               モノを、思い出に。
             </span>
           </div>
+          <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-6">
+            いつか思い出すために、今日残す。
+          </p>
 
           <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 leading-tight">
             捨てられないモノを、
@@ -127,7 +130,7 @@ export default function LandingPage() {
           <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-3 max-w-2xl mx-auto">
             写真1枚で、AIが懐かしいアイコンに変換。
             <br className="hidden md:block" />
-            思い出として、あとから見返せる形で残せます。
+            <span className="text-base text-zinc-500 dark:text-zinc-500">手描き風・やさしい色合いのアイコンにして保存できます。</span>
           </p>
           <p className="text-base text-zinc-500 dark:text-zinc-500 mb-8 max-w-2xl mx-auto">
             子どもの制作物、思い入れのあるモノ。
@@ -565,7 +568,7 @@ export default function LandingPage() {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             全部は取っておけない。
             <br />
-            でも、忘れたくない。
+            でも、大事だった気持ちは残せる。
           </h2>
           <p className="text-white/90 text-lg mb-2">
             捨てる前に、

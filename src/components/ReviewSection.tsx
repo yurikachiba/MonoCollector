@@ -207,8 +207,14 @@ export default function ReviewSection() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-zinc-500 dark:text-zinc-400">
-                まだレビューがありません。最初のレビューを投稿してみましょう！
+              <p className="text-zinc-600 dark:text-zinc-300 mb-2">
+                まだレビューはありません。
+              </p>
+              <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-3">
+                このサービスは、今まさに育ち始めたところです。
+              </p>
+              <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">
+                最初の感想を、未来のユーザーに残してみませんか？
               </p>
             </div>
           )}
