@@ -104,18 +104,37 @@ export async function analyzeImage(imageBase64: string, apiKey: string): Promise
     throw new Error('AIからの応答がありませんでした');
   }
 
-  // Parse JSON from response
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('AIの応答にJSONが含まれていませんでした');
-  }
-
+  // Parse JSON from response - より堅牢なパース
   let parsed;
   try {
-    parsed = JSON.parse(jsonMatch[0]);
+    // まず最も外側の{}を探す
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error('No JSON found in response:', content);
+      throw new Error('AIの応答にJSONが含まれていませんでした');
+    }
+
+    let jsonStr = jsonMatch[0];
+
+    // JSONの不正な文字をクリーンアップ
+    jsonStr = jsonStr
+      .replace(/[\x00-\x1F\x7F]/g, '') // 制御文字を削除
+      .replace(/,\s*}/g, '}')  // 末尾カンマを修正
+      .replace(/,\s*]/g, ']'); // 配列の末尾カンマを修正
+
+    parsed = JSON.parse(jsonStr);
   } catch (parseError) {
-    console.error('JSON parse error:', parseError, 'Content:', jsonMatch[0]);
-    throw new Error('AIの応答のJSON形式が不正です');
+    console.error('JSON parse error:', parseError, 'Content:', content);
+    // パース失敗時はデフォルト値を返す
+    return {
+      name: '認識に失敗しました',
+      category: 'other',
+      icon: '📦',
+      location: '',
+      tags: [],
+      notes: 'AI解析に失敗しました。手動で入力してください。',
+      quantity: 1,
+    };
   }
 
   // Validate and normalize the result

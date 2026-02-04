@@ -123,18 +123,28 @@ export async function generateIconFromImage(
     throw new Error('AIからの応答がありませんでした');
   }
 
-  // Parse JSON from response
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('AIの応答にJSONが含まれていませんでした');
-  }
-
+  // Parse JSON from response - より堅牢なパース
   let parsed;
   try {
-    parsed = JSON.parse(jsonMatch[0]);
+    // まず最も外側の{}を探す
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error('No JSON found in response:', content);
+      throw new Error('AIの応答にJSONが含まれていませんでした');
+    }
+
+    let jsonStr = jsonMatch[0];
+
+    // JSONの不正な文字をクリーンアップ
+    jsonStr = jsonStr
+      .replace(/[\x00-\x1F\x7F]/g, '') // 制御文字を削除
+      .replace(/,\s*}/g, '}')  // 末尾カンマを修正
+      .replace(/,\s*]/g, ']'); // 配列の末尾カンマを修正
+
+    parsed = JSON.parse(jsonStr);
   } catch (parseError) {
-    console.error('JSON parse error:', parseError, 'Content:', jsonMatch[0]);
-    throw new Error('AIの応答のJSON形式が不正です');
+    console.error('JSON parse error:', parseError, 'Content:', content);
+    throw new Error('アイコン生成に失敗しました。もう一度お試しください。');
   }
 
   if (!parsed.svg || !parsed.svg.includes('<svg')) {

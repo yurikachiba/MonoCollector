@@ -124,16 +124,13 @@ export default function LandingPage() {
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-4 max-w-2xl mx-auto">
-            思い出を、どこか懐かしい味のある&ldquo;アイコン&rdquo;として残せます。
+          <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-3 max-w-2xl mx-auto">
+            写真と一緒に、懐かしいアイコンにして保存できます。
           </p>
-          <p className="text-base text-zinc-500 dark:text-zinc-500 mb-6 max-w-2xl mx-auto">
-            子どもの制作物や、思い出のモノを写真と一緒に、
+          <p className="text-base text-zinc-500 dark:text-zinc-500 mb-8 max-w-2xl mx-auto">
+            子どもの制作物、思い入れのあるモノ。
             <br className="hidden md:block" />
-            あとから見返せる形で保存できます。
-          </p>
-          <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-10 max-w-2xl mx-auto">
-            あとで見返したとき、ちゃんと覚えていられる。
+            場所を取らずに、あとから見返せる形で残せます。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -151,15 +148,18 @@ export default function LandingPage() {
               もっと詳しく
             </a>
           </div>
-          <p className="mt-4 text-xs text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1.5">
+          <p className="mt-4 text-sm text-purple-600 dark:text-purple-400 font-medium">
+            ※ 登録しなくても、まず1つ試せます
+          </p>
+          <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1.5">
             <Cloud className="w-3.5 h-3.5" />
             登録すると永久保存。機種変更しても消えません。
           </p>
 
           {/* Icon Examples */}
           <div className="mt-8">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              写真を撮るだけで、&ldquo;そのものらしい&rdquo;アイコンに。
+            <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-4">
+              写真1枚で、あなたの思い出がこんなふうに残せます
             </p>
             <div className="flex justify-center gap-6">
               <div className="flex flex-col items-center gap-2">
