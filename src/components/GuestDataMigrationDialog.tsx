@@ -1,64 +1,61 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { X, ArrowRight, Package, AlertCircle, Check } from 'lucide-react';
 import { useGuestInfo, useGuestMigration } from '@/hooks/useGuestMigration';
 
+// localStorageからゲストIDを取得
+function getStoredGuestId(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('guestUserId');
+}
+
 export default function GuestDataMigrationDialog() {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const [guestId, setGuestId] = useState<string | null>(null);
-  const hasChecked = useRef(false);
+  const [hasCheckedOnce, setHasCheckedOnce] = useState(false);
+  const hasShownDialogRef = useRef(false);
 
-  // 初期化時にゲストIDを取得
-  useEffect(() => {
+  // ゲストIDを計算（セッション情報に基づいて）
+  const guestId = useMemo(() => {
     // セッションがloading中の場合は待機
-    if (status === 'loading') return;
+    if (status === 'loading') return null;
 
     // 認証されていない場合は何もしない
-    if (status === 'unauthenticated' || !session?.user?.id) return;
+    if (status === 'unauthenticated' || !session?.user?.id) return null;
 
     // ゲストユーザーの場合は何もしない
-    if (session.user.isGuest === true) return;
+    if (session.user.isGuest === true) return null;
 
-    // 既にチェック済みの場合はスキップ
-    if (hasChecked.current) return;
-    hasChecked.current = true;
-
-    // localStorageからゲストIDを取得
-    if (typeof window === 'undefined') return;
-    const storedGuestId = localStorage.getItem('guestUserId');
-    if (!storedGuestId) {
-      console.log('[GuestMigration] No guest ID found in localStorage');
-      return;
-    }
+    const storedGuestId = getStoredGuestId();
+    if (!storedGuestId) return null;
 
     // 現在のユーザーIDと同じ場合は何もしない
-    if (storedGuestId === session.user.id) {
-      console.log('[GuestMigration] Guest ID matches current user, skipping');
-      return;
-    }
+    if (storedGuestId === session.user.id) return null;
 
-    console.log('[GuestMigration] Found guest ID:', storedGuestId);
-    setGuestId(storedGuestId);
+    return storedGuestId;
   }, [session, status]);
 
   // TanStack Queryでゲスト情報を取得
   const { data: guestInfo, isLoading } = useGuestInfo(guestId, !!guestId);
 
-  // ゲスト情報取得後にダイアログを表示
-  useEffect(() => {
-    if (!isLoading && guestInfo) {
-      if (guestInfo.exists && guestInfo.itemCount && guestInfo.itemCount > 0) {
+  // ゲスト情報取得後にダイアログを表示（レンダー内で判定）
+  if (!isLoading && guestInfo && !hasCheckedOnce && !hasShownDialogRef.current) {
+    if (guestInfo.exists && guestInfo.itemCount && guestInfo.itemCount > 0) {
+      // 次のレンダーでダイアログを表示
+      setTimeout(() => {
         setIsOpen(true);
-      } else {
-        // ゲストIDが無効またはアイテムが0個の場合はlocalStorageから削除
-        console.log('[GuestMigration] Guest not found or has no items, removing from localStorage');
-        localStorage.removeItem('guestUserId');
-      }
+        setHasCheckedOnce(true);
+        hasShownDialogRef.current = true;
+      }, 0);
+    } else {
+      // ゲストIDが無効またはアイテムが0個の場合はlocalStorageから削除
+      console.log('[GuestMigration] Guest not found or has no items, removing from localStorage');
+      localStorage.removeItem('guestUserId');
+      setHasCheckedOnce(true);
     }
-  }, [guestInfo, isLoading]);
+  }
 
   // TanStack Queryでマイグレーション実行
   const migrationMutation = useGuestMigration();

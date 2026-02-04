@@ -1,46 +1,57 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, Sparkles, ChevronRight } from 'lucide-react';
 import { useMemories, type Memory } from '@/hooks/useMemories';
 
+// 表示条件をチェック
+function shouldShowReminder(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  // 永久に非表示にした場合
+  if (localStorage.getItem('memoryReminderDismissed') === 'true') {
+    return false;
+  }
+
+  // 今日既に表示した場合
+  const lastShown = sessionStorage.getItem('memoryReminderLastShown');
+  const today = new Date().toDateString();
+  if (lastShown === today) {
+    return false;
+  }
+
+  return true;
+}
+
 export default function MemoryReminderPopup() {
+  // 初期状態で表示条件をチェック
+  const shouldFetch = useMemo(() => shouldShowReminder(), []);
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
-  const [shouldFetch, setShouldFetch] = useState(false);
-
-  // 表示条件をチェックしてからフェッチを開始
-  useEffect(() => {
-    // 永久に非表示にした場合
-    if (localStorage.getItem('memoryReminderDismissed') === 'true') {
-      return;
-    }
-
-    // 今日既に表示した場合はスキップ
-    const lastShown = sessionStorage.getItem('memoryReminderLastShown');
-    const today = new Date().toDateString();
-    if (lastShown === today) {
-      return;
-    }
-
-    setShouldFetch(true);
-  }, []);
+  const [hasShownOnce, setHasShownOnce] = useState(false);
 
   // TanStack Queryでデータ取得
   const { data, isLoading } = useMemories(shouldFetch);
 
-  // データ取得後に表示判定
-  useEffect(() => {
-    if (!isLoading && data?.memories?.length) {
-      setSelectedMemory(data.memories[0]);
-      // 少し遅延してから表示（ページロード後に自然に表示）
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 2000);
-      return () => clearTimeout(timer);
+  // データがロードされたら表示（一度だけ）
+  const displayMemory = useMemo(() => {
+    if (!isLoading && data?.memories?.length && !hasShownOnce) {
+      return data.memories[0];
     }
-  }, [data, isLoading]);
+    return selectedMemory;
+  }, [data, isLoading, hasShownOnce, selectedMemory]);
+
+  // 表示タイミングの制御
+  if (!isLoading && data?.memories?.length && !hasShownOnce && !isOpen) {
+    // 少し遅延してから表示
+    setTimeout(() => {
+      setSelectedMemory(data.memories[0]);
+      setIsOpen(true);
+      setHasShownOnce(true);
+    }, 2000);
+  }
 
   const handleClose = () => {
     setIsOpen(false);
@@ -55,7 +66,9 @@ export default function MemoryReminderPopup() {
     sessionStorage.setItem('memoryReminderLastShown', new Date().toDateString());
   };
 
-  if (!data || !selectedMemory) {
+  const currentMemory = displayMemory || selectedMemory;
+
+  if (!data || !currentMemory) {
     return null;
   }
 
@@ -94,7 +107,7 @@ export default function MemoryReminderPopup() {
                     思い出を振り返ろう
                   </h2>
                   <p className="text-white/80 text-sm">
-                    {selectedMemory.period}に登録したモノ
+                    {currentMemory.period}に登録したモノ
                   </p>
                 </div>
               </div>
@@ -109,7 +122,7 @@ export default function MemoryReminderPopup() {
                       key={memory.days}
                       onClick={() => setSelectedMemory(memory)}
                       className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                        selectedMemory.days === memory.days
+                        currentMemory.days === memory.days
                           ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
                           : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-zinc-700'
                       }`}
@@ -124,7 +137,7 @@ export default function MemoryReminderPopup() {
             {/* Items */}
             <div className="px-6 py-4 max-h-64 overflow-y-auto">
               <div className="space-y-3">
-                {selectedMemory.items.map((item) => (
+                {currentMemory.items.map((item) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, x: -10 }}
