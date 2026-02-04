@@ -57,10 +57,24 @@ async function createReview(input: CreateReviewInput): Promise<Review> {
   return response.json();
 }
 
+export interface MyReviewResponse {
+  hasReview: boolean;
+  review: Review | null;
+}
+
+async function fetchMyReview(): Promise<MyReviewResponse> {
+  const response = await fetch('/api/reviews/my');
+  if (!response.ok) {
+    throw new Error('自分のレビューの取得に失敗しました');
+  }
+  return response.json();
+}
+
 export const reviewKeys = {
   all: ['reviews'] as const,
   list: (featured?: boolean, limit?: number) => [...reviewKeys.all, 'list', { featured, limit }] as const,
   featured: () => [...reviewKeys.all, 'featured'] as const,
+  my: () => [...reviewKeys.all, 'my'] as const,
 };
 
 export function useReviews(featured?: boolean, limit?: number) {
@@ -74,6 +88,13 @@ export function useFeaturedReviews(limit: number = 6) {
   return useQuery({
     queryKey: reviewKeys.featured(),
     queryFn: () => fetchReviews(true, limit),
+  });
+}
+
+export function useMyReview() {
+  return useQuery({
+    queryKey: reviewKeys.my(),
+    queryFn: fetchMyReview,
   });
 }
 
