@@ -128,6 +128,33 @@ export default function LandingPage() {
               もっと詳しく
             </a>
           </div>
+
+          {/* Icon Examples */}
+          <div className="mt-10">
+            <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-4">
+              こんな思い出が多いです
+            </p>
+            <div className="flex justify-center gap-6">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-lg">
+                  <span className="text-xl">🎨</span>
+                </div>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">おえかき</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+                  <span className="text-xl">✂️</span>
+                </div>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">工作</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center shadow-lg">
+                  <span className="text-xl">🎒</span>
+                </div>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">はじめての〇〇</span>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Hero Image */}
