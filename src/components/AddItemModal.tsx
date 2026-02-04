@@ -90,7 +90,8 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       setName('');
       setCategory('other');
       setLocation('');
-      setTags([]);
+      // デフォルトでタグを自動選択（承認型UI - ユーザーは外すだけ）
+      setTags(['思い出', '大切なもの']);
       setTagInput('');
       setMode('form');
       setUseAutoIcon(false);
@@ -524,22 +525,27 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
 
                   {/* Tag chips */}
                   {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-sm"
-                        >
-                          {tag}
-                          <button
-                            type="button"
-                            onClick={() => setTags(tags.filter((_, i) => i !== index))}
-                            className="p-0.5 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 rounded-full transition-colors"
+                    <div className="space-y-2">
+                      <p className="text-xs text-indigo-600 dark:text-indigo-400">
+                        あとから、この時期をまとめて見返せます
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-sm"
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))}
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => setTags(tags.filter((_, i) => i !== index))}
+                              className="p-0.5 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 rounded-full transition-colors"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
 

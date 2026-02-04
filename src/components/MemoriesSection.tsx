@@ -77,8 +77,9 @@ export default function MemoriesSection() {
     setIsDismissed(true);
   };
 
-  // 非表示、ローディング中、またはデータなしの場合は何も表示しない
-  if (isDismissed || isLoading || !data?.memories?.length) {
+  // 非表示、ローディング中、データなし、または3件未満の場合は何も表示しない
+  // 初回ユーザー（3件未満）には非表示にして、コレクションが育ってから表示
+  if (isDismissed || isLoading || !data?.memories?.length || (data?.totalItems ?? 0) < 3) {
     return null;
   }
 

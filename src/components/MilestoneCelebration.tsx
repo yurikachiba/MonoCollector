@@ -34,13 +34,13 @@ const MILESTONES: MilestoneConfig[] = [
     count: 2,
     storageKey: 'secondItemCelebrationShown',
     icon: Boxes,
-    title: 'コレクションスタート！',
-    subtitle: '2つ目のアイテムを登録しました',
+    title: 'いいスタートです',
+    subtitle: '2つ目を登録しました',
     message: '比べて見返せるようになりました',
-    submessage: '同じ日の思い出や、シリーズでまとめると、もっと楽しくなります',
-    gradientFrom: 'from-blue-500',
-    gradientVia: 'via-indigo-500',
-    gradientTo: 'to-purple-500',
+    submessage: '続けると、あなたの思い出がコレクションになります',
+    gradientFrom: 'from-blue-400',
+    gradientVia: 'via-blue-500',
+    gradientTo: 'to-indigo-500',
     buttonGradientFrom: 'from-blue-500',
     buttonGradientTo: 'to-indigo-500',
     bgFrom: 'from-blue-50',
@@ -54,10 +54,10 @@ const MILESTONES: MilestoneConfig[] = [
     count: 5,
     storageKey: 'fifthItemCelebrationShown',
     icon: TrendingUp,
-    title: 'いい感じ！',
-    subtitle: '5つのアイテムを登録しました',
-    message: 'シリーズになってきました',
-    submessage: 'カテゴリやタグを使うと、さらに整理しやすくなります',
+    title: 'コレクションが育っています！',
+    subtitle: '5つの思い出を登録しました',
+    message: 'あなただけのコレクションができてきました',
+    submessage: 'タグを使うと、あとからこの時期をまとめて見返せます',
     gradientFrom: 'from-amber-500',
     gradientVia: 'via-orange-500',
     gradientTo: 'to-red-500',
@@ -74,10 +74,10 @@ const MILESTONES: MilestoneConfig[] = [
     count: 10,
     storageKey: 'tenthItemCelebrationShown',
     icon: Crown,
-    title: '立派なコレクターです！',
-    subtitle: '10のアイテムを登録しました',
-    message: 'あなたの思い出がしっかり残っています',
-    submessage: '振り返るたびに、大切な記憶が蘇ります',
+    title: '素敵なコレクターです！',
+    subtitle: '10の思い出を登録しました',
+    message: '未来のあなたが振り返れる宝物です',
+    submessage: '何年後かに見返したとき、きっと懐かしく感じるはず',
     gradientFrom: 'from-purple-500',
     gradientVia: 'via-pink-500',
     gradientTo: 'to-rose-500',
@@ -150,12 +150,13 @@ export default function MilestoneCelebration({
       if (items.length === milestone.count) {
         const timer = setTimeout(() => {
           setCurrentMilestone(milestone);
-          const colors = milestone.count === 2
-            ? ['#3b82f6', '#6366f1', '#8b5cf6']
-            : milestone.count === 5
-            ? ['#f59e0b', '#f97316', '#ef4444']
-            : ['#a855f7', '#ec4899', '#f43f5e'];
-          triggerConfetti(colors);
+          // 2件目は控えめに（紙吹雪なし）、5件目以上で紙吹雪
+          if (milestone.count >= 5) {
+            const colors = milestone.count === 5
+              ? ['#f59e0b', '#f97316', '#ef4444']
+              : ['#a855f7', '#ec4899', '#f43f5e'];
+            triggerConfetti(colors);
+          }
         }, 500);
         return () => clearTimeout(timer);
       }
