@@ -46,12 +46,16 @@ function LoginContent() {
   const handleGoogleLogin = async () => {
     setIsLoading("google");
     setRuntimeError(null);
+    // ログイン時にレビュープロンプト表示フラグを設定
+    sessionStorage.setItem('showReviewPrompt', 'true');
     await signIn("google", { callbackUrl: "/collection" });
   };
 
   const handleGuestLogin = async () => {
     setIsLoading("guest");
     setRuntimeError(null);
+    // ログイン時にレビュープロンプト表示フラグを設定
+    sessionStorage.setItem('showReviewPrompt', 'true');
     try {
       // localStorageから既存のゲストIDを取得
       const existingGuestId = typeof window !== 'undefined'

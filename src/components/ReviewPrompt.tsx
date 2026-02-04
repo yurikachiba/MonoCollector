@@ -22,9 +22,15 @@ export default function ReviewPrompt() {
     // 既にレビューを書いている場合はスキップ
     if (myReviewData?.hasReview) return;
 
+    // ログイン時のみ表示（sessionStorageにフラグがある場合のみ）
+    const shouldShow = sessionStorage.getItem('showReviewPrompt') === 'true';
+    if (!shouldShow) return;
+
     // レビュー未投稿なら表示
     const timer = setTimeout(() => {
       setIsOpen(true);
+      // フラグを削除して次回以降は表示しない
+      sessionStorage.removeItem('showReviewPrompt');
     }, 2000);
 
     return () => clearTimeout(timer);
