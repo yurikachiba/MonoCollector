@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, ChevronRight, Sparkles, X } from 'lucide-react';
+import { useMemories } from '@/hooks/useMemories';
 
 // カテゴリごとの絵文字
 const CATEGORY_ICONS: Record<string, string> = {
@@ -21,67 +22,27 @@ const CATEGORY_ICONS: Record<string, string> = {
   other: '📦',
 };
 
-interface MemoryItem {
-  id: string;
-  name: string;
-  category: string;
-  icon: string;
-  generatedIcon: string | null;
-  createdAt: string;
+// localStorageから永久非表示状態を取得
+function getInitialDismissedState(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('memoriesSectionDismissed') === 'true';
 }
-
-interface Memory {
-  period: string;
-  days: number;
-  items: MemoryItem[];
-}
-
-interface MemoriesData {
-  memories: Memory[];
-  hasRecentActivity: boolean;
-  totalItems: number;
-}
-
-// localStorageチェック（コンポーネント外で実行しない）
-const getInitialDismissed = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('memoriesSectionDismissed') === 'true';
-  }
-  return false;
-};
 
 export default function MemoriesSection() {
-  const [data, setData] = useState<MemoriesData | null>(null);
-  const [isDismissed, setIsDismissed] = useState(getInitialDismissed);
-  const [isLoading, setIsLoading] = useState(!getInitialDismissed());
+  const [isDismissed, setIsDismissed] = useState(getInitialDismissedState);
   const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    // 永久非表示の場合はデータ取得しない
-    if (isDismissed) {
-      return;
-    }
-
-    // データ取得
-    fetch('/api/items/memories')
-      .then((res) => res.json())
-      .then((resData) => {
-        setData(resData);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch memories:', err);
-        setIsLoading(false);
-      });
-  }, [isDismissed]);
+  // TanStack Queryでデータ取得（非表示の場合はフェッチしない）
+  const { data, isLoading } = useMemories(!isDismissed);
 
   const handleDismiss = () => {
     localStorage.setItem('memoriesSectionDismissed', 'true');
     setIsDismissed(true);
   };
 
-  // 非表示、ローディング中、またはデータなしの場合は何も表示しない
-  if (isDismissed || isLoading || !data?.memories?.length) {
+  // 非表示、ローディング中、データなし、または3件未満の場合は何も表示しない
+  // 初回ユーザー（3件未満）には非表示にして、コレクションが育ってから表示
+  if (isDismissed || isLoading || !data?.memories?.length || (data?.totalItems ?? 0) < 3) {
     return null;
   }
 

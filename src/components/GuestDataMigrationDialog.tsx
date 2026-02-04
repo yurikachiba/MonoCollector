@@ -1,141 +1,84 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { X, ArrowRight, Package, AlertCircle, Check } from 'lucide-react';
+import { useGuestInfo, useGuestMigration } from '@/hooks/useGuestMigration';
 
-interface GuestInfo {
-  exists: boolean;
-  guestName?: string;
-  itemCount?: number;
-  createdAt?: string;
+// localStorageからゲストIDを取得
+function getStoredGuestId(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('guestUserId');
 }
 
 export default function GuestDataMigrationDialog() {
   const { data: session, status } = useSession();
-  const [isOpen, setIsOpen] = useState(false);
-  const [guestInfo, setGuestInfo] = useState<GuestInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
-  const [migrationResult, setMigrationResult] = useState<{ success: boolean; message: string } | null>(null);
-  const [guestId, setGuestId] = useState<string | null>(null);
-  const hasChecked = useRef(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
-  // 初期化時にゲストデータをチェック
-  useEffect(() => {
-    const checkGuestData = async () => {
-      // セッションがloading中の場合は待機
-      if (status === 'loading') {
-        return;
-      }
+  // ゲストIDを計算（セッション情報に基づいて）
+  const guestId = useMemo(() => {
+    // セッションがloading中の場合は待機
+    if (status === 'loading') return null;
 
-      // 認証されていない場合は何もしない
-      if (status === 'unauthenticated' || !session?.user?.id) {
-        return;
-      }
+    // 認証されていない場合は何もしない
+    if (status === 'unauthenticated' || !session?.user?.id) return null;
 
-      // ゲストユーザーの場合は何もしない（isGuestがtrueまたはundefinedの場合）
-      if (session.user.isGuest === true) {
-        return;
-      }
+    // ゲストユーザーの場合は何もしない
+    if (session.user.isGuest === true) return null;
 
-      // 既にチェック済みの場合はスキップ
-      if (hasChecked.current) {
-        return;
-      }
-      hasChecked.current = true;
+    const storedGuestId = getStoredGuestId();
+    if (!storedGuestId) return null;
 
-      // localStorageからゲストIDを取得（SSR対策）
-      if (typeof window === 'undefined') {
-        return;
-      }
-      const storedGuestId = localStorage.getItem('guestUserId');
-      if (!storedGuestId) {
-        console.log('[GuestMigration] No guest ID found in localStorage');
-        return;
-      }
+    // 現在のユーザーIDと同じ場合は何もしない
+    if (storedGuestId === session.user.id) return null;
 
-      // 現在のユーザーIDと同じ場合は何もしない（ゲストが自分自身を引き継ごうとしている）
-      if (storedGuestId === session.user.id) {
-        console.log('[GuestMigration] Guest ID matches current user, skipping');
-        return;
-      }
-
-      console.log('[GuestMigration] Found guest ID:', storedGuestId, 'Current user:', session.user.id, 'isGuest:', session.user.isGuest);
-      setGuestId(storedGuestId);
-      setIsLoading(true);
-
-      try {
-        const response = await fetch(`/api/auth/link-guest?guestId=${encodeURIComponent(storedGuestId)}`);
-        const data = await response.json();
-        console.log('[GuestMigration] API response:', data);
-
-        if (data.exists && data.itemCount > 0) {
-          setGuestInfo(data);
-          setIsOpen(true);
-        } else if (!data.exists) {
-          // ゲストIDが無効な場合はlocalStorageから削除
-          console.log('[GuestMigration] Guest user not found, removing from localStorage');
-          localStorage.removeItem('guestUserId');
-        } else if (data.itemCount === 0) {
-          // アイテムが0個の場合もlocalStorageから削除
-          console.log('[GuestMigration] Guest has no items, removing from localStorage');
-          localStorage.removeItem('guestUserId');
-        }
-      } catch (error) {
-        console.error('[GuestMigration] Failed to check guest data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkGuestData();
+    return storedGuestId;
   }, [session, status]);
+
+  // TanStack Queryでゲスト情報を取得
+  const { data: guestInfo, isLoading } = useGuestInfo(guestId, !!guestId);
+
+  // TanStack Queryでマイグレーション実行
+  const migrationMutation = useGuestMigration();
+
+  // 表示条件を派生状態として計算（effect不要）
+  const shouldShow = useMemo(() => {
+    if (isDismissed) return false;
+    if (isLoading) return false;
+    if (!guestInfo) return false;
+    if (!guestInfo.exists) return false;
+    if (!guestInfo.itemCount || guestInfo.itemCount === 0) return false;
+    return true;
+  }, [isDismissed, isLoading, guestInfo]);
 
   const handleMigrate = async () => {
     if (!guestId) return;
 
-    setIsMigrating(true);
     try {
-      const response = await fetch('/api/auth/link-guest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guestId }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setMigrationResult({ success: true, message: data.message });
-        // localStorageからゲストIDを削除
-        localStorage.removeItem('guestUserId');
-        // 3秒後にダイアログを閉じてページをリロード
-        setTimeout(() => {
-          setIsOpen(false);
-          window.location.reload();
-        }, 2000);
-      } else {
-        setMigrationResult({ success: false, message: data.error });
-      }
+      await migrationMutation.mutateAsync(guestId);
+      // localStorageからゲストIDを削除
+      localStorage.removeItem('guestUserId');
+      // 2秒後にダイアログを閉じてページをリロード
+      setTimeout(() => {
+        setIsDismissed(true);
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error('Failed to migrate guest data:', error);
-      setMigrationResult({ success: false, message: 'データの引き継ぎに失敗しました' });
-    } finally {
-      setIsMigrating(false);
     }
   };
 
   const handleSkip = () => {
-    setIsOpen(false);
+    setIsDismissed(true);
     // スキップした場合もlocalStorageから削除（次回表示させない）
     localStorage.removeItem('guestUserId');
   };
 
   const handleClose = () => {
-    setIsOpen(false);
+    setIsDismissed(true);
   };
 
-  if (!isOpen || isLoading) {
+  if (!shouldShow || !guestInfo) {
     return null;
   }
 
@@ -157,19 +100,17 @@ export default function GuestDataMigrationDialog() {
 
         {/* コンテンツ */}
         <div className="px-6 py-4">
-          {migrationResult ? (
-            // 結果表示
-            <div className={`flex items-center gap-3 p-4 rounded-xl ${
-              migrationResult.success
-                ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-            }`}>
-              {migrationResult.success ? (
-                <Check className="w-6 h-6 flex-shrink-0" />
-              ) : (
-                <AlertCircle className="w-6 h-6 flex-shrink-0" />
-              )}
-              <p>{migrationResult.message}</p>
+          {migrationMutation.isSuccess ? (
+            // 成功表示
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
+              <Check className="w-6 h-6 flex-shrink-0" />
+              <p>データを引き継ぎました</p>
+            </div>
+          ) : migrationMutation.isError ? (
+            // エラー表示
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
+              <AlertCircle className="w-6 h-6 flex-shrink-0" />
+              <p>{migrationMutation.error?.message || 'データの引き継ぎに失敗しました'}</p>
             </div>
           ) : (
             <>
@@ -179,39 +120,37 @@ export default function GuestDataMigrationDialog() {
               </p>
 
               {/* ゲストデータ情報 */}
-              {guestInfo && (
-                <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 mb-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                      <Package className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {guestInfo.guestName}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {guestInfo.itemCount}個のアイテム
-                      </p>
-                    </div>
+              <div className="bg-gray-50 dark:bg-zinc-800 rounded-xl p-4 mb-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                    <Package className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {guestInfo.guestName}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {guestInfo.itemCount}個のアイテム
+                    </p>
                   </div>
                 </div>
-              )}
+              </div>
 
               {/* アクションボタン */}
               <div className="flex gap-3">
                 <button
                   onClick={handleSkip}
-                  disabled={isMigrating}
+                  disabled={migrationMutation.isPending}
                   className="flex-1 px-4 py-3 text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-zinc-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
                 >
                   スキップ
                 </button>
                 <button
                   onClick={handleMigrate}
-                  disabled={isMigrating}
+                  disabled={migrationMutation.isPending}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-600 hover:to-purple-700 transition-colors disabled:opacity-50"
                 >
-                  {isMigrating ? (
+                  {migrationMutation.isPending ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <>
@@ -226,7 +165,7 @@ export default function GuestDataMigrationDialog() {
         </div>
 
         {/* フッター注意事項 */}
-        {!migrationResult && (
+        {!migrationMutation.isSuccess && !migrationMutation.isError && (
           <div className="px-6 pb-6">
             <p className="text-xs text-gray-500 dark:text-gray-500 text-center">
               スキップするとゲストデータは削除されます

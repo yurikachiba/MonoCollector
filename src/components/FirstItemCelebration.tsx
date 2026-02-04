@@ -190,14 +190,14 @@ export default function FirstItemCelebration({
                 </div>
                 <div>
                   <p className="text-gray-700 dark:text-gray-200 font-medium leading-relaxed">
-                    もう1つ登録すると、あなたの
+                    もう1つ残すと、
                     <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                      &quot;コレクション&quot;
+                      比べて見返せる
                     </span>
-                    が見えてきます
+                    ようになります
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    どんなモノを持っているか、一覧で確認できるようになります
+                    同じ時期のモノを並べると、思い出がより鮮やかに蘇ります
                   </p>
                 </div>
               </motion.div>

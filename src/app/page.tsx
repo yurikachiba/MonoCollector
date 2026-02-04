@@ -139,7 +139,7 @@ export default function LandingPage() {
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:scale-105 transition-all"
             >
               <Sparkles className="w-5 h-5" />
-              {session ? 'コレクションへ' : '試しに1つ、残してみる'}
+              {session ? 'コレクションへ' : '最初の思い出を残す'}
             </Link>
             <a
               href="#features"
@@ -573,7 +573,7 @@ export default function LandingPage() {
             className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-purple-600 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
           >
             <Sparkles className="w-5 h-5" />
-            {session ? 'コレクションへ' : '試しに1つ、残してみる'}
+            {session ? 'コレクションへ' : '最初の思い出を残す'}
           </Link>
         </motion.div>
       </section>

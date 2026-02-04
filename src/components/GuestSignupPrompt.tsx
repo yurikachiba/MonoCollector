@@ -12,6 +12,7 @@ import {
   ArrowRight,
   Check,
 } from 'lucide-react';
+import { useItems } from '@/hooks/useItems';
 
 const BENEFITS = [
   {
@@ -34,8 +35,11 @@ const BENEFITS = [
 export default function GuestSignupPrompt() {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const [itemCount, setItemCount] = useState(0);
   const [isSigningIn, setIsSigningIn] = useState(false);
+
+  // TanStack Queryでアイテム取得
+  const { data: items = [] } = useItems();
+  const itemCount = items.length;
 
   useEffect(() => {
     // ゲストユーザーでない場合はスキップ
@@ -50,29 +54,14 @@ export default function GuestSignupPrompt() {
     // 永久に非表示にした場合はスキップ
     if (localStorage.getItem('guestSignupPromptDismissed') === 'true') return;
 
-    // アイテム数を取得して表示タイミングを判断
-    const fetchItemCount = async () => {
-      try {
-        const response = await fetch('/api/items');
-        if (!response.ok) return;
-
-        const items = await response.json();
-        const count = items.length;
-        setItemCount(count);
-
-        // 3件以上登録したら表示
-        if (count >= 3) {
-          setTimeout(() => {
-            setIsOpen(true);
-          }, 3000); // ページロード後3秒で表示
-        }
-      } catch (error) {
-        console.error('Failed to fetch item count:', error);
-      }
-    };
-
-    fetchItemCount();
-  }, [session, status]);
+    // 3件以上登録したら表示
+    if (itemCount >= 3) {
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+      }, 3000); // ページロード後3秒で表示
+      return () => clearTimeout(timer);
+    }
+  }, [session, status, itemCount]);
 
   const handleClose = () => {
     setIsOpen(false);
