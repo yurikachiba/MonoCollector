@@ -125,7 +125,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-4 max-w-2xl mx-auto">
-            思い出を、どこか懐かしい味のある"アイコン"として残せます。
+            思い出を、どこか懐かしい味のある&ldquo;アイコン&rdquo;として残せます。
           </p>
           <p className="text-base text-zinc-500 dark:text-zinc-500 mb-6 max-w-2xl mx-auto">
             子どもの制作物や、思い出のモノを写真と一緒に、
@@ -159,7 +159,7 @@ export default function LandingPage() {
           {/* Icon Examples */}
           <div className="mt-8">
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-              写真を撮るだけで、"そのものらしい"アイコンに。
+              写真を撮るだけで、&ldquo;そのものらしい&rdquo;アイコンに。
             </p>
             <div className="flex justify-center gap-6">
               <div className="flex flex-col items-center gap-2">
