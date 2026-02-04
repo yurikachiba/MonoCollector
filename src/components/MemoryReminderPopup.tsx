@@ -3,70 +3,44 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, Sparkles, ChevronRight } from 'lucide-react';
-
-interface MemoryItem {
-  id: string;
-  name: string;
-  category: string;
-  icon: string;
-  generatedIcon?: string;
-  createdAt: string;
-}
-
-interface Memory {
-  period: string;
-  days: number;
-  items: MemoryItem[];
-}
-
-interface MemoryData {
-  memories: Memory[];
-  hasRecentActivity: boolean;
-  totalItems: number;
-}
+import { useMemories, type Memory } from '@/hooks/useMemories';
 
 export default function MemoryReminderPopup() {
   const [isOpen, setIsOpen] = useState(false);
-  const [memoryData, setMemoryData] = useState<MemoryData | null>(null);
   const [selectedMemory, setSelectedMemory] = useState<Memory | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [shouldFetch, setShouldFetch] = useState(false);
 
+  // 表示条件をチェックしてからフェッチを開始
   useEffect(() => {
-    const checkMemories = async () => {
-      // 今日既に表示した場合はスキップ
-      const lastShown = sessionStorage.getItem('memoryReminderLastShown');
-      const today = new Date().toDateString();
-      if (lastShown === today) {
-        setIsLoading(false);
-        return;
-      }
+    // 永久に非表示にした場合
+    if (localStorage.getItem('memoryReminderDismissed') === 'true') {
+      return;
+    }
 
-      try {
-        const response = await fetch('/api/items/memories');
-        if (!response.ok) {
-          setIsLoading(false);
-          return;
-        }
+    // 今日既に表示した場合はスキップ
+    const lastShown = sessionStorage.getItem('memoryReminderLastShown');
+    const today = new Date().toDateString();
+    if (lastShown === today) {
+      return;
+    }
 
-        const data: MemoryData = await response.json();
-
-        if (data.memories.length > 0) {
-          setMemoryData(data);
-          setSelectedMemory(data.memories[0]);
-          // 少し遅延してから表示（ページロード後に自然に表示）
-          setTimeout(() => {
-            setIsOpen(true);
-          }, 2000);
-        }
-      } catch (error) {
-        console.error('Failed to fetch memories:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkMemories();
+    setShouldFetch(true);
   }, []);
+
+  // TanStack Queryでデータ取得
+  const { data, isLoading } = useMemories(shouldFetch);
+
+  // データ取得後に表示判定
+  useEffect(() => {
+    if (!isLoading && data?.memories?.length) {
+      setSelectedMemory(data.memories[0]);
+      // 少し遅延してから表示（ページロード後に自然に表示）
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [data, isLoading]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -81,14 +55,7 @@ export default function MemoryReminderPopup() {
     sessionStorage.setItem('memoryReminderLastShown', new Date().toDateString());
   };
 
-  // 永久に非表示にした場合
-  useEffect(() => {
-    if (localStorage.getItem('memoryReminderDismissed') === 'true') {
-      setIsLoading(false);
-    }
-  }, []);
-
-  if (isLoading || !memoryData || !selectedMemory) {
+  if (!data || !selectedMemory) {
     return null;
   }
 
@@ -134,10 +101,10 @@ export default function MemoryReminderPopup() {
             </div>
 
             {/* Period Tabs */}
-            {memoryData.memories.length > 1 && (
+            {data.memories.length > 1 && (
               <div className="px-4 py-2 border-b border-gray-200 dark:border-zinc-700 overflow-x-auto">
                 <div className="flex gap-2">
-                  {memoryData.memories.map((memory) => (
+                  {data.memories.map((memory) => (
                     <button
                       key={memory.days}
                       onClick={() => setSelectedMemory(memory)}

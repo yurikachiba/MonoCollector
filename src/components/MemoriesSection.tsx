@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, ChevronRight, Sparkles, X } from 'lucide-react';
+import { useMemories } from '@/hooks/useMemories';
 
 // カテゴリごとの絵文字
 const CATEGORY_ICONS: Record<string, string> = {
@@ -21,27 +22,6 @@ const CATEGORY_ICONS: Record<string, string> = {
   other: '📦',
 };
 
-interface MemoryItem {
-  id: string;
-  name: string;
-  category: string;
-  icon: string;
-  generatedIcon: string | null;
-  createdAt: string;
-}
-
-interface Memory {
-  period: string;
-  days: number;
-  items: MemoryItem[];
-}
-
-interface MemoriesData {
-  memories: Memory[];
-  hasRecentActivity: boolean;
-  totalItems: number;
-}
-
 // localStorageから永久非表示状態を取得
 function getInitialDismissedState(): boolean {
   if (typeof window === 'undefined') return false;
@@ -49,30 +29,11 @@ function getInitialDismissedState(): boolean {
 }
 
 export default function MemoriesSection() {
-  const [data, setData] = useState<MemoriesData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isDismissed, setIsDismissed] = useState(getInitialDismissedState);
   const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    // 永久非表示の場合はデータ取得をスキップ
-    if (isDismissed) {
-      setIsLoading(false);
-      return;
-    }
-
-    // データ取得
-    fetch('/api/items/memories')
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch memories:', err);
-        setIsLoading(false);
-      });
-  }, [isDismissed]);
+  // TanStack Queryでデータ取得（非表示の場合はフェッチしない）
+  const { data, isLoading } = useMemories(!isDismissed);
 
   const handleDismiss = () => {
     localStorage.setItem('memoriesSectionDismissed', 'true');
