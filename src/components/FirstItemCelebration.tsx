@@ -8,6 +8,12 @@ import { useItems } from '@/hooks/useItems';
 
 const STORAGE_KEY = 'firstItemCelebrationShown';
 
+// localStorageの値を取得するヘルパー（SSR対応）
+function getStorageValue(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(STORAGE_KEY) === 'true';
+}
+
 // 紙吹雪エフェクト
 function triggerConfetti() {
   if (typeof confetti === 'function') {
@@ -48,22 +54,18 @@ interface FirstItemCelebrationProps {
 export default function FirstItemCelebration({
   onAddAnother,
 }: FirstItemCelebrationProps) {
-  const { data: items = [], isLoading } = useItems();
+  const { data: items = [], isFetched } = useItems();
   const [isOpen, setIsOpen] = useState(false);
-  const [hasChecked, setHasChecked] = useState(false);
+
+  // localStorageから取得した値を元に表示判定
+  const alreadyShown = getStorageValue();
 
   useEffect(() => {
-    if (isLoading || hasChecked) return;
-
-    // 既に表示済みの場合はスキップ
-    if (localStorage.getItem(STORAGE_KEY) === 'true') {
-      setHasChecked(true);
-      return;
-    }
+    // データ取得前、または既に表示済みの場合はスキップ
+    if (!isFetched || alreadyShown) return;
 
     // 1件目が登録されたら表示
     if (items.length === 1) {
-      // 少し遅延させて表示（登録直後の演出として）
       const timer = setTimeout(() => {
         setIsOpen(true);
         triggerConfetti();
@@ -71,23 +73,20 @@ export default function FirstItemCelebration({
       return () => clearTimeout(timer);
     }
 
-    // 0件または2件以上の場合はフラグを立てて再チェックしない
+    // 2件以上の場合はフラグを立てる
     if (items.length >= 2) {
       localStorage.setItem(STORAGE_KEY, 'true');
-      setHasChecked(true);
     }
-  }, [items.length, isLoading, hasChecked]);
+  }, [items.length, isFetched, alreadyShown]);
 
   const handleClose = () => {
     setIsOpen(false);
     localStorage.setItem(STORAGE_KEY, 'true');
-    setHasChecked(true);
   };
 
   const handleAddAnother = () => {
     setIsOpen(false);
     localStorage.setItem(STORAGE_KEY, 'true');
-    setHasChecked(true);
     onAddAnother();
   };
 
