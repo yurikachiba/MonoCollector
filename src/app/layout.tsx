@@ -126,14 +126,7 @@ const structuredData = {
       "PWA対応でオフラインでも利用可能",
       "Googleアカウントでログイン"
     ],
-    "screenshot": `${baseUrl}/og-image.png`,
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
-    }
+    "screenshot": `${baseUrl}/og-image.png`
   },
 
   // Organization スキーマ
@@ -368,109 +361,6 @@ const structuredData = {
         "description": "AIがタグを自動提案。思い出やエピソードをメモとして残せます"
       }
     ]
-  },
-
-  // Review スキーマ（ユーザーレビュー）- AIO対策に重要
-  reviews: {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "@id": `${baseUrl}/#product`,
-    "name": "モノコレクター",
-    "description": "捨てられない思い出を、ちゃんと残す。子どもの制作物、思い出のモノを写真と一緒に残せるアプリ。AIが懐かしい味のあるアイコンに変換します。",
-    "image": `${baseUrl}/og-image.png`,
-    "brand": {
-      "@type": "Brand",
-      "name": "モノコレクター"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "review": [
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "みゆき"
-        },
-        "datePublished": "2024-12-15",
-        "reviewBody": "日常の小さなモノたちが、こんなに大切な存在だったと気づかせてくれました。AIでアイコンになるのが楽しくて、毎日使っています。",
-        "name": "思い出が蘇る素敵なアプリ",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "たける"
-        },
-        "datePublished": "2024-12-10",
-        "reviewBody": "バッジや実績システムがあるので、どんどん記録したくなります。暮らしの中のモノに目を向けるきっかけになりました。",
-        "name": "コレクションが増えるのが楽しい",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "あやか"
-        },
-        "datePublished": "2024-12-08",
-        "reviewBody": "写真を撮るだけでOKなので、手軽に始められました。カテゴリ分けも自動でしてくれるので便利です。",
-        "name": "シンプルで使いやすい",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "4",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "ゆうこ"
-        },
-        "datePublished": "2024-12-05",
-        "reviewBody": "子供のおもちゃや作品を記録するのに使っています。成長とともに変わっていくコレクションを見返すのが楽しみです。",
-        "name": "子供の思い出も残せる",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "けんた"
-        },
-        "datePublished": "2024-12-01",
-        "reviewBody": "アイコンに変換されたモノたちがギャラリーのように並ぶのが美しい。見ているだけで癒されます。",
-        "name": "デザインが美しい",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      }
-    ]
   }
 };
 
@@ -529,13 +419,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(structuredData.itemList)
-          }}
-        />
-        {/* Review 構造化データ（AIO対策） */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData.reviews)
           }}
         />
       </head>
