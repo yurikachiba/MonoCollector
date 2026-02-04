@@ -14,6 +14,7 @@ import MemoryReminderPopup from '@/components/MemoryReminderPopup';
 import GuestSignupPrompt from '@/components/GuestSignupPrompt';
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
 import NotificationChecker from '@/components/NotificationChecker';
+import FirstItemCelebration from '@/components/FirstItemCelebration';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -55,6 +56,7 @@ export default function CollectionPage() {
       <GuestSignupPrompt />
       <PushNotificationPrompt />
       <NotificationChecker />
+      <FirstItemCelebration onAddAnother={() => setIsAddModalOpen(true)} />
     </main>
   );
 }
