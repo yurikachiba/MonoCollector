@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { X, ArrowRight, Package, AlertCircle, Check } from 'lucide-react';
 import { useGuestInfo, useGuestMigration } from '@/hooks/useGuestMigration';
@@ -13,8 +13,7 @@ function getStoredGuestId(): string | null {
 
 export default function GuestDataMigrationDialog() {
   const { data: session, status } = useSession();
-  const [isOpen, setIsOpen] = useState(false);
-  const [hasCheckedOnce, setHasCheckedOnce] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   // ゲストIDを計算（セッション情報に基づいて）
   const guestId = useMemo(() => {
@@ -39,24 +38,18 @@ export default function GuestDataMigrationDialog() {
   // TanStack Queryでゲスト情報を取得
   const { data: guestInfo, isLoading } = useGuestInfo(guestId, !!guestId);
 
-  // ゲスト情報取得後にダイアログを表示
-  useEffect(() => {
-    if (hasCheckedOnce) return;
-    if (isLoading) return;
-    if (!guestInfo) return;
-
-    if (guestInfo.exists && guestInfo.itemCount && guestInfo.itemCount > 0) {
-      setIsOpen(true);
-    } else {
-      // ゲストIDが無効またはアイテムが0個の場合はlocalStorageから削除
-      console.log('[GuestMigration] Guest not found or has no items, removing from localStorage');
-      localStorage.removeItem('guestUserId');
-    }
-    setHasCheckedOnce(true);
-  }, [guestInfo, isLoading, hasCheckedOnce]);
-
   // TanStack Queryでマイグレーション実行
   const migrationMutation = useGuestMigration();
+
+  // 表示条件を派生状態として計算（effect不要）
+  const shouldShow = useMemo(() => {
+    if (isDismissed) return false;
+    if (isLoading) return false;
+    if (!guestInfo) return false;
+    if (!guestInfo.exists) return false;
+    if (!guestInfo.itemCount || guestInfo.itemCount === 0) return false;
+    return true;
+  }, [isDismissed, isLoading, guestInfo]);
 
   const handleMigrate = async () => {
     if (!guestId) return;
@@ -67,7 +60,7 @@ export default function GuestDataMigrationDialog() {
       localStorage.removeItem('guestUserId');
       // 2秒後にダイアログを閉じてページをリロード
       setTimeout(() => {
-        setIsOpen(false);
+        setIsDismissed(true);
         window.location.reload();
       }, 2000);
     } catch (error) {
@@ -76,16 +69,16 @@ export default function GuestDataMigrationDialog() {
   };
 
   const handleSkip = () => {
-    setIsOpen(false);
+    setIsDismissed(true);
     // スキップした場合もlocalStorageから削除（次回表示させない）
     localStorage.removeItem('guestUserId');
   };
 
   const handleClose = () => {
-    setIsOpen(false);
+    setIsDismissed(true);
   };
 
-  if (!isOpen || isLoading || !guestInfo) {
+  if (!shouldShow || !guestInfo) {
     return null;
   }
 
