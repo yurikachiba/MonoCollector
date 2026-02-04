@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, BellRing, Sparkles, Clock, Trophy, Calendar } from 'lucide-react';
 import {
   isNotificationSupported,
-  requestNotificationPermission,
   getNotificationPermission,
 } from '@/lib/notifications';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -31,7 +30,7 @@ const BENEFITS = [
 export default function PushNotificationPrompt() {
   const [isOpen, setIsOpen] = useState(false);
   const [isRequesting, setIsRequesting] = useState(false);
-  const { updateSettings } = useNotifications();
+  const { updateSettings, requestPermission } = useNotifications();
 
   useEffect(() => {
     // 通知がサポートされていない場合はスキップ
@@ -70,7 +69,8 @@ export default function PushNotificationPrompt() {
   const handleEnableNotifications = async () => {
     setIsRequesting(true);
     try {
-      const permission = await requestNotificationPermission();
+      // Context経由で権限リクエスト（permission状態も同期される）
+      const permission = await requestPermission();
 
       if (permission === 'granted') {
         // 通知設定を有効にする（Context経由で更新）
