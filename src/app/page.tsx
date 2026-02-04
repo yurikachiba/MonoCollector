@@ -128,7 +128,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-lg md:text-xl font-medium text-zinc-700 dark:text-zinc-300 mb-6 max-w-2xl mx-auto">
-            子どもの"初めての絵"も。もらった手紙も。捨てられないまま押入れに眠っているモノも。
+            子どもの&ldquo;初めての絵&rdquo;も。もらった手紙も。捨てられないまま押入れに眠っているモノも。
           </p>
 
           <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400 mb-3 max-w-2xl mx-auto">
