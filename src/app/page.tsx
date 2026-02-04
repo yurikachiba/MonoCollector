@@ -49,7 +49,7 @@ export default function LandingPage() {
     {
       icon: Trophy,
       title: '思い出を積み重ねる',
-      description: '集めるほどに増える実績とバッジ。あなたの歩みを讃えます。',
+      description: '集めるほど、あなたの時間が可視化されます。',
     },
   ];
 
@@ -117,20 +117,22 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold text-zinc-900 dark:text-zinc-100 mb-6 leading-tight">
-            捨てられない思い出を、
+            捨てられないモノを、
             <br />
             <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">
-              ちゃんと残す。
+              写真とアイコンで残すアプリ。
             </span>
           </h1>
 
           <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-3 max-w-2xl mx-auto">
-            写真と一緒に、懐かしいアイコンにして保存できます。
+            写真1枚で、AIが懐かしいアイコンに変換。
+            <br className="hidden md:block" />
+            思い出として、あとから見返せる形で残せます。
           </p>
           <p className="text-base text-zinc-500 dark:text-zinc-500 mb-8 max-w-2xl mx-auto">
             子どもの制作物、思い入れのあるモノ。
             <br className="hidden md:block" />
-            場所を取らずに、あとから見返せる形で残せます。
+            場所を取らずに、ずっと残せます。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -149,11 +151,11 @@ export default function LandingPage() {
             </a>
           </div>
           <p className="mt-4 text-sm text-purple-600 dark:text-purple-400 font-medium">
-            ※ 登録しなくても、まず1つ試せます
+            登録なし・1分で試せます
           </p>
           <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500 flex items-center justify-center gap-1.5">
             <Cloud className="w-3.5 h-3.5" />
-            登録すると永久保存。機種変更しても消えません。
+            登録すると永久保存・機種変更OK
           </p>
 
           {/* Icon Examples */}
@@ -560,13 +562,16 @@ export default function LandingPage() {
           transition={{ duration: 0.6 }}
           className="max-w-4xl mx-auto text-center p-12 rounded-3xl bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             全部は取っておけない。
             <br />
             でも、忘れたくない。
           </h2>
-          <p className="text-white/90 text-lg mb-8">
-            捨てる前に、記録するという選択。
+          <p className="text-white/90 text-lg mb-2">
+            捨てる前に、
+          </p>
+          <p className="text-white text-xl font-medium mb-8">
+            記録するという選択。
           </p>
           <Link
             href={session ? '/collection' : '/login'}
