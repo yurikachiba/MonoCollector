@@ -42,35 +42,38 @@ interface MemoriesData {
   totalItems: number;
 }
 
+// localStorageチェック（コンポーネント外で実行しない）
+const getInitialDismissed = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('memoriesSectionDismissed') === 'true';
+  }
+  return false;
+};
+
 export default function MemoriesSection() {
   const [data, setData] = useState<MemoriesData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(getInitialDismissed);
+  const [isLoading, setIsLoading] = useState(!getInitialDismissed());
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
-    // 永久非表示チェック
-    if (typeof window !== 'undefined') {
-      const dismissed = localStorage.getItem('memoriesSectionDismissed') === 'true';
-      if (dismissed) {
-        setIsDismissed(true);
-        setIsLoading(false);
-        return;
-      }
+    // 永久非表示の場合はデータ取得しない
+    if (isDismissed) {
+      return;
     }
 
     // データ取得
     fetch('/api/items/memories')
       .then((res) => res.json())
-      .then((data) => {
-        setData(data);
+      .then((resData) => {
+        setData(resData);
         setIsLoading(false);
       })
       .catch((err) => {
         console.error('Failed to fetch memories:', err);
         setIsLoading(false);
       });
-  }, []);
+  }, [isDismissed]);
 
   const handleDismiss = () => {
     localStorage.setItem('memoriesSectionDismissed', 'true');
