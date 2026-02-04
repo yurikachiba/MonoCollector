@@ -105,7 +105,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 mb-4 max-w-2xl mx-auto">
-            思い出を、どこか懐かしい味のあるアイコンに。
+            思い出を、どこか懐かしい味のある"アイコン"として残せます。
           </p>
           <p className="text-base text-zinc-500 dark:text-zinc-500 mb-10 max-w-2xl mx-auto">
             子どもの制作物や、思い出のモノを写真と一緒に、
