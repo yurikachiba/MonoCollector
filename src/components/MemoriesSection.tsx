@@ -44,20 +44,25 @@ interface MemoriesData {
 
 export default function MemoriesSection() {
   const [data, setData] = useState<MemoriesData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDismissed, setIsDismissed] = useState(false);
+  // 遅延初期化: localStorageからdismissed状態を取得
+  const [isDismissed, setIsDismissed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('memoriesSectionDismissed') === 'true';
+    }
+    return false;
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    // dismissed状態ならローディング不要
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('memoriesSectionDismissed') !== 'true';
+    }
+    return true;
+  });
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
-    // 永久非表示チェック
-    if (typeof window !== 'undefined') {
-      const dismissed = localStorage.getItem('memoriesSectionDismissed') === 'true';
-      if (dismissed) {
-        setIsDismissed(true);
-        setIsLoading(false);
-        return;
-      }
-    }
+    // 非表示の場合はスキップ
+    if (isDismissed) return;
 
     // データ取得
     fetch('/api/items/memories')
