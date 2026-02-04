@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, ChevronRight, Sparkles, X } from 'lucide-react';
 
@@ -42,8 +43,13 @@ interface MemoriesData {
   totalItems: number;
 }
 
+const fetchMemories = async (): Promise<MemoriesData> => {
+  const res = await fetch('/api/items/memories');
+  if (!res.ok) throw new Error('Failed to fetch memories');
+  return res.json();
+};
+
 export default function MemoriesSection() {
-  const [data, setData] = useState<MemoriesData | null>(null);
   // 遅延初期化: localStorageからdismissed状態を取得
   const [isDismissed, setIsDismissed] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -51,31 +57,14 @@ export default function MemoriesSection() {
     }
     return false;
   });
-  const [isLoading, setIsLoading] = useState(() => {
-    // dismissed状態ならローディング不要
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('memoriesSectionDismissed') !== 'true';
-    }
-    return true;
-  });
   const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    // 非表示の場合はスキップ
-    if (isDismissed) return;
-
-    // データ取得
-    fetch('/api/items/memories')
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch memories:', err);
-        setIsLoading(false);
-      });
-  }, []);
+  // TanStack Queryでデータ取得
+  const { data, isLoading } = useQuery({
+    queryKey: ['memories'],
+    queryFn: fetchMemories,
+    enabled: !isDismissed, // 非表示の場合はクエリをスキップ
+  });
 
   const handleDismiss = () => {
     localStorage.setItem('memoriesSectionDismissed', 'true');
