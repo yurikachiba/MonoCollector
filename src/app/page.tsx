@@ -3,12 +3,32 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Cloud, Smartphone, Search, Shield, Baby, Trash2, Heart } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
 import { motion } from 'framer-motion';
 
+interface ShowcaseIcon {
+  id: string;
+  icon: string;
+  style: string | null;
+  colors: string[];
+}
+
 export default function LandingPage() {
   const { data: session } = useSession();
+  const [showcaseIcons, setShowcaseIcons] = useState<ShowcaseIcon[]>([]);
+
+  useEffect(() => {
+    fetch('/api/showcase')
+      .then(res => res.json())
+      .then(data => {
+        if (data.icons && data.icons.length > 0) {
+          setShowcaseIcons(data.icons);
+        }
+      })
+      .catch(err => console.error('Failed to fetch showcase icons:', err));
+  }, []);
 
   const features = [
     {
@@ -166,32 +186,40 @@ export default function LandingPage() {
         >
           <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-zinc-200 dark:border-zinc-800 bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50 dark:from-purple-900/30 dark:via-pink-900/20 dark:to-orange-900/20 p-8 md:p-12">
             <div className="grid grid-cols-4 md:grid-cols-6 gap-4 md:gap-6">
-              {[...Array(12)].map((_, i) => (
+              {(showcaseIcons.length > 0 ? showcaseIcons : [...Array(12)]).map((item, i) => (
                 <motion.div
-                  key={i}
+                  key={showcaseIcons.length > 0 ? (item as ShowcaseIcon).id : i}
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 0.5 + i * 0.05 }}
-                  className="aspect-square rounded-2xl bg-white dark:bg-zinc-800 shadow-lg flex items-center justify-center"
+                  className="aspect-square rounded-2xl bg-white dark:bg-zinc-800 shadow-lg flex items-center justify-center overflow-hidden"
                 >
-                  <div
-                    className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${
-                      [
-                        'bg-gradient-to-br from-red-400 to-pink-500',
-                        'bg-gradient-to-br from-blue-400 to-cyan-500',
-                        'bg-gradient-to-br from-green-400 to-emerald-500',
-                        'bg-gradient-to-br from-yellow-400 to-orange-500',
-                        'bg-gradient-to-br from-purple-400 to-violet-500',
-                        'bg-gradient-to-br from-pink-400 to-rose-500',
-                        'bg-gradient-to-br from-indigo-400 to-blue-500',
-                        'bg-gradient-to-br from-teal-400 to-green-500',
-                        'bg-gradient-to-br from-amber-400 to-yellow-500',
-                        'bg-gradient-to-br from-fuchsia-400 to-purple-500',
-                        'bg-gradient-to-br from-cyan-400 to-teal-500',
-                        'bg-gradient-to-br from-rose-400 to-red-500',
-                      ][i]
-                    }`}
-                  />
+                  {showcaseIcons.length > 0 && (item as ShowcaseIcon).icon ? (
+                    <img
+                      src={(item as ShowcaseIcon).icon}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className={`w-12 h-12 md:w-16 md:h-16 rounded-xl ${
+                        [
+                          'bg-gradient-to-br from-red-400 to-pink-500',
+                          'bg-gradient-to-br from-blue-400 to-cyan-500',
+                          'bg-gradient-to-br from-green-400 to-emerald-500',
+                          'bg-gradient-to-br from-yellow-400 to-orange-500',
+                          'bg-gradient-to-br from-purple-400 to-violet-500',
+                          'bg-gradient-to-br from-pink-400 to-rose-500',
+                          'bg-gradient-to-br from-indigo-400 to-blue-500',
+                          'bg-gradient-to-br from-teal-400 to-green-500',
+                          'bg-gradient-to-br from-amber-400 to-yellow-500',
+                          'bg-gradient-to-br from-fuchsia-400 to-purple-500',
+                          'bg-gradient-to-br from-cyan-400 to-teal-500',
+                          'bg-gradient-to-br from-rose-400 to-red-500',
+                        ][i % 12]
+                      }`}
+                    />
+                  )}
                 </motion.div>
               ))}
             </div>
