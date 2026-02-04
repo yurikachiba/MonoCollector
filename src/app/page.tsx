@@ -128,7 +128,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-lg md:text-xl font-medium text-zinc-700 dark:text-zinc-300 mb-6 max-w-2xl mx-auto">
-            子どもの制作物も、思い入れのあるモノも。
+            子どもの"初めての絵"も。もらった手紙も。捨てられないまま押入れに眠っているモノも。
           </p>
 
           <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400 mb-3 max-w-2xl mx-auto">
@@ -156,7 +156,7 @@ export default function LandingPage() {
             </a>
           </div>
           <p className="mt-4 text-xs text-zinc-500 dark:text-zinc-400">
-            あとで「残しておけばよかった」と思う前に。
+            モノは色褪せる。記憶も薄れる。だから、今。
           </p>
           <p className="mt-3 text-sm text-purple-600 dark:text-purple-400 font-medium">
             登録なし・1分で試せます
@@ -407,7 +407,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-2 text-violet-700 dark:text-violet-300">
                   <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
-                  実績・バッジで達成感を味わう
+                  集めるたびに、あなたの物語が1ページ増える
                 </div>
               </div>
             </motion.div>
