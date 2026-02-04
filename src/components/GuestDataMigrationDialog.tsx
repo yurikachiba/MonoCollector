@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { X, ArrowRight, Package, AlertCircle, Check } from 'lucide-react';
 import { useGuestInfo, useGuestMigration } from '@/hooks/useGuestMigration';
@@ -15,7 +15,6 @@ export default function GuestDataMigrationDialog() {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [hasCheckedOnce, setHasCheckedOnce] = useState(false);
-  const hasShownDialogRef = useRef(false);
 
   // ゲストIDを計算（セッション情報に基づいて）
   const guestId = useMemo(() => {
@@ -40,22 +39,21 @@ export default function GuestDataMigrationDialog() {
   // TanStack Queryでゲスト情報を取得
   const { data: guestInfo, isLoading } = useGuestInfo(guestId, !!guestId);
 
-  // ゲスト情報取得後にダイアログを表示（レンダー内で判定）
-  if (!isLoading && guestInfo && !hasCheckedOnce && !hasShownDialogRef.current) {
+  // ゲスト情報取得後にダイアログを表示
+  useEffect(() => {
+    if (hasCheckedOnce) return;
+    if (isLoading) return;
+    if (!guestInfo) return;
+
     if (guestInfo.exists && guestInfo.itemCount && guestInfo.itemCount > 0) {
-      // 次のレンダーでダイアログを表示
-      setTimeout(() => {
-        setIsOpen(true);
-        setHasCheckedOnce(true);
-        hasShownDialogRef.current = true;
-      }, 0);
+      setIsOpen(true);
     } else {
       // ゲストIDが無効またはアイテムが0個の場合はlocalStorageから削除
       console.log('[GuestMigration] Guest not found or has no items, removing from localStorage');
       localStorage.removeItem('guestUserId');
-      setHasCheckedOnce(true);
     }
-  }
+    setHasCheckedOnce(true);
+  }, [guestInfo, isLoading, hasCheckedOnce]);
 
   // TanStack Queryでマイグレーション実行
   const migrationMutation = useGuestMigration();
