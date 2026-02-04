@@ -5,6 +5,7 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import { useState, useEffect, ReactNode } from 'react';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import BadgePopup from '@/components/BadgePopup';
+import ReviewPrompt from '@/components/ReviewPrompt';
 
 interface ProvidersProps {
   children: ReactNode;
@@ -45,6 +46,7 @@ export default function Providers({ children }: ProvidersProps) {
           <NotificationProvider>
             {children}
             <BadgePopup />
+            <ReviewPrompt />
           </NotificationProvider>
         </QueryClientProvider>
       </GuestSessionPersister>
