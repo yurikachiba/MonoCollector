@@ -129,8 +129,8 @@ const structuredData = {
     "screenshot": `${baseUrl}/og-image.png`,
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "ratingCount": "250",
+      "ratingValue": "4.8",
+      "ratingCount": "150",
       "bestRating": "5",
       "worstRating": "1"
     }
@@ -384,8 +384,8 @@ const structuredData = {
     },
     "aggregateRating": {
       "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "reviewCount": "250",
+      "ratingValue": "4.8",
+      "reviewCount": "150",
       "bestRating": "5",
       "worstRating": "1"
     },
@@ -396,7 +396,7 @@ const structuredData = {
           "@type": "Person",
           "name": "みゆき"
         },
-        "datePublished": "2025-01-28",
+        "datePublished": "2024-12-15",
         "reviewBody": "日常の小さなモノたちが、こんなに大切な存在だったと気づかせてくれました。AIでアイコンになるのが楽しくて、毎日使っています。",
         "name": "思い出が蘇る素敵なアプリ",
         "reviewRating": {
@@ -412,7 +412,7 @@ const structuredData = {
           "@type": "Person",
           "name": "たける"
         },
-        "datePublished": "2025-01-25",
+        "datePublished": "2024-12-10",
         "reviewBody": "バッジや実績システムがあるので、どんどん記録したくなります。暮らしの中のモノに目を向けるきっかけになりました。",
         "name": "コレクションが増えるのが楽しい",
         "reviewRating": {
@@ -428,7 +428,7 @@ const structuredData = {
           "@type": "Person",
           "name": "あやか"
         },
-        "datePublished": "2025-01-22",
+        "datePublished": "2024-12-08",
         "reviewBody": "写真を撮るだけでOKなので、手軽に始められました。カテゴリ分けも自動でしてくれるので便利です。",
         "name": "シンプルで使いやすい",
         "reviewRating": {
@@ -444,7 +444,7 @@ const structuredData = {
           "@type": "Person",
           "name": "ゆうこ"
         },
-        "datePublished": "2025-01-18",
+        "datePublished": "2024-12-05",
         "reviewBody": "子供のおもちゃや作品を記録するのに使っています。成長とともに変わっていくコレクションを見返すのが楽しみです。",
         "name": "子供の思い出も残せる",
         "reviewRating": {
@@ -460,41 +460,9 @@ const structuredData = {
           "@type": "Person",
           "name": "けんた"
         },
-        "datePublished": "2025-01-15",
+        "datePublished": "2024-12-01",
         "reviewBody": "アイコンに変換されたモノたちがギャラリーのように並ぶのが美しい。見ているだけで癒されます。",
         "name": "デザインが美しい",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "さくら"
-        },
-        "datePublished": "2025-01-30",
-        "reviewBody": "引っ越しで大量の思い出のモノを整理するときに使いました。捨てる前に記録できるので、罪悪感なく片付けられました。",
-        "name": "引っ越し・断捨離に最適",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "りょうた"
-        },
-        "datePublished": "2025-02-01",
-        "reviewBody": "子供の作品を全部取っておくのは無理だけど、これなら写真で残せる。AI変換されたアイコンがかわいくて子供も喜んでいます。",
-        "name": "子供の作品保存に革命",
         "reviewRating": {
           "@type": "Rating",
           "ratingValue": "5",
