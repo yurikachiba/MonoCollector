@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Zap } from 'lucide-react';
+import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Zap, Cloud, Smartphone, Search, Shield } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
 import { motion } from 'framer-motion';
 
@@ -279,6 +279,72 @@ export default function LandingPage() {
 
       {/* Reviews Section */}
       <ReviewSection />
+
+      {/* Practical Benefits Section */}
+      <section className="py-20 px-4 bg-zinc-50 dark:bg-zinc-900/30">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+              未来のあなたを、助ける
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-lg">
+              「あれどこだっけ？」がなくなる
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              {
+                icon: Cloud,
+                title: 'データは永久保存',
+                description: 'クラウドに安全に保存。大切なデータが消える心配はありません。',
+              },
+              {
+                icon: Smartphone,
+                title: '機種変更しても安心',
+                description: 'ログインするだけで、すべてのデータがそのまま復元されます。',
+              },
+              {
+                icon: Search,
+                title: 'すぐに見つかる',
+                description: '「あの服どこにしまったっけ？」もう迷いません。検索ですぐ見つかる。',
+              },
+              {
+                icon: Shield,
+                title: 'プライバシーも安心',
+                description: 'あなたのデータはあなただけのもの。第三者に共有されることはありません。',
+              },
+            ].map((benefit, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="flex items-start gap-4 p-6 rounded-2xl bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700"
+              >
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0">
+                  <benefit.icon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-1">
+                    {benefit.title}
+                  </h3>
+                  <p className="text-zinc-600 dark:text-zinc-400 text-sm">
+                    {benefit.description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-20 px-4">
