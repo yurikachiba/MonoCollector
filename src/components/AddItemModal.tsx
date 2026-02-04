@@ -349,6 +349,35 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                   className="hidden"
                 />
 
+                {/* 既存のオリジナルアイコン表示 - 編集時 */}
+                {editItem?.generatedIcon && (
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="w-4 h-4 text-purple-500" />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        オリジナルアイコン
+                      </span>
+                      {editItem.iconStyle && (
+                        <span className="text-xs px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">
+                          {editItem.iconStyle}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex justify-center">
+                      <div className="w-24 h-24 rounded-xl overflow-hidden ring-2 ring-purple-200 dark:ring-purple-800 shadow-lg">
+                        <NextImage
+                          src={editItem.generatedIcon}
+                          alt="Generated Icon"
+                          width={96}
+                          height={96}
+                          className="w-full h-full object-cover"
+                          unoptimized
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* AI Icon Generator - AIでかわいいオリジナルアイコン生成 */}
                 {image && typeof image === 'string' && image.startsWith('data:') && !editItem && (
                   <div className="space-y-3">
