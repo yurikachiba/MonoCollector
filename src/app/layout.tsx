@@ -15,7 +15,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "モノコレクター | 捨てられない思い出を、ちゃんと残す。無料の思い出整理アプリ",
-  description: "【完全無料】子どもの制作物・作品を撮影するだけでAIがかわいいアイコンに自動変換。捨てる前に記録して思い出をデジタル保存。断捨離・引っ越し整理にも最適。機種変更してもデータは永久保存。150件以上のレビューで平均4.8点の高評価アプリ。",
+  description: "【完全無料】子どもの制作物・作品を撮影するだけでAIがかわいいアイコンに自動変換。捨てる前に記録して思い出をデジタル保存。断捨離・引っ越し整理にも最適。機種変更してもデータは永久保存。",
   keywords: [
     "モノコレクター",
     "思い出整理アプリ",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     url: "/",
     title: "モノコレクター | 捨てられない思い出を、ちゃんと残す。無料アプリ",
-    description: "【完全無料】子どもの制作物・作品を撮影→AIがかわいいアイコンに自動変換。捨てる前に記録して思い出をデジタル保存。断捨離・引っ越し整理に最適。平均評価4.8点。",
+    description: "【完全無料】子どもの制作物・作品を撮影→AIがかわいいアイコンに自動変換。捨てる前に記録して思い出をデジタル保存。断捨離・引っ越し整理に最適。",
     siteName: "モノコレクター",
     images: [
       {
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "モノコレクター | 捨てられない思い出を、ちゃんと残す。",
-    description: "【完全無料】子どもの制作物を撮影→AIがアイコンに自動変換。断捨離・引っ越し整理に最適。平均評価4.8点の高評価アプリ。",
+    description: "【完全無料】子どもの制作物を撮影→AIがアイコンに自動変換。断捨離・引っ越し整理に最適。",
     images: ["/og-image.png"],
   },
   robots: {
@@ -107,7 +107,7 @@ const structuredData = {
     "@id": `${baseUrl}/#webapp`,
     "name": "モノコレクター",
     "alternateName": ["MonoCollector", "モノコレ", "思い出整理アプリ"],
-    "description": "【完全無料】捨てられない思い出をちゃんと残す。子どもの制作物・作品を撮影するだけで、生成AIがかわいいアイコンに自動変換。断捨離・引っ越し整理・終活にも最適。150件以上のレビューで平均4.8点の高評価アプリ。",
+    "description": "【完全無料】捨てられない思い出をちゃんと残す。子どもの制作物・作品を撮影するだけで、生成AIがかわいいアイコンに自動変換。断捨離・引っ越し整理・終活にも最適。",
     "url": baseUrl,
     "applicationCategory": "LifestyleApplication",
     "applicationSubCategory": "思い出整理・デジタルアーカイブ",
@@ -124,13 +124,6 @@ const structuredData = {
       "priceCurrency": "JPY",
       "availability": "https://schema.org/InStock",
       "priceValidUntil": "2027-12-31"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
     },
     "featureList": [
       "子どもの制作物・作品を写真で保存",
@@ -214,7 +207,7 @@ const structuredData = {
         "name": "モノコレクターとは何ですか？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "モノコレクターは、捨てられない思い出をデジタルで残すための完全無料アプリです。子どもの制作物や思い出のモノを写真に撮ると、生成AIがかわいいアイコンに自動変換。かさばる制作物も「捨てる前に記録する」という新しい選択ができます。150件以上のレビューで平均4.8点の高評価を獲得しています。"
+          "text": "モノコレクターは、捨てられない思い出をデジタルで残すための完全無料アプリです。子どもの制作物や思い出のモノを写真に撮ると、生成AIがかわいいアイコンに自動変換。かさばる制作物も「捨てる前に記録する」という新しい選択ができます。"
         }
       },
       {
@@ -259,10 +252,10 @@ const structuredData = {
       },
       {
         "@type": "Question",
-        "name": "モノコレクターの評価・口コミ・レビューはどうですか？",
+        "name": "モノコレクターはどんな人に向いていますか？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "モノコレクターは150件以上のレビューで平均4.8点（5点満点）の高評価を獲得しています。「思い出が蘇る素敵なアプリ」「コレクションが増えるのが楽しい」「断捨離の罪悪感がなくなった」「シンプルで使いやすい」といった声が寄せられています。特に子育て中のママ・パパから高い支持を得ています。"
+          "text": "モノコレクターは、子どもの制作物を残したい保護者の方、断捨離や引っ越しで思い出整理をしたい方、終活で大切なモノを記録したい方、ミニマリストを目指しているけれど思い出は残したい方などに最適です。「捨てるのが辛い」「罪悪感がある」という気持ちを軽くしてくれるアプリです。"
         }
       },
       {
@@ -416,13 +409,6 @@ const structuredData = {
       "priceCurrency": "JPY",
       "availability": "https://schema.org/InStock"
     },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
     "author": {
       "@type": "Organization",
       "name": "MonoCollector"
@@ -512,42 +498,7 @@ const structuredData = {
       "priceCurrency": "JPY",
       "availability": "https://schema.org/InStock",
       "priceValidUntil": "2027-12-31"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "150",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "review": [
-      {
-        "@type": "Review",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "子育てママ"
-        },
-        "reviewBody": "子どもの作品を全部取っておけないので、このアプリで記録してから断捨離しています。罪悪感がなくなりました！"
-      },
-      {
-        "@type": "Review",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5"
-        },
-        "author": {
-          "@type": "Person",
-          "name": "ミニマリスト"
-        },
-        "reviewBody": "引っ越しの際の思い出整理に最適。捨てる前に記録するという発想が素晴らしい。"
-      }
-    ]
+    }
   }
 };
 
