@@ -42,21 +42,23 @@ interface MemoriesData {
   totalItems: number;
 }
 
+// localStorageから永久非表示状態を取得
+function getInitialDismissedState(): boolean {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('memoriesSectionDismissed') === 'true';
+}
+
 export default function MemoriesSection() {
   const [data, setData] = useState<MemoriesData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDismissed, setIsDismissed] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(getInitialDismissedState);
   const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
-    // 永久非表示チェック
-    if (typeof window !== 'undefined') {
-      const dismissed = localStorage.getItem('memoriesSectionDismissed') === 'true';
-      if (dismissed) {
-        setIsDismissed(true);
-        setIsLoading(false);
-        return;
-      }
+    // 永久非表示の場合はデータ取得をスキップ
+    if (isDismissed) {
+      setIsLoading(false);
+      return;
     }
 
     // データ取得
@@ -70,7 +72,7 @@ export default function MemoriesSection() {
         console.error('Failed to fetch memories:', err);
         setIsLoading(false);
       });
-  }, []);
+  }, [isDismissed]);
 
   const handleDismiss = () => {
     localStorage.setItem('memoriesSectionDismissed', 'true');
