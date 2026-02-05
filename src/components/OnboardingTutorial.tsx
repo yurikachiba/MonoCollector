@@ -260,16 +260,13 @@ export default function OnboardingTutorial() {
 // 初回ユーザー向けヒントバナー（AddItemModal内で使用）
 const FIRST_TIME_HINTS_KEY = 'firstTimeHintsShown';
 
-export function FirstTimeHintBanner() {
-  const [isVisible, setIsVisible] = useState(false);
+function getFirstTimeHintsShown(): boolean {
+  if (typeof window === 'undefined') return true;
+  return localStorage.getItem(FIRST_TIME_HINTS_KEY) === 'true';
+}
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const shown = localStorage.getItem(FIRST_TIME_HINTS_KEY) === 'true';
-    if (!shown) {
-      setIsVisible(true);
-    }
-  }, []);
+export function FirstTimeHintBanner() {
+  const [isVisible, setIsVisible] = useState(() => !getFirstTimeHintsShown());
 
   const handleDismiss = () => {
     setIsVisible(false);
