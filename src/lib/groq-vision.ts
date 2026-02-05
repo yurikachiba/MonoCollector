@@ -121,7 +121,7 @@ export async function suggestTags(
       return [];
     }
 
-    let jsonStr = jsonMatch[0]
+    const jsonStr = jsonMatch[0]
       .replace(/[\x00-\x1F\x7F]/g, '')
       .replace(/,\s*}/g, '}')
       .replace(/,\s*]/g, ']');
