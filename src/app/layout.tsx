@@ -506,6 +506,7 @@ const structuredData = {
       "availability": "https://schema.org/InStock",
       "priceValidUntil": "2027-12-31"
     }
+    // review と aggregateRating は実際のレビューが集まってから追加する
   }
 };
 
