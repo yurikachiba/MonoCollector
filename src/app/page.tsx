@@ -39,7 +39,7 @@ export default function LandingPage() {
     {
       icon: Palette,
       title: 'アイコンに変身',
-      description: 'AIがあなたのモノを可愛いアイコンに。暮らしがアートに変わります。',
+      description: 'あなたのモノを可愛いアイコンに。暮らしがアートに変わります。',
     },
     {
       icon: Infinity,
@@ -95,7 +95,7 @@ export default function LandingPage() {
             href={session ? '/collection' : '/login'}
             className="flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-full font-medium text-sm hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
           >
-            {session ? 'コレクションへ' : 'はじめる'}
+            {session ? '思い出を残しにいく' : 'はじめる'}
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -132,7 +132,7 @@ export default function LandingPage() {
           </p>
 
           <p className="text-base md:text-lg text-zinc-600 dark:text-zinc-400 mb-3 max-w-2xl mx-auto">
-            写真1枚で、AIが懐かしいアイコンに変換。
+            写真1枚で、懐かしいアイコンに。
             <br className="hidden md:block" />
             <span className="text-sm text-zinc-500 dark:text-zinc-500">手描き風・やさしい色合いのアイコンにして保存できます。</span>
           </p>
@@ -146,7 +146,7 @@ export default function LandingPage() {
               className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 hover:scale-105 transition-all"
             >
               <Sparkles className="w-5 h-5" />
-              {session ? 'コレクションへ' : '最初の思い出を残す'}
+              {session ? '思い出を残しにいく' : '最初の思い出を残す'}
             </Link>
             <a
               href="#features"
@@ -403,7 +403,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-2 text-violet-700 dark:text-violet-300">
                   <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
-                  AIがアイコンに変換して美しく
+                  アイコンに変換して美しく整理
                 </div>
                 <div className="flex items-center gap-2 text-violet-700 dark:text-violet-300">
                   <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
@@ -442,8 +442,8 @@ export default function LandingPage() {
               },
               {
                 step: '2',
-                title: 'AIが認識・変換',
-                description: 'AIが自動でアイコンに変換',
+                title: '自動でアイコンに',
+                description: '撮った写真が、かわいいアイコンに変わる',
               },
               {
                 step: '3',
@@ -588,7 +588,7 @@ export default function LandingPage() {
             className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-purple-600 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
           >
             <Sparkles className="w-5 h-5" />
-            {session ? 'コレクションへ' : '最初の思い出を残す'}
+            {session ? '思い出を残しにいく' : '最初の思い出を残す'}
           </Link>
         </motion.div>
       </section>
