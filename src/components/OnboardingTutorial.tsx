@@ -118,6 +118,7 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
       partialize: (state) => ({
         hasCompleted: state.hasCompleted,
         hasShownHints: state.hasShownHints,
+        waitingForRegistration: state.waitingForRegistration,
       }),
     }
   )
@@ -129,14 +130,15 @@ export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
 
 /** オンボーディングの自動開始（初回訪問時） */
 export function useOnboardingAutoStart() {
-  const { isActive, hasCompleted, start } = useOnboardingStore();
+  const { isActive, hasCompleted, waitingForRegistration, start } = useOnboardingStore();
 
   useEffect(() => {
-    if (hasCompleted || isActive) return;
+    // 完了済み、アクティブ中、または登録待ち状態の場合は開始しない
+    if (hasCompleted || isActive || waitingForRegistration) return;
 
     const timer = setTimeout(start, 1000);
     return () => clearTimeout(timer);
-  }, [hasCompleted, isActive, start]);
+  }, [hasCompleted, isActive, waitingForRegistration, start]);
 }
 
 /** 現在のステップ情報を取得 */
