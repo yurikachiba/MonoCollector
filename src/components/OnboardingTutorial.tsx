@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera, Sparkles, ArrowRight, Key, PartyPopper, ExternalLink } from 'lucide-react';
+import { useItems } from '@/hooks/useItems';
 
 // ============================================
 // 型定義
@@ -449,8 +450,10 @@ export default function OnboardingTutorial() {
 /** 初回ユーザー向けヒントバナー */
 export function FirstTimeHintBanner() {
   const { hasShownHints, dismissHints } = useOnboardingStore();
+  const { data: items = [] } = useItems();
 
-  if (hasShownHints) return null;
+  // 既にアイテムを持っているユーザーには表示しない
+  if (hasShownHints || items.length > 0) return null;
 
   return (
     <motion.div
