@@ -17,11 +17,18 @@ import NotificationChecker from '@/components/NotificationChecker';
 import FirstItemCelebration from '@/components/FirstItemCelebration';
 import MilestoneCelebration from '@/components/MilestoneCelebration';
 import MemoriesSection from '@/components/MemoriesSection';
+import OnboardingTutorial, {
+  useOnboardingStore,
+  useCurrentStep,
+} from '@/components/OnboardingTutorial';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
+
+  const { isActive, nextStep } = useOnboardingStore();
+  const currentStep = useCurrentStep();
 
   const handleEdit = (item: Item) => {
     setEditItem(item);
@@ -31,6 +38,14 @@ export default function CollectionPage() {
   const handleCloseAddModal = () => {
     setIsAddModalOpen(false);
     setEditItem(null);
+  };
+
+  // FABクリック時の処理（オンボーディング対応）
+  const handleFabClick = () => {
+    if (isActive && currentStep?.id === 'fab') {
+      nextStep();
+    }
+    setIsAddModalOpen(true);
   };
 
   return (
@@ -43,7 +58,7 @@ export default function CollectionPage() {
       <CategoryBar />
       <ItemGrid onEdit={handleEdit} />
 
-      <FloatingActionButton onClick={() => setIsAddModalOpen(true)} />
+      <FloatingActionButton onClick={handleFabClick} />
 
       <AddItemModal
         isOpen={isAddModalOpen}
@@ -63,6 +78,7 @@ export default function CollectionPage() {
       <NotificationChecker />
       <FirstItemCelebration onAddAnother={() => setIsAddModalOpen(true)} />
       <MilestoneCelebration onAddAnother={() => setIsAddModalOpen(true)} />
+      <OnboardingTutorial />
     </main>
   );
 }
