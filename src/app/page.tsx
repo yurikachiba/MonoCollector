@@ -817,14 +817,14 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4">運営者情報</h4>
               <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                <li>運営者：個人開発</li>
+                <li>運営者：豆腐小僧</li>
                 <li>
                   お問い合わせ：
                   <a
-                    href="mailto:support@monocollector.com"
+                    href="mailto:monocollector.tofu@gmail.com"
                     className="text-purple-600 dark:text-purple-400 hover:underline"
                   >
-                    support@monocollector.com
+                    monocollector.tofu@gmail.com
                   </a>
                 </li>
               </ul>
