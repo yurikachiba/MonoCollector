@@ -55,6 +55,85 @@ ${CATEGORY_LIST}
 - 数量が複数見える場合は推定してquantityに反映
 - 画像が不鮮明な場合でも最善の推測を行う`;
 
+// テキスト情報からタグを推測するためのプロンプト
+const TAG_SUGGESTION_PROMPT = `あなたは家庭用品のタグ付けエキスパートです。
+アイテムの情報を元に、整理や後から見返すのに役立つタグを5つ提案してください。
+
+タグの考え方:
+- アイテムの特徴（素材、色、サイズなど）
+- 用途やシーン（日常使い、特別な日、季節など）
+- 感情的な価値（思い出、大切、お気に入りなど）
+- 時期や年齢（2024年、○歳の時など）
+
+必ず以下のJSON形式で返してください（他のテキストは含めないでください）:
+{
+  "tags": ["タグ1", "タグ2", "タグ3", "タグ4", "タグ5"]
+}`;
+
+export interface TagSuggestionInput {
+  name: string;
+  category: string;
+  location?: string;
+}
+
+export async function suggestTags(
+  input: TagSuggestionInput,
+  apiKey: string
+): Promise<string[]> {
+  const groq = new Groq({
+    apiKey,
+    dangerouslyAllowBrowser: true,
+  });
+
+  const { name, category, location } = input;
+  const userMessage = `アイテム情報:
+- 名前: ${name}
+- カテゴリ: ${category}
+- 保管場所: ${location || '未設定'}
+
+このアイテムに適したタグを5つ提案してください。`;
+
+  try {
+    const response = await groq.chat.completions.create({
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      messages: [
+        {
+          role: 'system',
+          content: TAG_SUGGESTION_PROMPT,
+        },
+        {
+          role: 'user',
+          content: userMessage,
+        },
+      ],
+      max_tokens: 256,
+      temperature: 0.7,
+    });
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      return [];
+    }
+
+    // JSONをパース
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return [];
+    }
+
+    let jsonStr = jsonMatch[0]
+      .replace(/[\x00-\x1F\x7F]/g, '')
+      .replace(/,\s*}/g, '}')
+      .replace(/,\s*]/g, ']');
+
+    const parsed = JSON.parse(jsonStr);
+    return Array.isArray(parsed.tags) ? parsed.tags.slice(0, 5) : [];
+  } catch (error) {
+    console.error('Tag suggestion error:', error);
+    return [];
+  }
+}
+
 export async function analyzeImage(imageBase64: string, apiKey: string): Promise<AnalysisResult> {
   const groq = new Groq({
     apiKey,
