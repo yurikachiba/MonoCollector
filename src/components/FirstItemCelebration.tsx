@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Plus, PartyPopper, Boxes } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useItems } from '@/hooks/useItems';
+import { useOnboardingStore } from '@/components/OnboardingTutorial';
 
 const STORAGE_KEY = 'firstItemCelebrationShown';
 
@@ -56,6 +57,7 @@ export default function FirstItemCelebration({
 }: FirstItemCelebrationProps) {
   const { data: items = [], isFetched } = useItems();
   const [isOpen, setIsOpen] = useState(false);
+  const dismissHints = useOnboardingStore((s) => s.dismissHints);
 
   // localStorageから取得した値を元に表示判定
   const alreadyShown = getStorageValue();
@@ -87,6 +89,7 @@ export default function FirstItemCelebration({
   const handleAddAnother = () => {
     setIsOpen(false);
     localStorage.setItem(STORAGE_KEY, 'true');
+    dismissHints(); // 「はじめての登録ですね」バナーを非表示にする
     onAddAnother();
   };
 
