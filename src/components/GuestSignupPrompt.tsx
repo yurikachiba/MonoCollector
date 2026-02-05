@@ -13,6 +13,7 @@ import {
   Check,
 } from 'lucide-react';
 import { useItems } from '@/hooks/useItems';
+import { useOnboardingStore } from './OnboardingTutorial';
 
 const BENEFITS = [
   {
@@ -36,6 +37,9 @@ export default function GuestSignupPrompt() {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
+
+  // オンボーディング中は非表示
+  const { isActive: isOnboarding, waitingForRegistration } = useOnboardingStore();
 
   // TanStack Queryでアイテム取得
   const { data: items = [] } = useItems();
@@ -84,6 +88,11 @@ export default function GuestSignupPrompt() {
       setIsSigningIn(false);
     }
   };
+
+  // オンボーディング中は非表示
+  if (isOnboarding || waitingForRegistration) {
+    return null;
+  }
 
   if (status === 'loading' || !session?.user?.isGuest) {
     return null;
