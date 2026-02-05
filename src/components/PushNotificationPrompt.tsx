@@ -8,6 +8,7 @@ import {
   getNotificationPermission,
 } from '@/lib/notifications';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { useOnboardingStore } from './OnboardingTutorial';
 
 const BENEFITS = [
   {
@@ -32,7 +33,12 @@ export default function PushNotificationPrompt() {
   const [isRequesting, setIsRequesting] = useState(false);
   const { updateSettings, requestPermission } = useNotifications();
 
+  // オンボーディング中は非表示
+  const { isActive: isOnboarding, waitingForRegistration } = useOnboardingStore();
+
   useEffect(() => {
+    // オンボーディング中はスキップ
+    if (isOnboarding || waitingForRegistration) return;
     // 通知がサポートされていない場合はスキップ
     if (!isNotificationSupported()) return;
 
@@ -55,7 +61,7 @@ export default function PushNotificationPrompt() {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isOnboarding, waitingForRegistration]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -86,6 +92,11 @@ export default function PushNotificationPrompt() {
       setIsRequesting(false);
     }
   };
+
+  // オンボーディング中は非表示
+  if (isOnboarding || waitingForRegistration) {
+    return null;
+  }
 
   return (
     <AnimatePresence>
