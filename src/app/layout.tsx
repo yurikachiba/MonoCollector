@@ -488,6 +488,13 @@ const structuredData = {
     "@type": "Product",
     "name": "モノコレクター",
     "description": "捨てられない思い出をデジタルで残す完全無料アプリ。子どもの制作物を撮影すると、生成AIがかわいいアイコンに自動変換。",
+    "image": {
+      "@type": "ImageObject",
+      "url": `${baseUrl}/og-image.png`,
+      "width": 1200,
+      "height": 630,
+      "caption": "モノコレクター - 子どもの作品をデジタル保存"
+    },
     "brand": {
       "@type": "Brand",
       "name": "MonoCollector"
