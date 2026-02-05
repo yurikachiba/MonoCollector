@@ -29,12 +29,19 @@ export default function CollectionPage() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
 
-  const { isActive, nextStep, waitingForRegistration, showCompleteCelebration, hasCompleted } = useOnboardingStore();
+  const { isActive, nextStep, waitingForRegistration, showCompleteCelebration, hasCompleted, complete } = useOnboardingStore();
   const currentStep = useCurrentStep();
 
   // アイテム数を監視してオンボーディング完了を検知
-  const { data: items = [] } = useItems();
+  const { data: items = [], isFetched } = useItems();
   const prevItemCount = useRef(items.length);
+
+  // 既にアイテムがある場合はオンボーディングを自動完了（既存ユーザー対応）
+  useEffect(() => {
+    if (isFetched && items.length > 0 && !hasCompleted) {
+      complete();
+    }
+  }, [isFetched, items.length, hasCompleted, complete]);
 
   useEffect(() => {
     // 登録待ち状態でアイテムが追加された場合、お祝い画面を表示

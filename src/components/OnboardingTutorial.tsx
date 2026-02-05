@@ -157,14 +157,14 @@ function FabHighlight() {
     <>
       {/* 穴あきオーバーレイ - 円の中は透明なまま */}
       <div
-        className="absolute bottom-6 right-6 w-16 h-16 rounded-full z-[101]"
+        className="absolute bottom-6 right-6 w-16 h-16 rounded-full z-[101] pointer-events-none"
         style={{
           boxShadow: '0 0 0 9999px rgba(0,0,0,0.7)',
         }}
       />
       {/* 円の内側を明るく見せるための白い背景 */}
       <div
-        className="absolute bottom-6 right-6 w-16 h-16 rounded-full z-[100] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl"
+        className="absolute bottom-6 right-6 w-16 h-16 rounded-full z-[100] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl pointer-events-none"
       >
         <svg
           className="w-7 h-7 text-white"
