@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Item } from '@/lib/db';
 import { useCategories } from '@/hooks/useCategories';
 import { useAddItem, useUpdateItem } from '@/hooks/useItems';
-import { analyzeImage, getStoredApiKey } from '@/lib/groq-vision';
+import { analyzeImage, getStoredApiKey, suggestTags } from '@/lib/groq-vision';
 import IconGenerator from './IconGenerator';
 import AIIconGenerator from './AIIconGenerator';
 import { FirstTimeHintBanner } from './OnboardingTutorial';
@@ -68,6 +68,8 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSuggestingTags, setIsSuggestingTags] = useState(false);
+  const [hasApiKey, setHasApiKey] = useState(false);
   const [useAutoIcon, setUseAutoIcon] = useState(false);
   const [generatedIcon, setGeneratedIcon] = useState<GeneratedIcon | null>(null);
   const [generatedAIIcon, setGeneratedAIIcon] = useState<AIGeneratedIcon | null>(null);
@@ -101,6 +103,12 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       setEnableAIIcon(true);
     }
   }, [editItem, isOpen]);
+
+  // APIキーの有無を確認
+  useEffect(() => {
+    const apiKey = getStoredApiKey();
+    setHasApiKey(!!apiKey);
+  }, [isOpen]);
 
   const capturePhoto = useCallback(async () => {
     const imageSrc = webcamRef.current?.getScreenshot();
@@ -138,11 +146,58 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       setName(result.name);
       setCategory(result.category);
       setLocation(result.location);
+      // AI解析結果のタグも適用（既存のタグとマージ）
+      if (result.tags && result.tags.length > 0) {
+        setTags(prevTags => {
+          const merged = [...new Set([...prevTags, ...result.tags])];
+          return merged.slice(0, 10); // 最大10個まで
+        });
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : '不明なエラー';
       alert(`解析に失敗しました: ${message}`);
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  // AIでタグを提案
+  const handleAiTagSuggestion = async () => {
+    if (!name.trim()) {
+      alert('タグを提案するには、まず名前を入力してください');
+      return;
+    }
+
+    const apiKey = getStoredApiKey();
+    if (!apiKey) {
+      alert('AI機能を使うにはGroq APIキーが必要です。\n\n右上の設定⚙️から、無料でキーを取得・登録できます。');
+      return;
+    }
+
+    setIsSuggestingTags(true);
+    try {
+      const selectedCategory = categories.find(c => c.id === category);
+      const suggestedTags = await suggestTags(
+        {
+          name: name.trim(),
+          category: selectedCategory?.name || category,
+          location: location || undefined,
+        },
+        apiKey
+      );
+
+      if (suggestedTags.length > 0) {
+        // 既存のタグとマージ（重複を除去）
+        setTags(prevTags => {
+          const merged = [...new Set([...prevTags, ...suggestedTags])];
+          return merged.slice(0, 10); // 最大10個まで
+        });
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '不明なエラー';
+      alert(`タグの提案に失敗しました: ${message}`);
+    } finally {
+      setIsSuggestingTags(false);
     }
   };
 
@@ -527,6 +582,19 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                     )}
                   </div>
 
+                  {/* AIでタグを提案ボタン - APIキーがある場合のみ表示 */}
+                  {hasApiKey && (
+                    <button
+                      type="button"
+                      onClick={handleAiTagSuggestion}
+                      disabled={isSuggestingTags || !name.trim()}
+                      className="w-full py-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:from-purple-600 hover:to-pink-600 transition-all"
+                    >
+                      <Sparkles className={`w-4 h-4 ${isSuggestingTags ? 'animate-spin' : ''}`} />
+                      {isSuggestingTags ? 'タグを生成中...' : 'AIでタグを提案'}
+                    </button>
+                  )}
+
                   {/* Tag chips */}
                   {tags.length > 0 && (
                     <div className="space-y-2">
@@ -554,7 +622,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                   )}
 
                   {/* Quick tag suggestions - より目立つデザイン */}
-                  {tags.length === 0 && (
+                  {tags.length === 0 && !hasApiKey && (
                     <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
                       <p className="text-xs font-medium text-indigo-700 dark:text-indigo-300 mb-2 flex items-center gap-1">
                         <Sparkles className="w-3 h-3" />
