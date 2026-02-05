@@ -59,19 +59,20 @@ function getStorageValue(): boolean {
 }
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
+  // 初回訪問かどうかを初期値として計算（SSR対応）
+  const shouldShowOnboarding = () => !getStorageValue();
   const [isOnboarding, setIsOnboarding] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
-  // 初回訪問の検出
+  // 遅延表示のためのタイマー設定（副作用）
   useEffect(() => {
-    const completed = getStorageValue();
-    if (!completed) {
-      // 少し遅延させて表示（ページ読み込み完了後）
-      const timer = setTimeout(() => {
-        setIsOnboarding(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
+    if (!shouldShowOnboarding()) return;
+
+    // 少し遅延させて表示（ページ読み込み完了後）
+    const timer = setTimeout(() => {
+      setIsOnboarding(true);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const nextStep = () => {
