@@ -505,62 +505,8 @@ const structuredData = {
       "priceCurrency": "JPY",
       "availability": "https://schema.org/InStock",
       "priceValidUntil": "2027-12-31"
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "bestRating": "5",
-      "worstRating": "1",
-      "ratingCount": "124",
-      "reviewCount": "89"
-    },
-    "review": [
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "子育てママ"
-        },
-        "datePublished": "2025-12-15",
-        "reviewBody": "子どもの工作を捨てるのが辛かったのですが、このアプリのおかげで写真で残せるようになりました。AIがかわいいアイコンに変換してくれるので、見返すのも楽しいです。",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "断捨離中の30代"
-        },
-        "datePublished": "2025-11-28",
-        "reviewBody": "引っ越しを機に断捨離を始めましたが、思い出の品が捨てられず困っていました。このアプリで記録してから手放すと、罪悪感がなくなりました。完全無料なのも嬉しいです。",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "5",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      },
-      {
-        "@type": "Review",
-        "author": {
-          "@type": "Person",
-          "name": "ミニマリスト志望"
-        },
-        "datePublished": "2025-10-20",
-        "reviewBody": "モノは減らしたいけど思い出は残したい。そんな願いを叶えてくれるアプリです。アイコン変換機能が特に気に入っています。",
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": "4",
-          "bestRating": "5",
-          "worstRating": "1"
-        }
-      }
-    ]
+    }
+    // review と aggregateRating は実際のレビューが集まってから追加する
   }
 };
 
