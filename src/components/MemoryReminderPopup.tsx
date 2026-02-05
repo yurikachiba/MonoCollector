@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, Sparkles, ChevronRight } from 'lucide-react';
 import { useMemories, type Memory } from '@/hooks/useMemories';
+import { useOnboardingStore } from './OnboardingTutorial';
 
 // 表示条件をチェック
 function shouldShowReminder(): boolean {
@@ -25,6 +26,9 @@ function shouldShowReminder(): boolean {
 }
 
 export default function MemoryReminderPopup() {
+  // オンボーディング中は非表示
+  const { isActive: isOnboarding, waitingForRegistration } = useOnboardingStore();
+
   // 初期状態で表示条件をチェック
   const shouldFetch = useMemo(() => shouldShowReminder(), []);
 
@@ -67,6 +71,11 @@ export default function MemoryReminderPopup() {
   };
 
   const currentMemory = displayMemory || selectedMemory;
+
+  // オンボーディング中は非表示
+  if (isOnboarding || waitingForRegistration) {
+    return null;
+  }
 
   if (!data || !currentMemory) {
     return null;

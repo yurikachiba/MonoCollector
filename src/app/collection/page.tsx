@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Item } from '@/lib/db';
 import Header from '@/components/Header';
 import CategoryBar from '@/components/CategoryBar';
@@ -20,15 +20,29 @@ import MemoriesSection from '@/components/MemoriesSection';
 import OnboardingTutorial, {
   useOnboardingStore,
   useCurrentStep,
+  OnboardingCelebration,
 } from '@/components/OnboardingTutorial';
+import { useItems } from '@/hooks/useItems';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
 
-  const { isActive, nextStep } = useOnboardingStore();
+  const { isActive, nextStep, waitingForRegistration, showCompleteCelebration, hasCompleted } = useOnboardingStore();
   const currentStep = useCurrentStep();
+
+  // アイテム数を監視してオンボーディング完了を検知
+  const { data: items = [] } = useItems();
+  const prevItemCount = useRef(items.length);
+
+  useEffect(() => {
+    // 登録待ち状態でアイテムが追加された場合、お祝い画面を表示
+    if (waitingForRegistration && items.length > prevItemCount.current) {
+      showCompleteCelebration();
+    }
+    prevItemCount.current = items.length;
+  }, [items.length, waitingForRegistration, showCompleteCelebration]);
 
   const handleEdit = (item: Item) => {
     setEditItem(item);
@@ -76,9 +90,11 @@ export default function CollectionPage() {
       <GuestSignupPrompt />
       <PushNotificationPrompt />
       <NotificationChecker />
-      <FirstItemCelebration onAddAnother={() => setIsAddModalOpen(true)} />
+      {/* オンボーディング完了後のみFirstItemCelebrationを表示 */}
+      {hasCompleted && <FirstItemCelebration onAddAnother={() => setIsAddModalOpen(true)} />}
       <MilestoneCelebration onAddAnother={() => setIsAddModalOpen(true)} />
       <OnboardingTutorial />
+      <OnboardingCelebration />
     </main>
   );
 }
