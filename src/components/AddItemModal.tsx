@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import NextImage from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Camera, Upload, Wand2, ChevronDown, Sparkles, Tag, Plus } from 'lucide-react';
+import { X, Camera, Upload, Wand2, ChevronDown, Sparkles, Tag, Plus, Check, XCircle } from 'lucide-react';
 import Webcam from 'react-webcam';
 import { v4 as uuidv4 } from 'uuid';
 import { Item } from '@/lib/db';
@@ -69,6 +69,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
   const [tagInput, setTagInput] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSuggestingTags, setIsSuggestingTags] = useState(false);
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [useAutoIcon, setUseAutoIcon] = useState(false);
   const [generatedIcon, setGeneratedIcon] = useState<GeneratedIcon | null>(null);
@@ -96,6 +97,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
       // デフォルトでタグを自動選択（承認型UI - ユーザーは外すだけ）
       setTags(['思い出', '大切なもの']);
       setTagInput('');
+      setSuggestedTags([]);
       setMode('form');
       setUseAutoIcon(false);
       setGeneratedIcon(null);
@@ -177,7 +179,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
     setIsSuggestingTags(true);
     try {
       const selectedCategory = categories.find(c => c.id === category);
-      const suggestedTags = await suggestTags(
+      const newSuggestedTags = await suggestTags(
         {
           name: name.trim(),
           category: selectedCategory?.name || category,
@@ -186,12 +188,12 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
         apiKey
       );
 
-      if (suggestedTags.length > 0) {
-        // 既存のタグとマージ（重複を除去）
-        setTags(prevTags => {
-          const merged = [...new Set([...prevTags, ...suggestedTags])];
-          return merged.slice(0, 10); // 最大10個まで
-        });
+      if (newSuggestedTags.length > 0) {
+        // 既存のタグを除外して提案タグをセット
+        const filteredSuggestions = newSuggestedTags.filter(
+          tag => !tags.includes(tag)
+        );
+        setSuggestedTags(filteredSuggestions);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : '不明なエラー';
@@ -199,6 +201,32 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
     } finally {
       setIsSuggestingTags(false);
     }
+  };
+
+  // 提案タグを選択して追加
+  const handleSelectSuggestedTag = (tag: string) => {
+    if (tags.length >= 10) {
+      alert('タグは最大10個までです');
+      return;
+    }
+    if (!tags.includes(tag)) {
+      setTags([...tags, tag]);
+    }
+    // 選択されたタグを提案リストから削除
+    setSuggestedTags(suggestedTags.filter(t => t !== tag));
+  };
+
+  // すべての提案タグを追加
+  const handleSelectAllSuggestedTags = () => {
+    const available = 10 - tags.length;
+    const tagsToAdd = suggestedTags.slice(0, available);
+    setTags([...tags, ...tagsToAdd]);
+    setSuggestedTags(suggestedTags.slice(available));
+  };
+
+  // 提案タグをクリア
+  const handleClearSuggestedTags = () => {
+    setSuggestedTags([]);
   };
 
   const handleSubmit = async () => {
@@ -593,6 +621,53 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                       <Sparkles className={`w-4 h-4 ${isSuggestingTags ? 'animate-spin' : ''}`} />
                       {isSuggestingTags ? 'タグを生成中...' : 'AIでタグを提案'}
                     </button>
+                  )}
+
+                  {/* AI提案タグ選択UI */}
+                  {suggestedTags.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800/30"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-medium text-purple-700 dark:text-purple-300 flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          AIが提案したタグ（クリックで追加）
+                        </p>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={handleSelectAllSuggestedTags}
+                            className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-800/50 text-purple-600 dark:text-purple-300 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-700/50 transition-colors flex items-center gap-1"
+                          >
+                            <Check className="w-3 h-3" />
+                            全て追加
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleClearSuggestedTags}
+                            className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1"
+                          >
+                            <XCircle className="w-3 h-3" />
+                            閉じる
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {suggestedTags.map((tag) => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => handleSelectSuggestedTag(tag)}
+                            className="px-3 py-1.5 text-xs font-medium bg-white dark:bg-zinc-800 text-purple-600 dark:text-purple-400 rounded-full border border-purple-200 dark:border-purple-700 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-600 transition-all shadow-sm flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" />
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
                   )}
 
                   {/* Tag chips */}
