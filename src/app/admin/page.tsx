@@ -234,6 +234,7 @@ type PeriodFilter = '7' | '14' | '30' | 'all';
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState<AutoRefreshInterval>(0);
   const [period, setPeriod] = useState<PeriodFilter>('30');
@@ -241,7 +242,11 @@ export default function AdminPage() {
   const [showExportDropdown, setShowExportDropdown] = useState(false);
 
   const fetchStats = async (selectedPeriod: PeriodFilter = period) => {
-    setLoading(true);
+    if (stats) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const response = await fetch(`/api/admin/stats?period=${selectedPeriod}`);
@@ -254,6 +259,7 @@ export default function AdminPage() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
 
@@ -467,10 +473,10 @@ export default function AdminPage() {
               {/* 手動更新 */}
               <button
                 onClick={() => fetchStats()}
-                className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors ${loading ? 'animate-pulse' : ''}`}
-                disabled={loading}
+                className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors ${isRefreshing ? 'animate-pulse' : ''}`}
+                disabled={isRefreshing}
               >
-                <RefreshCw className={`w-5 h-5 text-gray-600 dark:text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-5 h-5 text-gray-600 dark:text-gray-400 ${isRefreshing ? 'animate-spin' : ''}`} />
               </button>
             </div>
           </div>
