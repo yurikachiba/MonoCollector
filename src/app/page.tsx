@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Cloud, Smartphone, Search, Shield, Baby, Trash2, Heart } from 'lucide-react';
+import { Sparkles, Camera, Trophy, ArrowRight, Infinity, Palette, Cloud, Smartphone, Search, Shield, Baby, Trash2, Heart, Lock, Eye, FileText } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
 import { motion } from 'framer-motion';
 
@@ -563,6 +563,177 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Data Transparency Section - Google OAuth検証要件対応 */}
+      <section id="data-privacy" className="py-20 px-4 bg-white dark:bg-zinc-900/50">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 mb-4 shadow-lg shadow-emerald-500/25">
+              <Shield className="w-7 h-7 text-white" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+              データの取り扱いについて
+            </h2>
+            <p className="text-zinc-600 dark:text-zinc-400 text-lg">
+              あなたのプライバシーを大切にしています
+            </p>
+          </motion.div>
+
+          {/* アプリについての説明 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-100 dark:border-purple-800/30 mb-6"
+          >
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-3">
+              モノコレクターとは
+            </h3>
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed">
+              モノコレクターは、大切なモノの思い出を写真とアイコンで残すためのウェブアプリケーションです。
+              撮影した写真をAIで可愛いアイコンに変換し、カテゴリ別に整理して保存できます。
+              Googleアカウントでログインすることで、データをクラウドに安全に保存し、どのデバイスからでもアクセスできます。
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            {/* 収集するデータ */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Eye className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                  収集するデータ
+                </h3>
+              </div>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-3">
+                Googleアカウントでログイン時に取得する情報：
+              </p>
+              <ul className="space-y-2">
+                {[
+                  'メールアドレス（アカウント識別用）',
+                  '表示名（アプリ内表示用）',
+                  'プロフィール画像（アプリ内表示用）',
+                ].map((item, index) => (
+                  <li key={index} className="text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm mt-4 mb-2">
+                ユーザーが登録するデータ：
+              </p>
+              <ul className="space-y-2">
+                {[
+                  'アイテムの名前・カテゴリ・メモ',
+                  'アイテムの写真・生成されたアイコン',
+                ].map((item, index) => (
+                  <li key={index} className="text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+
+            {/* データの利用目的 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                  データの利用目的
+                </h3>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  { title: 'ユーザー認証', desc: 'アカウントの識別とログイン状態の管理' },
+                  { title: 'サービス提供', desc: 'アイテムの保存・表示・管理機能の提供' },
+                  { title: 'データ同期', desc: '複数デバイス間でのデータ同期' },
+                  { title: 'サービス改善', desc: 'より良い体験のための機能改善' },
+                ].map((item, index) => (
+                  <li key={index} className="text-sm">
+                    <span className="font-medium text-zinc-800 dark:text-zinc-200">{item.title}：</span>
+                    <span className="text-zinc-600 dark:text-zinc-400">{item.desc}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+
+          {/* データの保護 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/30 mb-8"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                データの保護について
+              </h3>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {[
+                { title: '暗号化通信', desc: 'すべての通信はHTTPSで暗号化' },
+                { title: '第三者非共有', desc: 'データは広告目的で共有されません' },
+                { title: '削除可能', desc: 'いつでもアカウントとデータを削除可能' },
+              ].map((item, index) => (
+                <div key={index} className="text-center">
+                  <p className="font-medium text-emerald-800 dark:text-emerald-200 text-sm mb-1">{item.title}</p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* プライバシーポリシーへのリンク */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-center"
+          >
+            <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-4">
+              詳細については、プライバシーポリシーをご確認ください。
+            </p>
+            <Link
+              href="/privacy"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl font-medium text-sm hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+            >
+              <Shield className="w-4 h-4" />
+              プライバシーポリシーを読む
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4">
         <motion.div
@@ -594,31 +765,90 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-zinc-200 dark:border-zinc-800">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-zinc-600 dark:text-zinc-400">
-            <Image
-              src="/icon.svg"
-              alt="モノコレクター"
-              width={24}
-              height={24}
-              className="rounded-md"
-            />
-            <span className="text-sm">モノコレクター</span>
+      <footer className="py-12 px-4 border-t border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            {/* アプリ情報 */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <Image
+                  src="/icon.svg"
+                  alt="モノコレクター"
+                  width={32}
+                  height={32}
+                  className="rounded-lg"
+                />
+                <span className="font-bold text-lg text-zinc-900 dark:text-zinc-100">モノコレクター</span>
+              </div>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                大切なモノの思い出を写真とアイコンで残すウェブアプリケーション。
+                AIでかわいいアイコンに変換し、永久保存できます。
+              </p>
+            </div>
+
+            {/* リンク */}
+            <div>
+              <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4">リンク</h4>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <a href="#features" className="text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    機能紹介
+                  </a>
+                </li>
+                <li>
+                  <a href="#data-privacy" className="text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    データの取り扱い
+                  </a>
+                </li>
+                <li>
+                  <Link href="/terms" className="text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    利用規約
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy" className="text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                    プライバシーポリシー
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* 運営者情報 */}
+            <div>
+              <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4">運営者情報</h4>
+              <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <li>運営者：豆腐小僧</li>
+                <li>
+                  お問い合わせ：
+                  <a
+                    href="mailto:monocollector.tofu@gmail.com"
+                    className="text-purple-600 dark:text-purple-400 hover:underline"
+                  >
+                    monocollector.tofu@gmail.com
+                  </a>
+                </li>
+              </ul>
+              <div className="mt-4 p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800/50 text-xs text-zinc-500 dark:text-zinc-400">
+                <p>本サービスはGoogle OAuth 2.0を使用しています。</p>
+                <p className="mt-1">Googleの利用規約とプライバシーポリシーが適用されます。</p>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-6 text-sm text-zinc-500 dark:text-zinc-500">
-            <Link
-              href="/terms"
-              className="hover:text-zinc-700 dark:hover:text-zinc-300"
-            >
-              利用規約
-            </Link>
-            <Link
-              href="/privacy"
-              className="hover:text-zinc-700 dark:hover:text-zinc-300"
-            >
-              プライバシーポリシー
-            </Link>
+
+          {/* コピーライト */}
+          <div className="pt-8 border-t border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-zinc-500 dark:text-zinc-500">
+              &copy; {new Date().getFullYear()} モノコレクター. All rights reserved.
+            </p>
+            <div className="flex gap-4 text-xs text-zinc-500 dark:text-zinc-500">
+              <Link href="/terms" className="hover:text-zinc-700 dark:hover:text-zinc-300">
+                利用規約
+              </Link>
+              <span>|</span>
+              <Link href="/privacy" className="hover:text-zinc-700 dark:hover:text-zinc-300">
+                プライバシーポリシー
+              </Link>
+            </div>
           </div>
         </div>
       </footer>
