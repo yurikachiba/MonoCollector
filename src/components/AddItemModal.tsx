@@ -12,6 +12,7 @@ import { useAddItem, useUpdateItem } from '@/hooks/useItems';
 import { analyzeImage, getStoredApiKey } from '@/lib/groq-vision';
 import IconGenerator from './IconGenerator';
 import AIIconGenerator from './AIIconGenerator';
+import { FirstTimeHintBanner } from './OnboardingTutorial';
 import { GeneratedIcon } from '@/lib/icon-generator';
 import { AIGeneratedIcon } from '@/lib/ai-icon-generator';
 
@@ -269,6 +270,9 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
           </div>
 
           <div className="p-4 space-y-4">
+            {/* 初回ユーザー向けヒント（新規追加時のみ） */}
+            {!editItem && <FirstTimeHintBanner />}
+
             {mode === 'camera' ? (
               <div className="space-y-4">
                 <div className="aspect-[4/3] bg-black rounded-xl overflow-hidden">

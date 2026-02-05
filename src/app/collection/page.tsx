@@ -17,10 +17,12 @@ import NotificationChecker from '@/components/NotificationChecker';
 import FirstItemCelebration from '@/components/FirstItemCelebration';
 import MilestoneCelebration from '@/components/MilestoneCelebration';
 import MemoriesSection from '@/components/MemoriesSection';
+import OnboardingTutorial, { useOnboarding } from '@/components/OnboardingTutorial';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const { isOnboarding, currentStepId, nextStep } = useOnboarding();
   const [editItem, setEditItem] = useState<Item | null>(null);
 
   const handleEdit = (item: Item) => {
@@ -33,6 +35,14 @@ export default function CollectionPage() {
     setEditItem(null);
   };
 
+  // FABクリック時の処理（オンボーディング対応）
+  const handleFabClick = () => {
+    if (isOnboarding && currentStepId === 'fab') {
+      nextStep();
+    }
+    setIsAddModalOpen(true);
+  };
+
   return (
     <main className="min-h-screen pb-24">
       <Header onOpenSettings={() => setIsSettingsOpen(true)} />
@@ -43,7 +53,7 @@ export default function CollectionPage() {
       <CategoryBar />
       <ItemGrid onEdit={handleEdit} />
 
-      <FloatingActionButton onClick={() => setIsAddModalOpen(true)} />
+      <FloatingActionButton onClick={handleFabClick} />
 
       <AddItemModal
         isOpen={isAddModalOpen}
@@ -63,6 +73,7 @@ export default function CollectionPage() {
       <NotificationChecker />
       <FirstItemCelebration onAddAnother={() => setIsAddModalOpen(true)} />
       <MilestoneCelebration onAddAnother={() => setIsAddModalOpen(true)} />
+      <OnboardingTutorial />
     </main>
   );
 }
