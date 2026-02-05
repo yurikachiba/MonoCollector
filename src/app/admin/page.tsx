@@ -35,6 +35,15 @@ import {
   Moon,
   Sunset,
   Sunrise,
+  Download,
+  Activity,
+  Timer,
+  Grid3X3,
+  ChevronDown,
+  Play,
+  Pause,
+  LineChart,
+  Image,
 } from 'lucide-react';
 
 interface AdminStats {
@@ -178,18 +187,69 @@ interface AdminStats {
     itemsWithImages: number;
     imageUsageRate: number;
   };
+  cohortAnalysis: Array<{
+    weekLabel: string;
+    weeksAgo: number;
+    totalUsers: number;
+    activeUsers: number;
+    engagedUsers: number;
+    activationRate: number;
+    engagementRate: number;
+  }>;
+  heatmapData: number[][];
+  recentActivity: Array<{
+    type: string;
+    timestamp: string;
+    category: { name: string; icon: string; color: string } | null;
+    location: string;
+    hasImage: boolean;
+    tagsCount: number;
+  }>;
+  monthlyTrends: Array<{
+    month: string;
+    items: number;
+    users: number;
+  }>;
+  periodStats: {
+    period: string;
+    itemsInPeriod: number;
+    usersInPeriod: number;
+    avgItemsPerDay: number;
+  };
+  systemStatus: {
+    lastUpdated: string;
+    responseTimeMs: number;
+    dataFreshness: string;
+    totalRecords: {
+      users: number;
+      items: number;
+      categories: number;
+    };
+  };
 }
+
+type AutoRefreshInterval = 0 | 30 | 60;
+type PeriodFilter = '7' | '14' | '30' | 'all';
 
 export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState<AutoRefreshInterval>(0);
+  const [period, setPeriod] = useState<PeriodFilter>('30');
+  const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
 
-  const fetchStats = async () => {
-    setLoading(true);
+  const fetchStats = async (selectedPeriod: PeriodFilter = period) => {
+    if (stats) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
-      const response = await fetch('/api/admin/stats');
+      const response = await fetch(`/api/admin/stats?period=${selectedPeriod}`);
       if (!response.ok) {
         throw new Error('Failed to fetch stats');
       }
@@ -199,12 +259,79 @@ export default function AdminPage() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
   };
+
+  // 自動更新
+  useEffect(() => {
+    if (autoRefresh === 0) return;
+
+    const interval = setInterval(() => {
+      fetchStats();
+    }, autoRefresh * 1000);
+
+    return () => clearInterval(interval);
+  }, [autoRefresh, period]);
 
   useEffect(() => {
     fetchStats();
   }, []);
+
+  // 期間変更時
+  const handlePeriodChange = (newPeriod: PeriodFilter) => {
+    setPeriod(newPeriod);
+    setShowPeriodDropdown(false);
+    fetchStats(newPeriod);
+  };
+
+  // エクスポート機能
+  const exportData = (format: 'json' | 'csv') => {
+    if (!stats) return;
+
+    if (format === 'json') {
+      const blob = new Blob([JSON.stringify(stats, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `monocollector-stats-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      // CSV形式で主要データをエクスポート
+      const rows = [
+        ['メトリクス', '値'],
+        ['総ユーザー数', stats.users.total.toString()],
+        ['アクティブユーザー', stats.users.active.toString()],
+        ['ゲストユーザー', stats.users.guests.toString()],
+        ['登録ユーザー', stats.users.registered.toString()],
+        ['総アイテム数', stats.items.total.toString()],
+        ['平均アイテム数/ユーザー', stats.items.avgPerUser.toString()],
+        ['今週のアイテム', stats.activity.weekly.thisWeek.toString()],
+        ['先週のアイテム', stats.activity.weekly.lastWeek.toString()],
+        ['週1リテンション率', `${stats.retention.week1Retention.rate}%`],
+        ['ユーザー成長率', `${stats.growth.users.growthRate}%`],
+        ['アイテム成長率', `${stats.growth.items.growthRate}%`],
+        ['ストレージ使用量(MB)', stats.storage.totalSizeMB.toString()],
+      ];
+      const csvContent = rows.map(row => row.join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `monocollector-stats-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    setShowExportDropdown(false);
+  };
+
+  const periodLabels: Record<PeriodFilter, string> = {
+    '7': '過去7日',
+    '14': '過去14日',
+    '30': '過去30日',
+    'all': '全期間',
+  };
 
   if (loading) {
     return (
@@ -223,7 +350,7 @@ export default function AdminPage() {
         <div className="text-center">
           <p className="text-red-500 mb-4">{error}</p>
           <button
-            onClick={fetchStats}
+            onClick={() => fetchStats()}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
             再試行
@@ -263,12 +390,95 @@ export default function AdminPage() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={fetchStats}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-            >
-              <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* 期間フィルター */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowPeriodDropdown(!showPeriodDropdown)}
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors text-sm"
+                >
+                  <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  <span className="text-gray-700 dark:text-gray-300">{periodLabels[period]}</span>
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                </button>
+                {showPeriodDropdown && (
+                  <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
+                    {(Object.keys(periodLabels) as PeriodFilter[]).map((p) => (
+                      <button
+                        key={p}
+                        onClick={() => handlePeriodChange(p)}
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                          period === p ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
+                        } first:rounded-t-lg last:rounded-b-lg`}
+                      >
+                        {periodLabels[p]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 自動更新 */}
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                <button
+                  onClick={() => setAutoRefresh(0)}
+                  className={`p-1.5 rounded transition-colors ${autoRefresh === 0 ? 'bg-white dark:bg-gray-700 shadow-sm' : 'hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                  title="手動更新"
+                >
+                  <Pause className={`w-4 h-4 ${autoRefresh === 0 ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`} />
+                </button>
+                <button
+                  onClick={() => setAutoRefresh(30)}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${autoRefresh === 30 ? 'bg-green-500 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                  title="30秒ごとに更新"
+                >
+                  30s
+                </button>
+                <button
+                  onClick={() => setAutoRefresh(60)}
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${autoRefresh === 60 ? 'bg-green-500 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                  title="60秒ごとに更新"
+                >
+                  60s
+                </button>
+              </div>
+
+              {/* エクスポート */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowExportDropdown(!showExportDropdown)}
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="データをエクスポート"
+                >
+                  <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                </button>
+                {showExportDropdown && (
+                  <div className="absolute right-0 mt-1 w-28 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
+                    <button
+                      onClick={() => exportData('json')}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg"
+                    >
+                      JSON
+                    </button>
+                    <button
+                      onClick={() => exportData('csv')}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-b-lg"
+                    >
+                      CSV
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 手動更新 */}
+              <button
+                onClick={() => fetchStats()}
+                className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors ${isRefreshing ? 'animate-pulse' : ''}`}
+                disabled={isRefreshing}
+              >
+                <RefreshCw className={`w-5 h-5 text-gray-600 dark:text-gray-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -1277,6 +1487,287 @@ export default function AdminPage() {
                 <p className="text-xs text-gray-500">画像使用率</p>
               </div>
             </div>
+          </motion.div>
+        )}
+
+        {/* コホート分析 */}
+        {stats.cohortAnalysis && stats.cohortAnalysis.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.3 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Users className="w-5 h-5 text-indigo-500" />
+              コホート分析（登録週別リテンション）
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-2 px-3 text-gray-500 dark:text-gray-400 font-medium">登録週</th>
+                    <th className="text-right py-2 px-3 text-gray-500 dark:text-gray-400 font-medium">ユーザー数</th>
+                    <th className="text-right py-2 px-3 text-gray-500 dark:text-gray-400 font-medium">アクティブ</th>
+                    <th className="text-right py-2 px-3 text-gray-500 dark:text-gray-400 font-medium">活性化率</th>
+                    <th className="text-right py-2 px-3 text-gray-500 dark:text-gray-400 font-medium">定着率</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stats.cohortAnalysis.map((cohort, index) => (
+                    <tr key={index} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
+                      <td className="py-2 px-3 text-gray-900 dark:text-white font-medium">{cohort.weekLabel}</td>
+                      <td className="py-2 px-3 text-right text-gray-600 dark:text-gray-400">{cohort.totalUsers}</td>
+                      <td className="py-2 px-3 text-right text-gray-600 dark:text-gray-400">{cohort.activeUsers}</td>
+                      <td className="py-2 px-3 text-right">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          cohort.activationRate >= 70 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          cohort.activationRate >= 40 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                          'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                          {cohort.activationRate}%
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 text-right">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          cohort.engagementRate >= 50 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                          cohort.engagementRate >= 25 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                          'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                          {cohort.engagementRate}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-gray-500 mt-3">
+              活性化率: 1件以上登録したユーザー / 定着率: 3件以上登録したユーザー
+            </p>
+          </motion.div>
+        )}
+
+        {/* 時間×曜日ヒートマップ */}
+        {stats.heatmapData && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Grid3X3 className="w-5 h-5 text-emerald-500" />
+              アクティビティヒートマップ（曜日×時間）
+            </h2>
+            <div className="overflow-x-auto">
+              <div className="min-w-[600px]">
+                <div className="flex">
+                  <div className="w-10" />
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <div key={i} className="flex-1 text-center text-[10px] text-gray-400">
+                      {i}
+                    </div>
+                  ))}
+                </div>
+                {['日', '月', '火', '水', '木', '金', '土'].map((day, dayIndex) => {
+                  const maxCount = Math.max(...stats.heatmapData.flat(), 1);
+                  return (
+                    <div key={day} className="flex items-center">
+                      <div className="w-10 text-xs text-gray-500 dark:text-gray-400 text-right pr-2">{day}</div>
+                      {stats.heatmapData[dayIndex].map((count, hourIndex) => {
+                        const intensity = count / maxCount;
+                        return (
+                          <div
+                            key={hourIndex}
+                            className="flex-1 aspect-square m-0.5 rounded-sm group relative"
+                            style={{
+                              backgroundColor: count === 0
+                                ? 'rgba(156, 163, 175, 0.1)'
+                                : `rgba(16, 185, 129, ${0.2 + intensity * 0.8})`
+                            }}
+                          >
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded whitespace-nowrap z-10 pointer-events-none">
+                              {day} {hourIndex}時: {count}件
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <span className="text-xs text-gray-500">少</span>
+              <div className="flex gap-0.5">
+                {[0.1, 0.3, 0.5, 0.7, 0.9].map((opacity) => (
+                  <div
+                    key={opacity}
+                    className="w-4 h-4 rounded-sm"
+                    style={{ backgroundColor: `rgba(16, 185, 129, ${opacity})` }}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-gray-500">多</span>
+            </div>
+          </motion.div>
+        )}
+
+        {/* 月次トレンド */}
+        {stats.monthlyTrends && stats.monthlyTrends.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.5 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <LineChart className="w-5 h-5 text-cyan-500" />
+              月次トレンド（過去6ヶ月）
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+              {stats.monthlyTrends.map((trend, index) => (
+                <div key={trend.month} className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{trend.month}</p>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">アイテム</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{trend.items}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">新規ユーザー</span>
+                      <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{trend.users}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* 最近のアクティビティフィード */}
+        {stats.recentActivity && stats.recentActivity.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.6 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-rose-500" />
+              最近のアクティビティ
+            </h2>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {stats.recentActivity.map((activity, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.6 + index * 0.03 }}
+                  className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+                >
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
+                    style={{ backgroundColor: activity.category ? `${activity.category.color}20` : '#f3f4f6' }}
+                  >
+                    {activity.category?.icon || '📦'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {activity.category?.name || '不明なカテゴリ'}
+                      </span>
+                      {activity.hasImage && (
+                        <Image className="w-3.5 h-3.5 text-blue-500" />
+                      )}
+                      {activity.tagsCount > 0 && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 rounded">
+                          {activity.tagsCount}タグ
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <MapPin className="w-3 h-3 text-gray-400" />
+                      <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {activity.location || '場所未設定'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {new Date(activity.timestamp).toLocaleString('ja-JP', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* システムステータス */}
+        {stats.systemStatus && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.7 }}
+            className="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6"
+          >
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <Timer className="w-5 h-5 text-gray-500" />
+              システムステータス
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">最終更新</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {new Date(stats.systemStatus.lastUpdated).toLocaleString('ja-JP', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  })}
+                </p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">レスポンス時間</p>
+                <p className={`text-sm font-medium ${
+                  stats.systemStatus.responseTimeMs < 500 ? 'text-green-600 dark:text-green-400' :
+                  stats.systemStatus.responseTimeMs < 1000 ? 'text-yellow-600 dark:text-yellow-400' :
+                  'text-red-600 dark:text-red-400'
+                }`}>
+                  {stats.systemStatus.responseTimeMs}ms
+                </p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">総レコード数</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {(stats.systemStatus.totalRecords.users + stats.systemStatus.totalRecords.items).toLocaleString()}
+                </p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">自動更新</p>
+                <p className={`text-sm font-medium ${autoRefresh > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
+                  {autoRefresh > 0 ? `${autoRefresh}秒` : '無効'}
+                </p>
+              </div>
+            </div>
+            {stats.periodStats && (
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500 dark:text-gray-400">
+                    表示期間: {periodLabels[period as PeriodFilter]}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    期間内: ユーザー <span className="font-semibold">{stats.periodStats.usersInPeriod}</span>人 /
+                    アイテム <span className="font-semibold">{stats.periodStats.itemsInPeriod}</span>件
+                    （平均 <span className="font-semibold">{stats.periodStats.avgItemsPerDay}</span>件/日）
+                  </span>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </main>

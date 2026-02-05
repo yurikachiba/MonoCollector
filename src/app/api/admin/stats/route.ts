@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 interface CategoryWithCount {
@@ -9,6 +9,7 @@ interface CategoryWithCount {
 }
 
 interface ItemWithDate {
+  id: string;
   category: string;
   createdAt: Date;
   updatedAt: Date;
@@ -29,7 +30,10 @@ interface UserWithItems {
 }
 
 // GET /api/admin/stats - Get admin statistics (no personal info)
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  const searchParams = request.nextUrl.searchParams;
+  const period = searchParams.get('period') || '30'; // 7, 14, 30, or 'all'
   try {
     // Fetch all data in parallel
     const [
@@ -45,6 +49,7 @@ export async function GET() {
       prisma.item.count(),
       prisma.item.findMany({
         select: {
+          id: true,
           category: true,
           createdAt: true,
           updatedAt: true,
@@ -549,6 +554,126 @@ export async function GET() {
       });
     }
 
+    // ========================================
+    // コホート分析（登録週ごとのリテンション）
+    // ========================================
+    const cohortAnalysis = [];
+    for (let weeksAgo = 0; weeksAgo < 8; weeksAgo++) {
+      const cohortStart = new Date(now.getTime() - (weeksAgo + 1) * 7 * 24 * 60 * 60 * 1000);
+      const cohortEnd = new Date(now.getTime() - weeksAgo * 7 * 24 * 60 * 60 * 1000);
+
+      const cohortUsers = usersWithItemCounts.filter((u: UserWithItems) =>
+        u.createdAt >= cohortStart && u.createdAt < cohortEnd
+      );
+
+      if (cohortUsers.length === 0) continue;
+
+      // このコホートのユーザーのうち、登録後もアイテムを追加したユーザー
+      const activeInCohort = cohortUsers.filter((u: UserWithItems) => u._count.items > 0).length;
+
+      // このコホートのユーザーのうち、複数アイテムを持つユーザー
+      const engagedInCohort = cohortUsers.filter((u: UserWithItems) => u._count.items >= 3).length;
+
+      cohortAnalysis.push({
+        weekLabel: weeksAgo === 0 ? '今週' : `${weeksAgo}週前`,
+        weeksAgo,
+        totalUsers: cohortUsers.length,
+        activeUsers: activeInCohort,
+        engagedUsers: engagedInCohort,
+        activationRate: Math.round((activeInCohort / cohortUsers.length) * 100),
+        engagementRate: Math.round((engagedInCohort / cohortUsers.length) * 100),
+      });
+    }
+
+    // ========================================
+    // 時間×曜日ヒートマップデータ
+    // ========================================
+    const heatmapData: number[][] = Array(7).fill(null).map(() => Array(24).fill(0));
+    items.forEach((item: ItemWithDate) => {
+      const date = new Date(item.createdAt);
+      const day = date.getDay();
+      const hour = date.getHours();
+      heatmapData[day][hour]++;
+    });
+
+    // ========================================
+    // 最近のアクティビティフィード
+    // ========================================
+    const recentActivity = items.slice(0, 20).map((item: ItemWithDate) => {
+      const category = categories.find((c: CategoryWithCount) => c.id === item.category);
+      return {
+        type: 'item_created',
+        timestamp: item.createdAt,
+        category: category ? { name: category.name, icon: category.icon, color: category.color } : null,
+        location: item.location,
+        hasImage: item.image && item.image.length > 0,
+        tagsCount: item.tags.length,
+      };
+    });
+
+    // ========================================
+    // 月次トレンド（過去6ヶ月）
+    // ========================================
+    const monthlyTrends = [];
+    for (let monthsAgo = 0; monthsAgo < 6; monthsAgo++) {
+      const monthStart = new Date(now.getFullYear(), now.getMonth() - monthsAgo, 1);
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() - monthsAgo + 1, 0);
+
+      const monthItems = items.filter((i: ItemWithDate) =>
+        i.createdAt >= monthStart && i.createdAt <= monthEnd
+      ).length;
+
+      const monthUsers = usersWithItemCounts.filter((u: UserWithItems) =>
+        u.createdAt >= monthStart && u.createdAt <= monthEnd
+      ).length;
+
+      monthlyTrends.unshift({
+        month: monthStart.toLocaleDateString('ja-JP', { year: 'numeric', month: 'short' }),
+        items: monthItems,
+        users: monthUsers,
+      });
+    }
+
+    // ========================================
+    // 期間フィルター適用後の統計
+    // ========================================
+    const periodDays = period === 'all' ? Infinity : parseInt(period, 10);
+    const periodStart = period === 'all'
+      ? new Date(0)
+      : new Date(now.getTime() - periodDays * 24 * 60 * 60 * 1000);
+
+    const filteredItems = period === 'all'
+      ? items
+      : items.filter((i: ItemWithDate) => i.createdAt >= periodStart);
+
+    const filteredUsers = period === 'all'
+      ? usersWithItemCounts
+      : usersWithItemCounts.filter((u: UserWithItems) => u.createdAt >= periodStart);
+
+    const periodStats = {
+      period,
+      itemsInPeriod: filteredItems.length,
+      usersInPeriod: filteredUsers.length,
+      avgItemsPerDay: periodDays !== Infinity
+        ? Math.round((filteredItems.length / periodDays) * 10) / 10
+        : Math.round((items.length / 365) * 10) / 10,
+    };
+
+    // ========================================
+    // システムステータス
+    // ========================================
+    const responseTime = Date.now() - startTime;
+    const systemStatus = {
+      lastUpdated: now.toISOString(),
+      responseTimeMs: responseTime,
+      dataFreshness: 'realtime',
+      totalRecords: {
+        users: totalUsers,
+        items: totalItems,
+        categories: categories.length,
+      },
+    };
+
     return NextResponse.json({
       users: {
         total: totalUsers,
@@ -576,6 +701,13 @@ export async function GET() {
       itemLifecycle,
       activeHours,
       storage,
+      // 新規追加: 強化データ
+      cohortAnalysis,
+      heatmapData,
+      recentActivity,
+      monthlyTrends,
+      periodStats,
+      systemStatus,
     });
   } catch (error) {
     console.error('Failed to fetch admin stats:', error);
