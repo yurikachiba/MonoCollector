@@ -17,13 +17,18 @@ import NotificationChecker from '@/components/NotificationChecker';
 import FirstItemCelebration from '@/components/FirstItemCelebration';
 import MilestoneCelebration from '@/components/MilestoneCelebration';
 import MemoriesSection from '@/components/MemoriesSection';
-import OnboardingTutorial, { useOnboarding } from '@/components/OnboardingTutorial';
+import OnboardingTutorial, {
+  useOnboardingStore,
+  useCurrentStep,
+} from '@/components/OnboardingTutorial';
 
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { isOnboarding, currentStepId, nextStep } = useOnboarding();
   const [editItem, setEditItem] = useState<Item | null>(null);
+
+  const { isActive, nextStep } = useOnboardingStore();
+  const currentStep = useCurrentStep();
 
   const handleEdit = (item: Item) => {
     setEditItem(item);
@@ -37,7 +42,7 @@ export default function CollectionPage() {
 
   // FABクリック時の処理（オンボーディング対応）
   const handleFabClick = () => {
-    if (isOnboarding && currentStepId === 'fab') {
+    if (isActive && currentStep?.id === 'fab') {
       nextStep();
     }
     setIsAddModalOpen(true);

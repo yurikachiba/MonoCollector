@@ -1,25 +1,48 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useEffect } from 'react';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera, Sparkles, ArrowRight } from 'lucide-react';
 
-// オンボーディングの状態管理
-const STORAGE_KEY = 'onboardingCompleted';
+// ============================================
+// 型定義
+// ============================================
 
 interface OnboardingStep {
   id: string;
   title: string;
   description: string;
-  target?: 'fab' | 'upload' | 'ai-analyze' | 'save';
-  position?: 'top' | 'bottom' | 'center';
+  target?: 'fab';
+  position: 'top' | 'center';
 }
+
+interface OnboardingState {
+  isActive: boolean;
+  currentStep: number;
+  hasCompleted: boolean;
+  hasShownHints: boolean;
+}
+
+interface OnboardingActions {
+  start: () => void;
+  nextStep: () => void;
+  complete: () => void;
+  skip: () => void;
+  dismissHints: () => void;
+}
+
+// ============================================
+// 定数
+// ============================================
 
 const STEPS: OnboardingStep[] = [
   {
     id: 'welcome',
     title: 'モノコレへようこそ！',
-    description: '捨てられないモノを写真とアイコンで残せるアプリです。\n一緒に最初のアイテムを登録してみましょう。',
+    description:
+      '捨てられないモノを写真とアイコンで残せるアプリです。\n一緒に最初のアイテムを登録してみましょう。',
     position: 'center',
   },
   {
@@ -31,250 +54,229 @@ const STEPS: OnboardingStep[] = [
   },
 ];
 
-interface OnboardingContextType {
-  isOnboarding: boolean;
-  currentStep: number;
-  currentStepId: string | null;
-  nextStep: () => void;
-  skipOnboarding: () => void;
-  completeOnboarding: () => void;
-  startOnboarding: () => void;
-  isStepActive: (stepId: string) => boolean;
-}
+// ============================================
+// Zustand Store
+// ============================================
 
-const OnboardingContext = createContext<OnboardingContextType | null>(null);
+export const useOnboardingStore = create<OnboardingState & OnboardingActions>()(
+  persist(
+    (set, get) => ({
+      // State
+      isActive: false,
+      currentStep: 0,
+      hasCompleted: false,
+      hasShownHints: false,
 
-export function useOnboarding() {
-  const context = useContext(OnboardingContext);
-  if (!context) {
-    throw new Error('useOnboarding must be used within OnboardingProvider');
-  }
-  return context;
-}
+      // Actions
+      start: () => set({ isActive: true, currentStep: 0 }),
 
-// SSR対応のlocalStorage取得
-function getStorageValue(): boolean {
-  if (typeof window === 'undefined') return true;
-  return localStorage.getItem(STORAGE_KEY) === 'true';
-}
+      nextStep: () => {
+        const { currentStep } = get();
+        if (currentStep < STEPS.length - 1) {
+          set({ currentStep: currentStep + 1 });
+        } else {
+          get().complete();
+        }
+      },
 
-export function OnboardingProvider({ children }: { children: ReactNode }) {
-  // 初回訪問かどうかを初期値として計算（SSR対応）
-  const shouldShowOnboarding = () => !getStorageValue();
-  const [isOnboarding, setIsOnboarding] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+      complete: () => set({ isActive: false, hasCompleted: true }),
 
-  // 遅延表示のためのタイマー設定（副作用）
-  useEffect(() => {
-    if (!shouldShowOnboarding()) return;
+      skip: () => set({ isActive: false, hasCompleted: true }),
 
-    // 少し遅延させて表示（ページ読み込み完了後）
-    const timer = setTimeout(() => {
-      setIsOnboarding(true);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const nextStep = () => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      completeOnboarding();
+      dismissHints: () => set({ hasShownHints: true }),
+    }),
+    {
+      name: 'onboarding-storage',
+      partialize: (state) => ({
+        hasCompleted: state.hasCompleted,
+        hasShownHints: state.hasShownHints,
+      }),
     }
-  };
+  )
+);
 
-  const skipOnboarding = () => {
-    setIsOnboarding(false);
-    localStorage.setItem(STORAGE_KEY, 'true');
-  };
+// ============================================
+// Hooks
+// ============================================
 
-  const completeOnboarding = () => {
-    setIsOnboarding(false);
-    localStorage.setItem(STORAGE_KEY, 'true');
-  };
+/** オンボーディングの自動開始（初回訪問時） */
+export function useOnboardingAutoStart() {
+  const { isActive, hasCompleted, start } = useOnboardingStore();
 
-  const startOnboarding = () => {
-    setCurrentStep(0);
-    setIsOnboarding(true);
-  };
+  useEffect(() => {
+    if (hasCompleted || isActive) return;
 
-  const isStepActive = (stepId: string) => {
-    return isOnboarding && STEPS[currentStep]?.id === stepId;
-  };
+    const timer = setTimeout(start, 1000);
+    return () => clearTimeout(timer);
+  }, [hasCompleted, isActive, start]);
+}
 
-  const currentStepId = isOnboarding ? STEPS[currentStep]?.id ?? null : null;
+/** 現在のステップ情報を取得 */
+export function useCurrentStep() {
+  const currentStep = useOnboardingStore((s) => s.currentStep);
+  return STEPS[currentStep] ?? null;
+}
 
+// ============================================
+// Components
+// ============================================
+
+/** FABハイライト */
+function FabHighlight() {
   return (
-    <OnboardingContext.Provider
-      value={{
-        isOnboarding,
-        currentStep,
-        currentStepId,
-        nextStep,
-        skipOnboarding,
-        completeOnboarding,
-        startOnboarding,
-        isStepActive,
-      }}
-    >
-      {children}
-    </OnboardingContext.Provider>
+    <>
+      <div
+        className="absolute bottom-6 right-6 w-16 h-16 rounded-full"
+        style={{
+          boxShadow: '0 0 0 9999px rgba(0,0,0,0.6)',
+          background: 'transparent',
+        }}
+      />
+      <motion.div
+        className="absolute bottom-6 right-6 w-16 h-16 rounded-full border-4 border-white pointer-events-none"
+        animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+      />
+    </>
   );
 }
 
-// メインのオンボーディングオーバーレイ
+/** ステップカード */
+function StepCard({
+  step,
+  currentStep,
+  totalSteps,
+  onNext,
+  onSkip,
+}: {
+  step: OnboardingStep;
+  currentStep: number;
+  totalSteps: number;
+  onNext: () => void;
+  onSkip: () => void;
+}) {
+  const isWelcome = step.id === 'welcome';
+  const isFabStep = step.target === 'fab';
+
+  return (
+    <motion.div
+      initial={{ y: 50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 50, opacity: 0 }}
+      className={`absolute left-4 right-4 ${
+        isFabStep ? 'bottom-28' : 'top-1/2 -translate-y-1/2'
+      }`}
+    >
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
+        {/* Header */}
+        <div className="relative px-6 pt-6 pb-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+          <button
+            onClick={onSkip}
+            className="absolute right-4 top-4 p-2 text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', delay: 0.2 }}
+            className="inline-flex p-3 bg-white/20 rounded-2xl mb-3 backdrop-blur-sm"
+          >
+            {isWelcome ? (
+              <Sparkles className="w-8 h-8 text-white" />
+            ) : (
+              <Camera className="w-8 h-8 text-white" />
+            )}
+          </motion.div>
+
+          <h2 className="text-xl font-bold text-white">{step.title}</h2>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed">
+            {step.description}
+          </p>
+
+          {/* Progress */}
+          <div className="flex items-center justify-center gap-1.5 mt-6">
+            {Array.from({ length: totalSteps }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-2 rounded-full transition-colors ${
+                  i === currentStep
+                    ? 'bg-purple-500 w-6'
+                    : i < currentStep
+                      ? 'bg-purple-300 w-2'
+                      : 'bg-gray-200 dark:bg-gray-700 w-2'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={onSkip}
+              className="flex-1 py-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium transition-colors"
+            >
+              スキップ
+            </button>
+            {isWelcome && (
+              <button
+                onClick={onNext}
+                className="flex-1 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:from-indigo-600 hover:to-purple-600 transition-all"
+              >
+                はじめる
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/** メインのオンボーディングオーバーレイ */
 export default function OnboardingTutorial() {
-  const { isOnboarding, currentStep, nextStep, skipOnboarding } = useOnboarding();
-
+  const { isActive, currentStep, nextStep, skip } = useOnboardingStore();
   const step = STEPS[currentStep];
-  const isWelcome = step?.id === 'welcome';
-  const isFabStep = step?.target === 'fab';
 
-  // ウェルカム画面とFABハイライト以外はオーバーレイを表示しない
-  if (!isOnboarding || (!isWelcome && !isFabStep)) {
-    return null;
-  }
+  useOnboardingAutoStart();
+
+  if (!isActive || !step) return null;
+
+  const isFabStep = step.target === 'fab';
 
   return (
     <AnimatePresence>
-      {isOnboarding && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100]"
-        >
-          {/* オーバーレイ背景 */}
-          <div className="absolute inset-0 bg-black/60" />
-
-          {/* FABのハイライト - FABステップの時だけ穴を開ける */}
-          {isFabStep && (
-            <>
-              {/* FABボタンの位置に穴を開ける（右下固定） */}
-              <div
-                className="absolute bottom-6 right-6 w-16 h-16 rounded-full"
-                style={{
-                  boxShadow: '0 0 0 9999px rgba(0,0,0,0.6)',
-                  background: 'transparent',
-                }}
-              />
-              {/* パルスアニメーション */}
-              <motion.div
-                className="absolute bottom-6 right-6 w-16 h-16 rounded-full border-4 border-white pointer-events-none"
-                animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [1, 0.5, 1],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                }}
-              />
-            </>
-          )}
-
-          {/* ステップ内容 */}
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-            className={`absolute left-4 right-4 ${
-              isFabStep ? 'bottom-28' : 'top-1/2 -translate-y-1/2'
-            }`}
-          >
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl overflow-hidden max-w-md mx-auto">
-              {/* ヘッダー */}
-              <div className="relative px-6 pt-6 pb-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-                <button
-                  onClick={skipOnboarding}
-                  className="absolute right-4 top-4 p-2 text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-
-                {/* アイコン */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', delay: 0.2 }}
-                  className="inline-flex p-3 bg-white/20 rounded-2xl mb-3 backdrop-blur-sm"
-                >
-                  {isWelcome ? (
-                    <Sparkles className="w-8 h-8 text-white" />
-                  ) : (
-                    <Camera className="w-8 h-8 text-white" />
-                  )}
-                </motion.div>
-
-                <h2 className="text-xl font-bold text-white">{step.title}</h2>
-              </div>
-
-              {/* コンテンツ */}
-              <div className="p-6">
-                <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed">
-                  {step.description}
-                </p>
-
-                {/* プログレスインジケーター */}
-                <div className="flex items-center justify-center gap-1.5 mt-6">
-                  {STEPS.map((_, index) => (
-                    <div
-                      key={index}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        index === currentStep
-                          ? 'bg-purple-500 w-6'
-                          : index < currentStep
-                          ? 'bg-purple-300'
-                          : 'bg-gray-200 dark:bg-gray-700'
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* ボタン */}
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={skipOnboarding}
-                    className="flex-1 py-3 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-medium transition-colors"
-                  >
-                    スキップ
-                  </button>
-                  {isWelcome && (
-                    <button
-                      onClick={nextStep}
-                      className="flex-1 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:from-indigo-600 hover:to-purple-600 transition-all"
-                    >
-                      はじめる
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100]"
+      >
+        <div className="absolute inset-0 bg-black/60" />
+        {isFabStep && <FabHighlight />}
+        <StepCard
+          step={step}
+          currentStep={currentStep}
+          totalSteps={STEPS.length}
+          onNext={nextStep}
+          onSkip={skip}
+        />
+      </motion.div>
     </AnimatePresence>
   );
 }
 
-// 初回ユーザー向けヒントバナー（AddItemModal内で使用）
-const FIRST_TIME_HINTS_KEY = 'firstTimeHintsShown';
-
-function getFirstTimeHintsShown(): boolean {
-  if (typeof window === 'undefined') return true;
-  return localStorage.getItem(FIRST_TIME_HINTS_KEY) === 'true';
-}
-
+/** 初回ユーザー向けヒントバナー */
 export function FirstTimeHintBanner() {
-  const [isVisible, setIsVisible] = useState(() => !getFirstTimeHintsShown());
+  const { hasShownHints, dismissHints } = useOnboardingStore();
 
-  const handleDismiss = () => {
-    setIsVisible(false);
-    localStorage.setItem(FIRST_TIME_HINTS_KEY, 'true');
-  };
-
-  if (!isVisible) return null;
+  if (hasShownHints) return null;
 
   return (
     <motion.div
@@ -287,6 +289,7 @@ export function FirstTimeHintBanner() {
         <div className="p-2 bg-indigo-100 dark:bg-indigo-800/50 rounded-lg shrink-0">
           <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
         </div>
+
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-indigo-900 dark:text-indigo-100 mb-1">
             はじめての登録ですね！
@@ -306,8 +309,9 @@ export function FirstTimeHintBanner() {
             </li>
           </ul>
         </div>
+
         <button
-          onClick={handleDismiss}
+          onClick={dismissHints}
           className="p-1 text-indigo-400 hover:text-indigo-600 dark:text-indigo-500 dark:hover:text-indigo-300 shrink-0"
         >
           <X className="w-4 h-4" />
