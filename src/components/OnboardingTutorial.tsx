@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Camera, Sparkles, ArrowRight, Key, Settings, PartyPopper, ExternalLink } from 'lucide-react';
+import { X, Camera, Sparkles, ArrowRight, Key, PartyPopper, ExternalLink } from 'lucide-react';
 
 // ============================================
 // 型定義
