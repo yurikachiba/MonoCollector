@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import ProductJsonLd from "@/components/ProductJsonLd";
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -67,6 +69,9 @@ export const metadata: Metadata = {
     title: "モノコレクター | 捨てられない思い出を、ちゃんと残す。",
     description: "【完全無料】子どもの制作物を撮影→AIがアイコンに自動変換。断捨離・引っ越し整理に最適。",
     images: ["/og-image.png"],
+  },
+  verification: {
+    google: "google7695c2aaa0eb0f66",
   },
   robots: {
     index: true,
@@ -481,33 +486,6 @@ const structuredData = {
       }
     ]
   },
-
-  // Product スキーマ（AIO対策強化）- 2026年新規追加
-  product: {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": "モノコレクター",
-    "description": "捨てられない思い出をデジタルで残す完全無料アプリ。子どもの制作物を撮影すると、生成AIがかわいいアイコンに自動変換。",
-    "image": {
-      "@type": "ImageObject",
-      "url": `${baseUrl}/og-image.png`,
-      "width": 1200,
-      "height": 630,
-      "caption": "モノコレクター - 子どもの作品をデジタル保存"
-    },
-    "brand": {
-      "@type": "Brand",
-      "name": "MonoCollector"
-    },
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "JPY",
-      "availability": "https://schema.org/InStock",
-      "priceValidUntil": "2027-12-31"
-    }
-    // review と aggregateRating は実際のレビューが集まってから追加する
-  }
 };
 
 export default function RootLayout({
@@ -567,13 +545,10 @@ export default function RootLayout({
             __html: JSON.stringify(structuredData.itemList)
           }}
         />
-        {/* Product 構造化データ（AIO対策強化） */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData.product)
-          }}
-        />
+        {/* Product 構造化データ（動的にレビュー取得） */}
+        <Suspense fallback={null}>
+          <ProductJsonLd />
+        </Suspense>
       </head>
       <body className="antialiased">
         <Providers>{children}</Providers>
