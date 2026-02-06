@@ -68,6 +68,9 @@ export const metadata: Metadata = {
     description: "【完全無料】子どもの制作物を撮影→AIがアイコンに自動変換。断捨離・引っ越し整理に最適。",
     images: ["/og-image.png"],
   },
+  verification: {
+    google: "google7695c2aaa0eb0f66",
+  },
   robots: {
     index: true,
     follow: true,

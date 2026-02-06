@@ -41,6 +41,19 @@
           "value": "public, max-age=86400"
         }
       ]
+    },
+    {
+      "source": "/google:path*.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        },
+        {
+          "key": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        }
+      ]
     }
   ]
 }
