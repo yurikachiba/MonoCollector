@@ -121,16 +121,16 @@ function LoginContent() {
 
       {/* Login Buttons */}
       <div className="space-y-3">
-        {/* Google Login */}
+        {/* Google Sign-In - Googleブランドガイドライン準拠 */}
         <button
           onClick={handleGoogleLogin}
           disabled={isLoading !== null}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 font-medium hover:bg-zinc-50 dark:hover:bg-zinc-750 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-zinc-300 rounded-lg text-zinc-700 font-medium hover:bg-zinc-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           {isLoading === "google" ? (
             <div className="w-5 h-5 border-2 border-zinc-300 border-t-zinc-600 rounded-full animate-spin" />
           ) : (
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -149,7 +149,7 @@ function LoginContent() {
               />
             </svg>
           )}
-          <span>Googleでログイン</span>
+          <span>Sign in with Google</span>
         </button>
 
         {/* Divider */}
@@ -187,13 +187,22 @@ function LoginContent() {
       </p>
 
       {/* Legal Links */}
-      <div className="flex justify-center gap-4 text-xs text-zinc-500 dark:text-zinc-500">
-        <Link href="/terms" className="hover:text-zinc-700 dark:hover:text-zinc-300 underline">
-          利用規約
-        </Link>
-        <Link href="/privacy" className="hover:text-zinc-700 dark:hover:text-zinc-300 underline">
-          プライバシーポリシー
-        </Link>
+      <div className="text-center space-y-2">
+        <div className="flex justify-center gap-4 text-xs text-zinc-500 dark:text-zinc-500">
+          <Link href="/terms" className="hover:text-zinc-700 dark:hover:text-zinc-300 underline">
+            利用規約
+          </Link>
+          <Link href="/privacy" className="hover:text-zinc-700 dark:hover:text-zinc-300 underline">
+            プライバシーポリシー
+          </Link>
+        </div>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 leading-relaxed">
+          ログインすることで、
+          <Link href="/terms" className="underline hover:text-zinc-600 dark:hover:text-zinc-400">利用規約</Link>
+          と
+          <Link href="/privacy" className="underline hover:text-zinc-600 dark:hover:text-zinc-400">プライバシーポリシー</Link>
+          に同意したものとみなされます。
+        </p>
       </div>
     </div>
   );

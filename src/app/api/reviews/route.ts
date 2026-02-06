@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       stats: {
         averageRating: stats._avg.rating || 0,
         totalReviews: stats._count.id,
-        ratingDistribution: ratingDistribution.reduce((acc, item) => {
+        ratingDistribution: ratingDistribution.reduce((acc: Record<number, number>, item: { rating: number; _count: { id: number } }) => {
           acc[item.rating] = item._count.id;
           return acc;
         }, {} as Record<number, number>),

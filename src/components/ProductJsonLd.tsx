@@ -43,7 +43,7 @@ export default async function ProductJsonLd() {
       },
     });
 
-    reviews = featuredReviews.map((r) => ({
+    reviews = featuredReviews.map((r: { rating: number; title: string; content: string; userName: string; createdAt: Date }) => ({
       "@type": "Review",
       reviewRating: {
         "@type": "Rating",

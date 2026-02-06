@@ -688,7 +688,7 @@ export default function LandingPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/30 mb-8"
+            className="p-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/30 mb-6"
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
@@ -710,6 +710,22 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+          </motion.div>
+
+          {/* Google API Limited Use 準拠 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/30 border border-zinc-200 dark:border-zinc-700 mb-8"
+          >
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              本サービスにおけるGoogle APIから受信した情報の使用および他のアプリへの転送は、
+              <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="text-purple-600 dark:text-purple-400 underline hover:text-purple-700 dark:hover:text-purple-300">Google API サービスのユーザーデータに関するポリシー</a>
+              （Limited Use（制限付き使用）の要件を含む）に準拠しています。
+              Googleから取得したデータ（メールアドレス、表示名、プロフィール画像）は、ユーザー認証とアプリ内表示の目的にのみ使用され、第三者への販売や広告目的での利用は行いません。
+            </p>
           </motion.div>
 
           {/* プライバシーポリシーへのリンク */}
@@ -827,10 +843,19 @@ export default function LandingPage() {
                     monocollector.tofu@gmail.com
                   </a>
                 </li>
+                <li>
+                  ウェブサイト：
+                  <a
+                    href="https://monocollector.com"
+                    className="text-purple-600 dark:text-purple-400 hover:underline"
+                  >
+                    https://monocollector.com
+                  </a>
+                </li>
               </ul>
-              <div className="mt-4 p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800/50 text-xs text-zinc-500 dark:text-zinc-400">
-                <p>本サービスはGoogle OAuth 2.0を使用しています。</p>
-                <p className="mt-1">Googleの利用規約とプライバシーポリシーが適用されます。</p>
+              <div className="mt-4 p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800/50 text-xs text-zinc-500 dark:text-zinc-400 space-y-1">
+                <p>本サービスはGoogle OAuth 2.0を使用してユーザー認証を行います。</p>
+                <p>Googleユーザーデータの使用は <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-zinc-700 dark:hover:text-zinc-300">Google API サービスのユーザーデータに関するポリシー</a>（Limited Use の要件を含む）に準拠しています。</p>
               </div>
             </div>
           </div>

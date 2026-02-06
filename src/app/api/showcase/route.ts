@@ -23,7 +23,7 @@ export async function GET() {
       return NextResponse.json({ icons: [] });
     }
 
-    const adminUserIds = adminUsers.map(u => u.id);
+    const adminUserIds = adminUsers.map((u: { id: string }) => u.id);
 
     // Get admin's items with generated icons
     const items = await prisma.item.findMany({
@@ -41,7 +41,7 @@ export async function GET() {
       take: 12, // Limit to 12 icons for the showcase grid
     });
 
-    const icons = items.map(item => ({
+    const icons = items.map((item: { id: string; generatedIcon: string | null; iconStyle: string | null; iconColors: string[] }) => ({
       id: item.id,
       icon: item.generatedIcon,
       style: item.iconStyle,
