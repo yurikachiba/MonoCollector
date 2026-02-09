@@ -42,13 +42,14 @@ export default function CollectionValueCard() {
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
     const firstDate = new Date(sorted[0].createdAt);
+    const now = new Date();
     const daysSinceFirst = Math.max(
       0,
-      Math.floor((Date.now() - firstDate.getTime()) / (1000 * 60 * 60 * 24))
+      Math.floor((now.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24))
     );
 
     // ストリーク計算
-    const today = new Date();
+    const today = now;
     let streakDays = 0;
     for (let i = 0; i < 365; i++) {
       const checkDate = new Date(today);
