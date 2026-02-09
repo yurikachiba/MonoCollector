@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       // 優先度順に通知を選択（1日1通知）
 
       // 1. ストリークリマインダー
-      if (!notification && sub.streakReminder && streak > 0 && !hasAddedToday) {
+      if (sub.streakReminder && streak > 0 && !hasAddedToday) {
         notification = {
           title: '連続記録が途切れそう！',
           body: `現在${streak}日連続！今日もモノを記録して記録を伸ばそう`,

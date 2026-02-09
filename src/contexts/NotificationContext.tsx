@@ -14,7 +14,7 @@ import {
   createLevelUpNotification,
   createAchievementNotification,
 } from '@/lib/notifications';
-import { subscribeToPush, unsubscribeFromPush, syncNotificationSettings } from '@/lib/push-subscription';
+import { subscribeToPush, syncNotificationSettings } from '@/lib/push-subscription';
 import { CollectionBadge, Achievement, LevelInfo } from '@/lib/collection-system';
 
 // バッジ獲得ポップアップ用の型
