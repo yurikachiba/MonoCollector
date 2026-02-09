@@ -5,7 +5,6 @@ import {
   NotificationSettings,
   getNotificationSettings,
   saveNotificationSettings,
-  defaultNotificationSettings,
   isNotificationSupported,
   getNotificationPermission,
   requestNotificationPermission,

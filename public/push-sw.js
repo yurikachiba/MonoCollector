@@ -7,7 +7,7 @@ self.addEventListener('push', function (event) {
   let data;
   try {
     data = event.data.json();
-  } catch (e) {
+  } catch (_) {
     data = {
       title: 'モノコレクター',
       body: event.data.text(),
