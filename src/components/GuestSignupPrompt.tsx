@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import {
@@ -8,28 +8,51 @@ import {
   Shield,
   Cloud,
   Smartphone,
-  Sparkles,
+  AlertTriangle,
   ArrowRight,
   Check,
+  Clock,
 } from 'lucide-react';
 import { useItems } from '@/hooks/useItems';
 import { useOnboardingStore } from './OnboardingTutorial';
 
+// ゲストデータのリスクを段階的に伝えるメッセージ
+const RISK_MESSAGES = [
+  {
+    itemRange: [1, 2],
+    headline: 'この思い出、今のままだと…',
+    subtext: 'この端末だけに保存されています。ブラウザのデータ削除や端末変更で消えてしまいます。',
+    urgency: 'low',
+  },
+  {
+    itemRange: [3, 5],
+    headline: 'もう{count}件の思い出があります',
+    subtext: 'Googleアカウントで守りませんか？クラウドに安全に保存されます。',
+    urgency: 'medium',
+  },
+  {
+    itemRange: [6, Infinity],
+    headline: '{count}件の思い出コレクション',
+    subtext: 'これだけの思い出を失うのはもったいない。30秒で永久保存できます。',
+    urgency: 'high',
+  },
+];
+
 const BENEFITS = [
   {
+    icon: Shield,
+    title: '消えない安心',
+    description: '端末が壊れても、データ削除しても大丈夫',
+  },
+  {
     icon: Cloud,
-    title: 'データを永久に保存',
-    description: 'クラウドに安全に保存。端末が変わっても安心',
+    title: 'どこからでもアクセス',
+    description: 'スマホでもPCでも同じコレクション',
   },
   {
     icon: Smartphone,
-    title: 'どこからでもアクセス',
-    description: '複数デバイスで同期。いつでもコレクションを確認',
-  },
-  {
-    icon: Shield,
-    title: 'セキュアな管理',
-    description: 'Googleアカウントで安全にログイン',
+    title: '30秒で完了',
+    description: 'Googleアカウントで即座に登録。今のデータも全て引き継ぎ',
   },
 ];
 
@@ -45,31 +68,61 @@ export default function GuestSignupPrompt() {
   const { data: items = [] } = useItems();
   const itemCount = items.length;
 
+  // アイテム数に応じたメッセージを選択
+  const riskMessage = useMemo(() => {
+    const msg = RISK_MESSAGES.find(
+      (m) => itemCount >= m.itemRange[0] && itemCount <= m.itemRange[1]
+    );
+    if (!msg) return RISK_MESSAGES[0];
+    return {
+      ...msg,
+      headline: msg.headline.replace('{count}', String(itemCount)),
+      subtext: msg.subtext.replace('{count}', String(itemCount)),
+    };
+  }, [itemCount]);
+
+  // 最初のアイテムの登録日からの経過日数
+  const daysSinceFirst = useMemo(() => {
+    if (items.length === 0) return 0;
+    const sorted = [...items].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+    const first = new Date(sorted[0].createdAt);
+    return Math.floor((Date.now() - first.getTime()) / (1000 * 60 * 60 * 24));
+  }, [items]);
+
   useEffect(() => {
     // ゲストユーザーでない場合はスキップ
     if (status === 'loading') return;
     if (!session?.user?.isGuest) return;
 
-    // 既に表示済みの場合はスキップ（1日1回まで）
-    const lastShown = localStorage.getItem('guestSignupPromptLastShown');
-    const today = new Date().toDateString();
-    if (lastShown === today) return;
-
     // 永久に非表示にした場合はスキップ
     if (localStorage.getItem('guestSignupPromptDismissed') === 'true') return;
 
-    // 3件以上登録したら表示
-    if (itemCount >= 3) {
+    // 1件以上登録したら表示（閾値を3→1に引き下げ）
+    if (itemCount >= 1) {
+      // 表示頻度の制御：アイテム数に応じて変える
+      const lastShown = localStorage.getItem('guestSignupPromptLastShown');
+      const now = Date.now();
+
+      if (lastShown) {
+        const elapsed = now - parseInt(lastShown, 10);
+        // 1-2件: 3日に1回、3-5件: 2日に1回、6件以上: 毎日
+        const intervalDays = itemCount <= 2 ? 3 : itemCount <= 5 ? 2 : 1;
+        const intervalMs = intervalDays * 24 * 60 * 60 * 1000;
+        if (elapsed < intervalMs) return;
+      }
+
       const timer = setTimeout(() => {
         setIsOpen(true);
-      }, 3000); // ページロード後3秒で表示
+      }, 5000); // ページロード後5秒で表示（急かさない）
       return () => clearTimeout(timer);
     }
   }, [session, status, itemCount]);
 
   const handleClose = () => {
     setIsOpen(false);
-    localStorage.setItem('guestSignupPromptLastShown', new Date().toDateString());
+    localStorage.setItem('guestSignupPromptLastShown', String(Date.now()));
   };
 
   const handleDismissForever = () => {
@@ -80,7 +133,6 @@ export default function GuestSignupPrompt() {
   const handleSignup = async () => {
     setIsSigningIn(true);
     try {
-      // ゲストセッションをサインアウトしてからGoogleログイン
       await signOut({ redirect: false });
       await signIn('google', { callbackUrl: '/collection' });
     } catch (error) {
@@ -116,8 +168,14 @@ export default function GuestSignupPrompt() {
             className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header with gradient */}
-            <div className="relative px-6 pt-8 pb-6 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+            {/* Header - urgency に応じた色変更 */}
+            <div className={`relative px-6 pt-8 pb-6 bg-gradient-to-br ${
+              riskMessage.urgency === 'high'
+                ? 'from-rose-500 via-pink-500 to-orange-500'
+                : riskMessage.urgency === 'medium'
+                ? 'from-amber-500 via-orange-500 to-rose-500'
+                : 'from-indigo-500 via-purple-500 to-pink-500'
+            }`}>
               <button
                 onClick={handleClose}
                 className="absolute right-4 top-4 p-2 text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-colors"
@@ -132,37 +190,61 @@ export default function GuestSignupPrompt() {
                   transition={{ delay: 0.2, type: 'spring' }}
                   className="inline-flex p-3 bg-white/20 rounded-2xl mb-4"
                 >
-                  <Sparkles className="w-8 h-8 text-white" />
+                  {riskMessage.urgency === 'low' ? (
+                    <Cloud className="w-8 h-8 text-white" />
+                  ) : (
+                    <AlertTriangle className="w-8 h-8 text-white" />
+                  )}
                 </motion.div>
                 <h2 className="text-2xl font-bold text-white mb-2">
-                  {itemCount}件のモノを登録中!
+                  {riskMessage.headline}
                 </h2>
-                <p className="text-white/90">
-                  Googleアカウントで登録すると
-                  <br />
-                  <span className="font-semibold">大切なコレクションを永久に保存</span>できます
+                <p className="text-white/90 leading-relaxed">
+                  {riskMessage.subtext}
                 </p>
               </div>
             </div>
 
+            {/* アイテム状況のサマリー */}
+            {itemCount > 0 && (
+              <div className="mx-6 mt-4 p-3 bg-gray-50 dark:bg-zinc-800 rounded-xl">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                    <Clock className="w-4 h-4" />
+                    <span>保護されていないデータ</span>
+                  </div>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-3">
+                  <div className="text-center p-2 bg-white dark:bg-zinc-900 rounded-lg">
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{itemCount}</p>
+                    <p className="text-xs text-gray-500">アイテム</p>
+                  </div>
+                  <div className="text-center p-2 bg-white dark:bg-zinc-900 rounded-lg">
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{daysSinceFirst}</p>
+                    <p className="text-xs text-gray-500">日分の記録</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Benefits */}
-            <div className="px-6 py-6 space-y-4">
+            <div className="px-6 py-4 space-y-3">
               {BENEFITS.map((benefit, index) => (
                 <motion.div
                   key={benefit.title}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
-                  className="flex items-start gap-4"
+                  className="flex items-start gap-3"
                 >
-                  <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl">
-                    <benefit.icon className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                    <benefit.icon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900 dark:text-white">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                       {benefit.title}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {benefit.description}
                     </p>
                   </div>
@@ -170,12 +252,12 @@ export default function GuestSignupPrompt() {
               ))}
             </div>
 
-            {/* Guest data migration note */}
-            <div className="mx-6 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800/30">
+            {/* データ引き継ぎ保証 */}
+            <div className="mx-6 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800/30">
               <div className="flex items-center gap-2 text-sm">
-                <Check className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <span className="text-amber-800 dark:text-amber-300">
-                  今のデータはそのまま引き継がれます
+                <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-emerald-800 dark:text-emerald-300">
+                  今の{itemCount}件のデータはそのまま引き継がれます
                 </span>
               </div>
             </div>
@@ -209,7 +291,7 @@ export default function GuestSignupPrompt() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span>Googleで登録（無料）</span>
+                    <span>Googleで保存する（無料・30秒）</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -219,7 +301,7 @@ export default function GuestSignupPrompt() {
                 onClick={handleClose}
                 className="w-full py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
               >
-                あとで登録する
+                あとで
               </button>
 
               <button

@@ -24,6 +24,13 @@ import OnboardingTutorial, {
 } from '@/components/OnboardingTutorial';
 import { useItems } from '@/hooks/useItems';
 
+// 新しいリテンション施策コンポーネント
+import NextItemSuggestion from '@/components/NextItemSuggestion';
+import StreakBanner from '@/components/StreakBanner';
+import RoomProgress from '@/components/RoomProgress';
+import WeeklyDigestBanner from '@/components/WeeklyDigestBanner';
+import CollectionValueCard from '@/components/CollectionValueCard';
+
 export default function CollectionPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -61,6 +68,10 @@ export default function CollectionPage() {
     setEditItem(null);
   };
 
+  const handleOpenAddModal = () => {
+    setIsAddModalOpen(true);
+  };
+
   // FABクリック時の処理（オンボーディング対応）
   const handleFabClick = () => {
     if (isActive && currentStep?.id === 'fab') {
@@ -73,9 +84,26 @@ export default function CollectionPage() {
     <main className="min-h-screen pb-24">
       <Header onOpenSettings={() => setIsSettingsOpen(true)} />
       <CollectionPanel />
+
+      {/* コレクション価値カード（5件以上で表示） */}
+      <CollectionValueCard />
+
+      {/* ストリークバナー（毎日の習慣形成） */}
+      <StreakBanner onAddItem={handleOpenAddModal} />
+
+      {/* 週間ダイジェスト（週1回の振り返り） */}
+      <WeeklyDigestBanner />
+
+      {/* 次のアイテム提案（1〜4件の間で表示） */}
+      <NextItemSuggestion onAddItem={handleOpenAddModal} />
+
       <div className="px-4">
         <MemoriesSection />
       </div>
+
+      {/* おうちマップ（場所別進捗、3件以上で表示） */}
+      <RoomProgress onAddItem={handleOpenAddModal} />
+
       <CategoryBar />
       <ItemGrid onEdit={handleEdit} />
 
@@ -98,8 +126,8 @@ export default function CollectionPage() {
       <PushNotificationPrompt />
       <NotificationChecker />
       {/* オンボーディング完了後のみFirstItemCelebrationを表示 */}
-      {hasCompleted && <FirstItemCelebration onAddAnother={() => setIsAddModalOpen(true)} />}
-      <MilestoneCelebration onAddAnother={() => setIsAddModalOpen(true)} />
+      {hasCompleted && <FirstItemCelebration onAddAnother={handleOpenAddModal} />}
+      <MilestoneCelebration onAddAnother={handleOpenAddModal} />
       <OnboardingTutorial />
       <OnboardingCelebration />
     </main>
