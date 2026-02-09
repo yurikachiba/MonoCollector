@@ -7,6 +7,7 @@ import {
   isNotificationSupported,
   getNotificationPermission,
 } from '@/lib/notifications';
+import { subscribeToPush } from '@/lib/push-subscription';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useOnboardingStore } from './OnboardingTutorial';
 
@@ -81,6 +82,10 @@ export default function PushNotificationPrompt() {
       if (permission === 'granted') {
         // 通知設定を有効にする（Context経由で更新）
         updateSettings({ enabled: true });
+        // Web Pushサブスクリプションを登録（バックグラウンド通知用）
+        subscribeToPush().catch((err) =>
+          console.warn('Failed to subscribe to push:', err)
+        );
         setIsOpen(false);
       } else {
         // 拒否された場合は閉じる
