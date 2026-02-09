@@ -139,3 +139,11 @@ model PushSubscription {
 
   @@index([userId])
 }
+
+// アプリ設定（VAPID鍵など自動生成される設定を永続化）
+model AppConfig {
+  key       String   @id
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

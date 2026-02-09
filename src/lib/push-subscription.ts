@@ -1,4 +1,5 @@
 // クライアントサイド Web Push サブスクリプション管理
+// VAPID公開鍵はサーバーAPIから自動取得される
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -9,6 +10,28 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
     outputArray[i] = rawData.charCodeAt(i);
   }
   return outputArray;
+}
+
+// VAPID公開鍵のキャッシュ
+let cachedVapidPublicKey: string | null = null;
+
+/**
+ * VAPID公開鍵をサーバーから取得（自動生成済み）
+ */
+async function getVapidPublicKey(): Promise<string | null> {
+  if (cachedVapidPublicKey) return cachedVapidPublicKey;
+
+  try {
+    const response = await fetch('/api/notifications/vapid-public-key');
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    cachedVapidPublicKey = data.publicKey;
+    return cachedVapidPublicKey;
+  } catch (error) {
+    console.error('Failed to fetch VAPID public key:', error);
+    return null;
+  }
 }
 
 /**
@@ -29,9 +52,9 @@ async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration
  * Web Pushサブスクリプションを作成してサーバーに登録
  */
 export async function subscribeToPush(): Promise<boolean> {
-  const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const vapidPublicKey = await getVapidPublicKey();
   if (!vapidPublicKey) {
-    console.warn('VAPID public key not configured');
+    console.warn('VAPID public key not available');
     return false;
   }
 

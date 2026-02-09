@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (!isWebPushConfigured()) {
+  if (!(await isWebPushConfigured())) {
     return NextResponse.json(
       { error: 'Web Push not configured' },
       { status: 503 }
