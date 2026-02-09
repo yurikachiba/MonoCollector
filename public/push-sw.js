@@ -4,10 +4,10 @@
 self.addEventListener('push', function (event) {
   if (!event.data) return;
 
-  let data;
+  var data;
   try {
     data = event.data.json();
-  } catch (_) {
+  } catch {
     data = {
       title: 'モノコレクター',
       body: event.data.text(),
