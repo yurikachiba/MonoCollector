@@ -6,6 +6,7 @@ import { X, Eye, EyeOff, ExternalLink, Key, Trash2, Check, BarChart3, Bell, Bell
 import Link from 'next/link';
 import { getStoredApiKey, setStoredApiKey, removeStoredApiKey } from '@/lib/groq-vision';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { subscribeToPush, unsubscribeFromPush } from '@/lib/push-subscription';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -42,11 +43,28 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
       const result = await requestPermission();
       if (result === 'granted') {
         updateNotificationSettings({ enabled: true });
+        // Web Pushサブスクリプションを登録
+        subscribeToPush().catch((err) =>
+          console.warn('Failed to subscribe to push:', err)
+        );
         setNotificationSaved(true);
         setTimeout(() => setNotificationSaved(false), 2000);
       }
     } else {
-      updateNotificationSettings({ enabled: !notificationSettings.enabled });
+      const newEnabled = !notificationSettings.enabled;
+      updateNotificationSettings({ enabled: newEnabled });
+
+      // Push通知のサブスクリプションを管理
+      if (newEnabled) {
+        subscribeToPush().catch((err) =>
+          console.warn('Failed to subscribe to push:', err)
+        );
+      } else {
+        unsubscribeFromPush().catch((err) =>
+          console.warn('Failed to unsubscribe from push:', err)
+        );
+      }
+
       setNotificationSaved(true);
       setTimeout(() => setNotificationSaved(false), 2000);
     }

@@ -18,10 +18,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts Account[]
-  sessions Session[]
-  items    Item[]
-  reviews  Review[]
+  accounts          Account[]
+  sessions          Session[]
+  items             Item[]
+  reviews           Review[]
+  pushSubscriptions PushSubscription[]
 }
 
 model Account {
@@ -112,4 +113,37 @@ model Review {
   @@index([rating])
   @@index([createdAt])
   @@index([featured])
+}
+
+// Web Push通知サブスクリプション
+model PushSubscription {
+  id       String @id @default(uuid())
+  userId   String
+  endpoint String @unique
+  p256dh   String // Push subscription public key
+  auth     String // Push subscription auth secret
+
+  // 通知設定（クライアントと同期）
+  memoryReminder     Boolean @default(true)
+  streakReminder     Boolean @default(true)
+  achievementAlert   Boolean @default(true)
+  weeklySummary      Boolean @default(true)
+  motivationReminder Boolean @default(true)
+
+  lastNotifiedDate String? // 最後に通知を送った日付 (YYYY-MM-DD)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// アプリ設定（VAPID鍵など自動生成される設定を永続化）
+model AppConfig {
+  key       String   @id
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -108,7 +108,7 @@ export default function NextItemSuggestion({ onAddItem }: NextItemSuggestionProp
     }
 
     // 汎用提案
-    const generic = GENERIC_SUGGESTIONS[Math.floor(Math.random() * GENERIC_SUGGESTIONS.length)];
+    const generic = GENERIC_SUGGESTIONS[items.length % GENERIC_SUGGESTIONS.length];
     return {
       type: 'generic' as const,
       label: '',

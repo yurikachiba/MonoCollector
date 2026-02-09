@@ -88,7 +88,8 @@ export default function GuestSignupPrompt() {
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
     const first = new Date(sorted[0].createdAt);
-    return Math.floor((Date.now() - first.getTime()) / (1000 * 60 * 60 * 24));
+    const now = new Date();
+    return Math.floor((now.getTime() - first.getTime()) / (1000 * 60 * 60 * 24));
   }, [items]);
 
   useEffect(() => {

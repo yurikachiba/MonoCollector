@@ -1,11 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react';
 import {
   NotificationSettings,
   getNotificationSettings,
   saveNotificationSettings,
-  defaultNotificationSettings,
   isNotificationSupported,
   getNotificationPermission,
   requestNotificationPermission,
@@ -14,6 +13,7 @@ import {
   createLevelUpNotification,
   createAchievementNotification,
 } from '@/lib/notifications';
+import { subscribeToPush, syncNotificationSettings } from '@/lib/push-subscription';
 import { CollectionBadge, Achievement, LevelInfo } from '@/lib/collection-system';
 
 // バッジ獲得ポップアップ用の型
@@ -110,6 +110,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     setSettings((prev) => {
       const updated = { ...prev, ...newSettings };
       saveNotificationSettings(updated);
+
+      // サーバーにPush通知設定を同期（バックグラウンド通知用）
+      if (updated.enabled) {
+        syncNotificationSettings({
+          memoryReminder: updated.memoryReminder,
+          streakReminder: updated.streakReminder,
+          achievementAlert: updated.achievementAlert,
+          weeklySummary: updated.weeklySummary,
+          motivationReminder: updated.motivationReminder,
+        });
+      }
+
       return updated;
     });
   }, []);
@@ -118,8 +130,25 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const requestPermission = useCallback(async () => {
     const result = await requestNotificationPermission();
     setPermission(result);
+
+    // 権限が付与されたらWeb Pushサブスクリプションを登録
+    if (result === 'granted') {
+      subscribeToPush().catch((err) =>
+        console.warn('Failed to subscribe to push:', err)
+      );
+    }
+
     return result;
   }, []);
+
+  // 初回マウント時: 通知が有効かつ権限付与済みならPushサブスクリプションを確認・登録
+  useEffect(() => {
+    if (settings.enabled && permission === 'granted') {
+      subscribeToPush().catch((err) =>
+        console.warn('Failed to re-subscribe to push:', err)
+      );
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // バッジポップアップ
   const showBadgePopup = useCallback((data: BadgePopupData) => {
