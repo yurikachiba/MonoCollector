@@ -539,13 +539,21 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                 )}
 
                 {/* Name */}
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="名前"
-                  className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value.slice(0, 50))}
+                    maxLength={50}
+                    placeholder="名前"
+                    className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                  />
+                  {name.length >= 40 && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                      {name.length}/50
+                    </span>
+                  )}
+                </div>
 
                 {/* Category */}
                 <div className="relative">
@@ -564,13 +572,21 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                 </div>
 
                 {/* Location */}
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="場所（任意）"
-                  className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value.slice(0, 50))}
+                    maxLength={50}
+                    placeholder="場所（任意）"
+                    className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                  />
+                  {location.length >= 40 && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                      {location.length}/50
+                    </span>
+                  )}
+                </div>
 
                 {/* Tags */}
                 <div className="space-y-2">
@@ -580,10 +596,12 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                       <input
                         type="text"
                         value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
+                        onChange={(e) => setTagInput(e.target.value.slice(0, 30))}
+                        maxLength={30}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && tagInput.trim()) {
                             e.preventDefault();
+                            if (tags.length >= 10) return;
                             if (!tags.includes(tagInput.trim())) {
                               setTags([...tags, tagInput.trim()]);
                             }
@@ -594,7 +612,7 @@ export default function AddItemModal({ isOpen, onClose, editItem }: AddItemModal
                         className="w-full pl-9 pr-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
                       />
                     </div>
-                    {tagInput.trim() && (
+                    {tagInput.trim() && tags.length < 10 && (
                       <button
                         type="button"
                         onClick={() => {

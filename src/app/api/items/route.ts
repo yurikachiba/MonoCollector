@@ -134,6 +134,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate field lengths
+    if ((name as string).length > 50) {
+      return NextResponse.json(
+        { error: 'Name must be 50 characters or less', requestId },
+        { status: 400 }
+      );
+    }
+    if ((location as string).length > 50) {
+      return NextResponse.json(
+        { error: 'Location must be 50 characters or less', requestId },
+        { status: 400 }
+      );
+    }
+
     // Safely parse quantity - ensure it's a valid integer
     const quantityStr = formData.get('quantity') as string;
     const quantity = quantityStr ? parseInt(quantityStr, 10) : 1;
@@ -155,8 +169,10 @@ export async function POST(request: NextRequest) {
       createdAt = new Date();
     }
 
-    // Validate tags is an array of strings
-    const safeTags = Array.isArray(tags) ? tags.filter((t): t is string => typeof t === 'string') : [];
+    // Validate tags is an array of strings with length limits
+    const safeTags = Array.isArray(tags)
+      ? tags.filter((t): t is string => typeof t === 'string' && t.length <= 30).slice(0, 10)
+      : [];
 
     // Handle generated icon fields
     const generatedIcon = formData.get('generatedIcon') as string | null;

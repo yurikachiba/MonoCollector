@@ -8,6 +8,7 @@ import { Item, Category } from '@/lib/db';
 import { useUIStore } from '@/lib/store';
 import { useDeleteItem } from '@/hooks/useItems';
 import { ItemRarityBadge } from './RarityBadge';
+import { CategoryIcon } from '@/components/icons/CategoryIcons';
 
 interface ItemCardProps {
   item: Item;
@@ -61,7 +62,7 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-xl">{item.icon}</span>
+            <CategoryIcon categoryId={item.category} size={28} />
           )}
           {/* Generated Icon indicator */}
           {item.generatedIcon && (
@@ -141,8 +142,8 @@ export default function ItemCard({ item, category, onEdit }: ItemCardProps) {
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-4xl">
-              {item.icon}
+            <div className="w-full h-full flex items-center justify-center">
+              <CategoryIcon categoryId={item.category} size={48} />
             </div>
           )}
 

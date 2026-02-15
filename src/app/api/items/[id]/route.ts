@@ -68,6 +68,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const formData = await request.formData();
 
+    const rawName = (formData.get('name') as string) || '';
+    const rawLocation = (formData.get('location') as string) || '';
+
+    // Validate field lengths
+    if (rawName.length > 50) {
+      return NextResponse.json(
+        { error: 'Name must be 50 characters or less' },
+        { status: 400 }
+      );
+    }
+    if (rawLocation.length > 50) {
+      return NextResponse.json(
+        { error: 'Location must be 50 characters or less' },
+        { status: 400 }
+      );
+    }
+
     const updateData: {
       name: string;
       category: string;
@@ -83,10 +100,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       iconStyle?: string | null;
       iconColors?: string[];
     } = {
-      name: formData.get('name') as string,
+      name: rawName,
       category: formData.get('category') as string,
       icon: formData.get('icon') as string,
-      location: formData.get('location') as string,
+      location: rawLocation,
       quantity: parseInt(formData.get('quantity') as string) || 1,
       notes: formData.get('notes') as string || "",
       isCollected: formData.get('isCollected') === 'true',
@@ -102,7 +119,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const tagsStr = formData.get('tags') as string;
     // "undefined" 文字列の場合はスキップ
     if (tagsStr && tagsStr !== 'undefined') {
-      updateData.tags = JSON.parse(tagsStr);
+      const parsedTags = JSON.parse(tagsStr);
+      updateData.tags = Array.isArray(parsedTags)
+        ? parsedTags.filter((t): t is string => typeof t === 'string' && t.length <= 30).slice(0, 10)
+        : [];
     }
 
     // Handle generated icon fields
