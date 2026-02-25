@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Eye, EyeOff, ExternalLink, Key, Trash2, Check, BarChart3, Bell, BellOff, Clock, Sparkles, Flame, Calendar, Heart } from 'lucide-react';
+import { X, Eye, EyeOff, ExternalLink, Key, Trash2, Check, BarChart3, Bell, BellOff, Clock, Sparkles, Flame, Calendar, Heart, Send } from 'lucide-react';
 import Link from 'next/link';
 import { getStoredApiKey, setStoredApiKey, removeStoredApiKey } from '@/lib/groq-vision';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -18,6 +18,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [showApiKey, setShowApiKey] = useState(false);
   const [saved, setSaved] = useState(false);
   const [notificationSaved, setNotificationSaved] = useState(false);
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<string | null>(null);
 
   const {
     settings: notificationSettings,
@@ -67,6 +69,25 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
       setNotificationSaved(true);
       setTimeout(() => setNotificationSaved(false), 2000);
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const response = await fetch('/api/notifications/test', { method: 'POST' });
+      const data = await response.json();
+      if (response.ok) {
+        setTestResult(data.message);
+      } else {
+        setTestResult(data.error || 'テスト通知の送信に失敗しました');
+      }
+    } catch {
+      setTestResult('通信エラーが発生しました');
+    } finally {
+      setTestSending(false);
+      setTimeout(() => setTestResult(null), 4000);
     }
   };
 
@@ -355,7 +376,38 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                           </label>
                         </div>
 
-                        {/* リマインダー時間は21:00に固定されているため、設定UIを非表示にしました */}
+                        {/* テスト通知送信ボタン */}
+                        <div className="pt-3 border-t border-gray-100 dark:border-gray-800">
+                          <button
+                            onClick={handleSendTestNotification}
+                            disabled={testSending}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4
+                                     bg-gray-100 dark:bg-gray-800
+                                     text-gray-700 dark:text-gray-300
+                                     hover:bg-gray-200 dark:hover:bg-gray-700
+                                     rounded-xl text-sm font-medium
+                                     disabled:opacity-50 transition-colors"
+                          >
+                            {testSending ? (
+                              <div className="w-4 h-4 border-2 border-gray-400 border-t-gray-700 dark:border-gray-500 dark:border-t-gray-200 rounded-full animate-spin" />
+                            ) : (
+                              <Send className="w-4 h-4" />
+                            )}
+                            {testSending ? '送信中...' : 'テスト通知を送信'}
+                          </button>
+                          {testResult && (
+                            <motion.p
+                              initial={{ opacity: 0, y: -5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="text-xs text-center mt-2 text-gray-500 dark:text-gray-400"
+                            >
+                              {testResult}
+                            </motion.p>
+                          )}
+                          <p className="text-xs text-center mt-2 text-gray-400 dark:text-gray-500">
+                            朝9:00と夜21:00にプッシュ通知をお届けします
+                          </p>
+                        </div>
                       </motion.div>
                     )}
 

@@ -53,6 +53,8 @@ function calculateStreak(items: { createdAt: Date }[]): number {
 }
 
 // POST /api/notifications/cron - 定期通知の送信
+// slot=morning (UTC 0:00 = JST 9:00): モチベーション + 思い出リマインダー
+// slot=evening (UTC 12:00 = JST 21:00): ストリーク + 週次サマリー
 export async function POST(request: NextRequest) {
   if (!verifyCronAuth(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -65,8 +67,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const url = new URL(request.url);
+  const slot = url.searchParams.get('slot') || 'evening'; // デフォルトは夜
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+  const slotKey = `${todayStr}-${slot}`; // 朝と夜で別々に送信管理
   const isSunday = today.getDay() === 0;
 
   try {
@@ -94,8 +99,8 @@ export async function POST(request: NextRequest) {
     const expiredEndpoints: string[] = [];
 
     for (const sub of subscriptions) {
-      // 今日既に通知済みならスキップ
-      if (sub.lastNotifiedDate === todayStr) {
+      // このスロットで既に通知済みならスキップ
+      if (sub.lastNotifiedDate === slotKey) {
         skipped++;
         continue;
       }
@@ -119,88 +124,110 @@ export async function POST(request: NextRequest) {
 
       let notification = null;
 
-      // 優先度順に通知を選択（1日1通知）
+      if (slot === 'morning') {
+        // === 朝の通知（JST 9:00）===
+        // 優先度: 思い出リマインダー > モチベーション
 
-      // 1. ストリークリマインダー
-      if (sub.streakReminder && streak > 0 && !hasAddedToday) {
-        notification = {
-          title: '連続記録が途切れそう！',
-          body: `現在${streak}日連続！今日もモノを記録して記録を伸ばそう`,
-          icon: '/icons/icon-192x192.png',
-          tag: 'streak',
-          url: '/',
-          type: 'streak',
-        };
-      }
+        // 1. 思い出リマインダー（1年前、1ヶ月前、1週間前）
+        if (sub.memoryReminder) {
+          const memoryPeriods = [
+            { days: 365, period: '1年前の今日' },
+            { days: 30, period: '1ヶ月前' },
+            { days: 7, period: '1週間前' },
+          ];
 
-      // 2. 思い出リマインダー（1年前、1ヶ月前、1週間前）
-      if (!notification && sub.memoryReminder) {
-        const memoryPeriods = [
-          { days: 365, period: '1年前' },
-          { days: 30, period: '1ヶ月前' },
-          { days: 7, period: '1週間前' },
-        ];
+          for (const { days, period } of memoryPeriods) {
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() - days);
+            const targetDateStr = targetDate.toDateString();
 
-        for (const { days, period } of memoryPeriods) {
-          const targetDate = new Date();
-          targetDate.setDate(targetDate.getDate() - days);
-          const targetDateStr = targetDate.toDateString();
+            const memoryItem = items.find(
+              (item) => item.createdAt.toDateString() === targetDateStr
+            );
 
-          const memoryItem = items.find(
-            (item) => item.createdAt.toDateString() === targetDateStr
-          );
-
-          if (memoryItem) {
-            notification = {
-              title: '思い出を振り返ろう',
-              body: `${period}に「${memoryItem.name}」を記録しました`,
-              icon: '/icons/icon-192x192.png',
-              tag: 'memory',
-              url: '/',
-              type: 'memory',
-            };
-            break;
+            if (memoryItem) {
+              notification = {
+                title: '思い出を振り返ろう',
+                body: `${period}に「${memoryItem.name}」を記録しました`,
+                icon: '/icons/icon-192x192.png',
+                tag: 'memory',
+                url: '/collection',
+                type: 'memory',
+              };
+              break;
+            }
           }
         }
-      }
 
-      // 3. モチベーションリマインダー（3日以上記録なし）
-      if (!notification && sub.motivationReminder && daysSinceLastItem >= 3) {
-        const messages = [
-          '最近記録していないみたい。何か新しいモノ見つけた？',
-          'コレクションに新しい思い出を追加しませんか？',
-          '今日の大切なモノ、記録しておこう！',
-          'あなたのコレクションが待っています',
-          '小さな思い出も、大切なコレクションに',
-        ];
-        notification = {
-          title: 'モノコレクター',
-          body: messages[Math.floor(Math.random() * messages.length)],
-          icon: '/icons/icon-192x192.png',
-          tag: 'motivation',
-          url: '/',
-          type: 'motivation',
-        };
-      }
-
-      // 4. 週次サマリー（日曜日）
-      if (!notification && sub.weeklySummary && isSunday) {
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-
-        const weeklyItems = items.filter(
-          (item) => item.createdAt >= weekAgo
-        );
-
-        if (weeklyItems.length > 0) {
+        // 2. モチベーションリマインダー（3日以上記録なし）
+        if (!notification && sub.motivationReminder && daysSinceLastItem >= 3) {
+          const morningMessages = [
+            'おはよう！今日は何か新しいモノを見つけよう',
+            '今日も素敵なモノに出会えるかも？',
+            'コレクションに新しい思い出を追加しませんか？',
+            '今日の大切なモノ、記録しておこう！',
+          ];
           notification = {
-            title: '今週のコレクション',
-            body: `今週は${weeklyItems.length}個のモノを記録しました！連続${streak}日記録中`,
+            title: 'おはよう！モノコレクター',
+            body: morningMessages[Math.floor(Math.random() * morningMessages.length)],
             icon: '/icons/icon-192x192.png',
-            tag: 'weekly',
-            url: '/',
-            type: 'weekly',
+            tag: 'motivation',
+            url: '/collection',
+            type: 'motivation',
           };
+        }
+      } else {
+        // === 夜の通知（JST 21:00）===
+        // 優先度: ストリーク > モチベーション > 週次サマリー
+
+        // 1. ストリークリマインダー
+        if (sub.streakReminder && streak > 0 && !hasAddedToday) {
+          notification = {
+            title: '連続記録が途切れそう！',
+            body: `現在${streak}日連続！今日もモノを記録して記録を伸ばそう`,
+            icon: '/icons/icon-192x192.png',
+            tag: 'streak',
+            url: '/collection',
+            type: 'streak',
+          };
+        }
+
+        // 2. モチベーションリマインダー（3日以上記録なし、朝に送ってなければ）
+        if (!notification && sub.motivationReminder && daysSinceLastItem >= 3) {
+          const eveningMessages = [
+            '最近記録していないみたい。何か新しいモノ見つけた？',
+            'あなたのコレクションが待っています',
+            '小さな思い出も、大切なコレクションに',
+          ];
+          notification = {
+            title: 'モノコレクター',
+            body: eveningMessages[Math.floor(Math.random() * eveningMessages.length)],
+            icon: '/icons/icon-192x192.png',
+            tag: 'motivation',
+            url: '/collection',
+            type: 'motivation',
+          };
+        }
+
+        // 3. 週次サマリー（日曜日）
+        if (!notification && sub.weeklySummary && isSunday) {
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+
+          const weeklyItems = items.filter(
+            (item) => item.createdAt >= weekAgo
+          );
+
+          if (weeklyItems.length > 0) {
+            notification = {
+              title: '今週のコレクション',
+              body: `今週は${weeklyItems.length}個のモノを記録しました！連続${streak}日記録中`,
+              icon: '/icons/icon-192x192.png',
+              tag: 'weekly',
+              url: '/collection',
+              type: 'weekly',
+            };
+          }
         }
       }
 
@@ -223,10 +250,10 @@ export async function POST(request: NextRequest) {
 
       if (success) {
         sent++;
-        // 送信日を更新
+        // 送信スロットを更新（朝と夜で別々に管理）
         await prisma.pushSubscription.update({
           where: { id: sub.id },
-          data: { lastNotifiedDate: todayStr },
+          data: { lastNotifiedDate: slotKey },
         });
       } else {
         failed++;
@@ -244,6 +271,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      slot,
       stats: {
         total: subscriptions.length,
         sent,
