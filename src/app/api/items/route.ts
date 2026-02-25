@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { checkAndNotifyAchievements } from '@/lib/push-notify-on-event';
 
 interface PrismaItem {
   id: string;
@@ -225,6 +226,11 @@ export async function POST(request: NextRequest) {
     console.log(`[${requestId}] Updating category count for: ${item.category}`);
     await updateCategoryCount(item.category);
     console.log(`[${requestId}] Category count updated`);
+
+    // バックグラウンドで実績チェック＋プッシュ通知送信（レスポンスをブロックしない）
+    checkAndNotifyAchievements(session.user.id).catch((err) =>
+      console.warn(`[${requestId}] Background achievement check failed:`, err)
+    );
 
     // Convert Buffer back to Base64 for the response
     const itemResponse = {

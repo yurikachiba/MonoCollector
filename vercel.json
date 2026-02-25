@@ -4,7 +4,11 @@
   "regions": ["hnd1"],
   "crons": [
     {
-      "path": "/api/notifications/cron",
+      "path": "/api/notifications/cron?slot=morning",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/notifications/cron?slot=evening",
       "schedule": "0 12 * * *"
     }
   ],
