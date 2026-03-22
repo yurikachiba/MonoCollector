@@ -21,3 +21,9 @@
 ## 参考プロジェクト
 
 - PiyocoTodo (https://piyocotodo.com/) - 通知のロック画面表示の参考にしたアプリ
+
+## CI/CD・PR作成について
+
+- この環境ではGitHub APIへの認証がないため、Claude CodeからPRを作成できない
+- ブランチをpushした後、手動でGitHub上からPRを作成すること
+- PR作成URL例: `https://github.com/yurikachiba/MonoCollector/pull/new/<ブランチ名>`
