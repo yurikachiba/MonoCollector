@@ -156,7 +156,7 @@ export async function showNotification(payload: NotificationPayload): Promise<vo
             url: '/',
             ...payload.data,
           },
-          requireInteraction: payload.type === 'achievement' || payload.type === 'badge' || payload.type === 'levelup',
+          requireInteraction: true, // ロック画面に常に表示
         });
         return;
       }
