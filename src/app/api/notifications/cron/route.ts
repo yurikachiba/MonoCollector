@@ -153,6 +153,7 @@ export async function POST(request: NextRequest) {
                 tag: 'memory',
                 url: '/collection',
                 type: 'memory',
+                requireInteraction: true,
               };
               break;
             }
@@ -174,6 +175,7 @@ export async function POST(request: NextRequest) {
             tag: 'motivation',
             url: '/collection',
             type: 'motivation',
+            requireInteraction: true,
           };
         }
       } else {
@@ -189,6 +191,7 @@ export async function POST(request: NextRequest) {
             tag: 'streak',
             url: '/collection',
             type: 'streak',
+            requireInteraction: true,
           };
         }
 
@@ -206,6 +209,7 @@ export async function POST(request: NextRequest) {
             tag: 'motivation',
             url: '/collection',
             type: 'motivation',
+            requireInteraction: true,
           };
         }
 
@@ -226,6 +230,7 @@ export async function POST(request: NextRequest) {
               tag: 'weekly',
               url: '/collection',
               type: 'weekly',
+              requireInteraction: true,
             };
           }
         }

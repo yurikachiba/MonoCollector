@@ -132,7 +132,7 @@ export async function sendPushNotification(
       JSON.stringify(payload),
       {
         TTL: 60 * 60, // 1 hour
-        urgency: 'normal',
+        urgency: 'high', // ロック画面でも表示されるよう高優先度
       }
     );
     return true;

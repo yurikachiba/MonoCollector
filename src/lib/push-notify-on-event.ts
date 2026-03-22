@@ -154,6 +154,7 @@ export async function checkAndNotifyAchievements(userId: string): Promise<void> 
           tag: `achievement-${milestoneId}`,
           url: '/collection',
           type: 'achievement',
+          requireInteraction: true,
         });
       }
     }
@@ -168,6 +169,7 @@ export async function checkAndNotifyAchievements(userId: string): Promise<void> 
           tag: `achievement-${milestoneId}`,
           url: '/collection',
           type: 'achievement',
+          requireInteraction: true,
         });
       }
     }

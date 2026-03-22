@@ -69,7 +69,7 @@ self.addEventListener('push', function (event) {
       type: notificationType,
       ...(data.data || {}),
     },
-    requireInteraction: data.requireInteraction || false,
+    requireInteraction: true, // ロック画面に常に表示
     vibrate: vibrate,
     actions: actions,
     renotify: true, // 同じtagでも再通知する
