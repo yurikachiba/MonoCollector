@@ -116,19 +116,12 @@ export async function POST(request: NextRequest) {
         (item) => item.createdAt.toDateString() === today.toDateString()
       );
 
-      // 最後にアイテムを追加してからの日数
-      const lastItemDate = items[0].createdAt;
-      const daysSinceLastItem = Math.floor(
-        (today.getTime() - lastItemDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
       let notification = null;
 
       if (slot === 'morning') {
         // === 朝の通知（JST 9:00）===
-        // 優先度: 思い出リマインダー > モチベーション
 
-        // 1. 思い出リマインダー（1年前、1ヶ月前、1週間前）
+        // 思い出リマインダー（該当があれば優先）
         if (sub.memoryReminder) {
           const memoryPeriods = [
             { days: 365, period: '1年前の今日' },
@@ -160,19 +153,24 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // 2. モチベーションリマインダー（3日以上記録なし）
-        if (!notification && sub.motivationReminder && daysSinceLastItem >= 3) {
-          const morningMessages = [
-            'おはよう！今日は何か新しいモノを見つけよう',
-            '今日も素敵なモノに出会えるかも？',
-            'コレクションに新しい思い出を追加しませんか？',
-            '今日の大切なモノ、記録しておこう！',
-          ];
+        // おはよう挨拶（必ず届くフォールバック）
+        if (!notification) {
+          const morningMessages = streak > 0
+            ? [
+                `おはよう！${streak}日連続記録中、今日もいい一日に`,
+                `おはよう！連続${streak}日目、今日も楽しもう`,
+                `おはよう！${streak}日続いてるよ、すごい`,
+              ]
+            : [
+                'おはよう！今日はどんなモノに出会えるかな',
+                'おはよう！新しい一日のはじまり',
+                'おはよう！今日も気軽に記録してみよう',
+              ];
           notification = {
-            title: 'おはよう！モノコレクター',
+            title: 'モノコレクター',
             body: morningMessages[Math.floor(Math.random() * morningMessages.length)],
             icon: '/icons/icon-192x192.png',
-            tag: 'motivation',
+            tag: 'morning-greeting',
             url: '/collection',
             type: 'motivation',
             requireInteraction: true,
@@ -180,9 +178,8 @@ export async function POST(request: NextRequest) {
         }
       } else {
         // === 夜の通知（JST 21:00）===
-        // 優先度: ストリーク > モチベーション > 週次サマリー
 
-        // 1. ストリークリマインダー
+        // ストリーク危機（今日まだ記録してない＆連続中）
         if (sub.streakReminder && streak > 0 && !hasAddedToday) {
           notification = {
             title: '連続記録が途切れそう！',
@@ -195,25 +192,7 @@ export async function POST(request: NextRequest) {
           };
         }
 
-        // 2. モチベーションリマインダー（3日以上記録なし、朝に送ってなければ）
-        if (!notification && sub.motivationReminder && daysSinceLastItem >= 3) {
-          const eveningMessages = [
-            '最近記録していないみたい。何か新しいモノ見つけた？',
-            'あなたのコレクションが待っています',
-            '小さな思い出も、大切なコレクションに',
-          ];
-          notification = {
-            title: 'モノコレクター',
-            body: eveningMessages[Math.floor(Math.random() * eveningMessages.length)],
-            icon: '/icons/icon-192x192.png',
-            tag: 'motivation',
-            url: '/collection',
-            type: 'motivation',
-            requireInteraction: true,
-          };
-        }
-
-        // 3. 週次サマリー（日曜日）
+        // 週次サマリー（日曜日）
         if (!notification && sub.weeklySummary && isSunday) {
           const weekAgo = new Date();
           weekAgo.setDate(weekAgo.getDate() - 7);
@@ -233,6 +212,30 @@ export async function POST(request: NextRequest) {
               requireInteraction: true,
             };
           }
+        }
+
+        // おつかれさま挨拶（必ず届くフォールバック）
+        if (!notification) {
+          const eveningMessages = hasAddedToday
+            ? [
+                'おつかれさま！今日も記録できたね',
+                'おつかれさま！今日のコレクション、いい感じ',
+                'おつかれさま！今日も一日おつかれ',
+              ]
+            : [
+                'おつかれさま！今日はゆっくり休もう',
+                'おつかれさま！また明日、気軽に記録しよう',
+                'おつかれさま！いい一日だった？',
+              ];
+          notification = {
+            title: 'モノコレクター',
+            body: eveningMessages[Math.floor(Math.random() * eveningMessages.length)],
+            icon: '/icons/icon-192x192.png',
+            tag: 'evening-greeting',
+            url: '/collection',
+            type: 'motivation',
+            requireInteraction: true,
+          };
         }
       }
 
