@@ -116,19 +116,12 @@ export async function POST(request: NextRequest) {
         (item) => item.createdAt.toDateString() === today.toDateString()
       );
 
-      // 最後にアイテムを追加してからの日数
-      const lastItemDate = items[0].createdAt;
-      const daysSinceLastItem = Math.floor(
-        (today.getTime() - lastItemDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-
       let notification = null;
 
       if (slot === 'morning') {
         // === 朝の通知（JST 9:00）===
-        // 優先度: 思い出リマインダー > ストリーク継続 > モチベーション
 
-        // 1. 思い出リマインダー（1年前、1ヶ月前、1週間前）
+        // 思い出リマインダー（該当があれば優先）
         if (sub.memoryReminder) {
           const memoryPeriods = [
             { days: 365, period: '1年前の今日' },
@@ -160,37 +153,24 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // 2. ストリーク継続中の朝の挨拶
-        if (!notification && sub.streakReminder && streak > 0) {
-          const streakMorningMessages = [
-            `おはよう！${streak}日連続記録中 🔥 今日も続けよう`,
-            `${streak}日連続達成中！今日も素敵なモノを見つけよう`,
-            `連続${streak}日！この調子で記録を伸ばそう`,
-          ];
+        // おはよう挨拶（必ず届くフォールバック）
+        if (!notification) {
+          const morningMessages = streak > 0
+            ? [
+                `おはよう！${streak}日連続記録中、今日もいい一日に`,
+                `おはよう！連続${streak}日目、今日も楽しもう`,
+                `おはよう！${streak}日続いてるよ、すごい`,
+              ]
+            : [
+                'おはよう！今日はどんなモノに出会えるかな',
+                'おはよう！新しい一日のはじまり',
+                'おはよう！今日も気軽に記録してみよう',
+              ];
           notification = {
-            title: 'おはよう！モノコレクター',
-            body: streakMorningMessages[Math.floor(Math.random() * streakMorningMessages.length)],
-            icon: '/icons/icon-192x192.png',
-            tag: 'motivation',
-            url: '/collection',
-            type: 'motivation',
-            requireInteraction: true,
-          };
-        }
-
-        // 3. モチベーションリマインダー（記録なしの日が続いている場合）
-        if (!notification && sub.motivationReminder) {
-          const morningMessages = [
-            'おはよう！今日は何か新しいモノを見つけよう',
-            '今日も素敵なモノに出会えるかも？',
-            'コレクションに新しい思い出を追加しませんか？',
-            '今日の大切なモノ、記録しておこう！',
-          ];
-          notification = {
-            title: 'おはよう！モノコレクター',
+            title: 'モノコレクター',
             body: morningMessages[Math.floor(Math.random() * morningMessages.length)],
             icon: '/icons/icon-192x192.png',
-            tag: 'motivation',
+            tag: 'morning-greeting',
             url: '/collection',
             type: 'motivation',
             requireInteraction: true,
@@ -198,9 +178,8 @@ export async function POST(request: NextRequest) {
         }
       } else {
         // === 夜の通知（JST 21:00）===
-        // 優先度: ストリーク危機 > 今日の記録お祝い > モチベーション > 週次サマリー
 
-        // 1. ストリークリマインダー（今日まだ記録してない場合）
+        // ストリーク危機（今日まだ記録してない＆連続中）
         if (sub.streakReminder && streak > 0 && !hasAddedToday) {
           notification = {
             title: '連続記録が途切れそう！',
@@ -213,56 +192,7 @@ export async function POST(request: NextRequest) {
           };
         }
 
-        // 2. 今日記録した場合のお祝い・振り返り
-        if (!notification && hasAddedToday && sub.streakReminder) {
-          const todayItems = items.filter(
-            (item) => item.createdAt.toDateString() === today.toDateString()
-          );
-          const todayCount = todayItems.length;
-          const latestItem = todayItems[0]; // 最新のアイテム
-
-          if (streak > 1) {
-            notification = {
-              title: '今日もお疲れさま！',
-              body: `今日は${todayCount}個記録！連続${streak}日達成中 🔥${latestItem ? ` 最新: ${latestItem.name}` : ''}`,
-              icon: '/icons/icon-192x192.png',
-              tag: 'streak',
-              url: '/collection',
-              type: 'streak',
-              requireInteraction: true,
-            };
-          } else {
-            notification = {
-              title: '今日もお疲れさま！',
-              body: `今日は${todayCount}個のモノを記録しました${latestItem ? ` 📝 ${latestItem.name}` : ''}`,
-              icon: '/icons/icon-192x192.png',
-              tag: 'motivation',
-              url: '/collection',
-              type: 'motivation',
-              requireInteraction: true,
-            };
-          }
-        }
-
-        // 3. モチベーションリマインダー（記録なしの日が続いている場合）
-        if (!notification && sub.motivationReminder && daysSinceLastItem >= 1) {
-          const eveningMessages = [
-            '最近記録していないみたい。何か新しいモノ見つけた？',
-            'あなたのコレクションが待っています',
-            '小さな思い出も、大切なコレクションに',
-          ];
-          notification = {
-            title: 'モノコレクター',
-            body: eveningMessages[Math.floor(Math.random() * eveningMessages.length)],
-            icon: '/icons/icon-192x192.png',
-            tag: 'motivation',
-            url: '/collection',
-            type: 'motivation',
-            requireInteraction: true,
-          };
-        }
-
-        // 4. 週次サマリー（日曜日、他の通知がない場合）
+        // 週次サマリー（日曜日）
         if (!notification && sub.weeklySummary && isSunday) {
           const weekAgo = new Date();
           weekAgo.setDate(weekAgo.getDate() - 7);
@@ -282,6 +212,30 @@ export async function POST(request: NextRequest) {
               requireInteraction: true,
             };
           }
+        }
+
+        // おつかれさま挨拶（必ず届くフォールバック）
+        if (!notification) {
+          const eveningMessages = hasAddedToday
+            ? [
+                'おつかれさま！今日も記録できたね',
+                'おつかれさま！今日のコレクション、いい感じ',
+                'おつかれさま！今日も一日おつかれ',
+              ]
+            : [
+                'おつかれさま！今日はゆっくり休もう',
+                'おつかれさま！また明日、気軽に記録しよう',
+                'おつかれさま！いい一日だった？',
+              ];
+          notification = {
+            title: 'モノコレクター',
+            body: eveningMessages[Math.floor(Math.random() * eveningMessages.length)],
+            icon: '/icons/icon-192x192.png',
+            tag: 'evening-greeting',
+            url: '/collection',
+            type: 'motivation',
+            requireInteraction: true,
+          };
         }
       }
 
