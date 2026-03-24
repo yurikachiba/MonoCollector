@@ -158,7 +158,7 @@ export async function syncNotificationSettings(settings: {
 }
 
 /**
- * 現在のPushサブスクリプションが有効か確認
+ * 現在のPushサブスクリプションが有効か確認（ブラウザ側のみ）
  */
 export async function isPushSubscribed(): Promise<boolean> {
   const registration = await getServiceWorkerRegistration();
@@ -169,5 +169,50 @@ export async function isPushSubscribed(): Promise<boolean> {
     return !!subscription;
   } catch {
     return false;
+  }
+}
+
+/**
+ * サーバーのDBにサブスクリプションが実際に登録されているか確認
+ * ブラウザ側は登録済みでもDB側に無い場合を検出できる
+ */
+export async function checkSubscriptionStatus(): Promise<{
+  browser: boolean;
+  server: boolean;
+  subscription?: {
+    id: string;
+    createdAt: string;
+    updatedAt: string;
+    lastNotifiedDate: string | null;
+  };
+}> {
+  const registration = await getServiceWorkerRegistration();
+  if (!registration) {
+    return { browser: false, server: false };
+  }
+
+  try {
+    const subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      return { browser: false, server: false };
+    }
+
+    const response = await fetch(
+      `/api/notifications/subscribe?endpoint=${encodeURIComponent(subscription.endpoint)}`
+    );
+
+    if (!response.ok) {
+      return { browser: true, server: false };
+    }
+
+    const data = await response.json();
+    return {
+      browser: true,
+      server: data.exists,
+      subscription: data.subscription,
+    };
+  } catch (error) {
+    console.error('Failed to check subscription status:', error);
+    return { browser: true, server: false };
   }
 }

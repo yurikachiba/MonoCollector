@@ -2,6 +2,50 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 
+// GET /api/notifications/subscribe?endpoint=... - サブスクリプションのDB登録状態を確認
+export async function GET(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const endpoint = request.nextUrl.searchParams.get('endpoint');
+    if (!endpoint) {
+      return NextResponse.json({ error: 'endpoint is required' }, { status: 400 });
+    }
+
+    const subscription = await prisma.pushSubscription.findFirst({
+      where: {
+        endpoint,
+        userId: session.user.id,
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        memoryReminder: true,
+        streakReminder: true,
+        achievementAlert: true,
+        weeklySummary: true,
+        motivationReminder: true,
+        lastNotifiedDate: true,
+      },
+    });
+
+    return NextResponse.json({
+      exists: !!subscription,
+      subscription: subscription ?? undefined,
+    });
+  } catch (error) {
+    console.error('Failed to check push subscription:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 // POST /api/notifications/subscribe - Push subscriptionの登録
 export async function POST(request: NextRequest) {
   try {
