@@ -296,19 +296,16 @@ export function shouldShowStreakReminder(hasAddedToday: boolean, streak: number)
 
 export function shouldShowMotivationReminder(daysSinceLastItem: number): boolean {
   if (typeof window === 'undefined') return false;
-  if (daysSinceLastItem < 3) return false; // 3日以上記録がない場合のみ
+  if (daysSinceLastItem < 1) return false; // 今日記録済みならスキップ
 
   const settings = getNotificationSettings();
   if (!settings.enabled || !settings.motivationReminder) return false;
 
-  // 最後のチェックから3日経過しているか
+  // 今日既にチェックしたか
   const lastCheck = localStorage.getItem(LAST_MOTIVATION_CHECK_KEY);
-  if (lastCheck) {
-    const lastCheckDate = new Date(lastCheck);
-    const daysSinceCheck = Math.floor((Date.now() - lastCheckDate.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysSinceCheck < 3) return false;
-  }
+  const today = new Date().toDateString();
+  if (lastCheck === today) return false;
 
-  localStorage.setItem(LAST_MOTIVATION_CHECK_KEY, new Date().toISOString());
+  localStorage.setItem(LAST_MOTIVATION_CHECK_KEY, today);
   return true;
 }

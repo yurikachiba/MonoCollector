@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
 
       if (slot === 'morning') {
         // === 朝の通知（JST 9:00）===
-        // 優先度: 思い出リマインダー > モチベーション
+        // 優先度: 思い出リマインダー > ストリーク継続 > モチベーション
 
         // 1. 思い出リマインダー（1年前、1ヶ月前、1週間前）
         if (sub.memoryReminder) {
@@ -160,8 +160,26 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // 2. モチベーションリマインダー（3日以上記録なし）
-        if (!notification && sub.motivationReminder && daysSinceLastItem >= 3) {
+        // 2. ストリーク継続中の朝の挨拶
+        if (!notification && sub.streakReminder && streak > 0) {
+          const streakMorningMessages = [
+            `おはよう！${streak}日連続記録中 🔥 今日も続けよう`,
+            `${streak}日連続達成中！今日も素敵なモノを見つけよう`,
+            `連続${streak}日！この調子で記録を伸ばそう`,
+          ];
+          notification = {
+            title: 'おはよう！モノコレクター',
+            body: streakMorningMessages[Math.floor(Math.random() * streakMorningMessages.length)],
+            icon: '/icons/icon-192x192.png',
+            tag: 'motivation',
+            url: '/collection',
+            type: 'motivation',
+            requireInteraction: true,
+          };
+        }
+
+        // 3. モチベーションリマインダー（記録なしの日が続いている場合）
+        if (!notification && sub.motivationReminder) {
           const morningMessages = [
             'おはよう！今日は何か新しいモノを見つけよう',
             '今日も素敵なモノに出会えるかも？',
@@ -180,9 +198,9 @@ export async function POST(request: NextRequest) {
         }
       } else {
         // === 夜の通知（JST 21:00）===
-        // 優先度: ストリーク > モチベーション > 週次サマリー
+        // 優先度: ストリーク危機 > 今日の記録お祝い > モチベーション > 週次サマリー
 
-        // 1. ストリークリマインダー
+        // 1. ストリークリマインダー（今日まだ記録してない場合）
         if (sub.streakReminder && streak > 0 && !hasAddedToday) {
           notification = {
             title: '連続記録が途切れそう！',
@@ -195,8 +213,39 @@ export async function POST(request: NextRequest) {
           };
         }
 
-        // 2. モチベーションリマインダー（3日以上記録なし、朝に送ってなければ）
-        if (!notification && sub.motivationReminder && daysSinceLastItem >= 3) {
+        // 2. 今日記録した場合のお祝い・振り返り
+        if (!notification && hasAddedToday && sub.streakReminder) {
+          const todayItems = items.filter(
+            (item) => item.createdAt.toDateString() === today.toDateString()
+          );
+          const todayCount = todayItems.length;
+          const latestItem = todayItems[0]; // 最新のアイテム
+
+          if (streak > 1) {
+            notification = {
+              title: '今日もお疲れさま！',
+              body: `今日は${todayCount}個記録！連続${streak}日達成中 🔥${latestItem ? ` 最新: ${latestItem.name}` : ''}`,
+              icon: '/icons/icon-192x192.png',
+              tag: 'streak',
+              url: '/collection',
+              type: 'streak',
+              requireInteraction: true,
+            };
+          } else {
+            notification = {
+              title: '今日もお疲れさま！',
+              body: `今日は${todayCount}個のモノを記録しました${latestItem ? ` 📝 ${latestItem.name}` : ''}`,
+              icon: '/icons/icon-192x192.png',
+              tag: 'motivation',
+              url: '/collection',
+              type: 'motivation',
+              requireInteraction: true,
+            };
+          }
+        }
+
+        // 3. モチベーションリマインダー（記録なしの日が続いている場合）
+        if (!notification && sub.motivationReminder && daysSinceLastItem >= 1) {
           const eveningMessages = [
             '最近記録していないみたい。何か新しいモノ見つけた？',
             'あなたのコレクションが待っています',
@@ -213,7 +262,7 @@ export async function POST(request: NextRequest) {
           };
         }
 
-        // 3. 週次サマリー（日曜日）
+        // 4. 週次サマリー（日曜日、他の通知がない場合）
         if (!notification && sub.weeklySummary && isSunday) {
           const weekAgo = new Date();
           weekAgo.setDate(weekAgo.getDate() - 7);
